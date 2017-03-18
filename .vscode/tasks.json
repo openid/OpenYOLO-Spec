@@ -1,0 +1,14 @@
+{
+    "version": "0.1.0",
+    "command": "watchman-make",
+    "args": [
+        "-p",
+        "artwork/*",
+        "*.md",
+        "head.html",
+        "*.xml",
+        "-t",
+        "render"
+    ],
+    "isBackground": true
+}
