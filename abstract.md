@@ -7,8 +7,8 @@ for Android apps and Progressive Web Applications (PWAs).
 
 **What's in a name?**
 
-YOLO stands for "You Only Login Once", which was the internal codename
-for Google's [Smart Lock for Passwords] API on Android. OpenYOLO is the
-open standard successor to - lessons learned from the the implementation
-and promotion of Smart Lock for Passwords has heavily influenced this
-specification.
+YOLO stands for "You Only Login Once", which was the internal code-name
+for Google's [Smart Lock for Passwords][smart-lock] API on Android. OpenYOLO
+is the open standard successor to YOLO - lessons learned from the
+implementation and usage of Smart Lock for Passwords has heavily influenced
+OpenYOLO.

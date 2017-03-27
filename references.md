@@ -1,0 +1,8 @@
+[Adams99]: https://doi.org/10.1145/322796.322806
+[smart-lock]: https://developers.google.com/identity/smartlock-passwords/android/
+[oauth2]: https://tools.ietf.org/html/rfc6749
+[oidc]: http://openid.net/specs/openid-connect-core-1_0.html
+[dashlane-account-survey]: https://blog.dashlane.com/infographic-online-overload-its-worse-than-you-thought/
+[RFC7519]: https://tools.ietf.org/html/rfc7519
+[Yan04]: https://doi.org/10.1109/MSP.2004.81
+[email-market-share]: https://blog.mailchimp.com/major-email-provider-trends-in-2015-gmail-takes-a-really-big-lead/
