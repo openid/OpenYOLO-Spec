@@ -66,7 +66,7 @@ Federated authentication, in the form of [OAuth2][oauth2] and
 authentication for the user with a small number of trusted _identity providers_.
 Furthermore, by providing proof of authentication to a service (referred to as
 a _relying party_ in this context) in the form of short lived bearer tokens and
-cryptographically signed [ID tokens][RFC7519], overall security is
+cryptographically signed [ID tokens][rfc7519], overall security is
 significantly improved over password based authentication.
 
 However, the success of federated authentication in the consumer space is still
