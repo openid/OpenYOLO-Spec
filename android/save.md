@@ -1,4 +1,4 @@
-## Saving credentials
+# Saving credentials
 
 When a user successfully authenticates with an app, either manually or via
 the OpenYOLO retrieve or assisted sign-up flows, this credential should be
@@ -32,7 +32,7 @@ the provider, and not part of this specification. The outcome of the save
 operation (success or failure) is communicated back to the app via a result
 code to `onActivityResult`.
 
-### Supporting save
+## Supporting save
 
 In order to save a credential, the OpenYOLO client must first query the system
 for the preferred credential provider, or any available providers which
@@ -91,7 +91,7 @@ List<ResolveInfo> supportingProviders =
 This list should be presented to the user, in order to allow them to select
 which provider they wish to save the credential to.
 
-### Filtering the provider list
+## Filtering the provider list
 
 The list of credential providers returned by querying the package manager
 may include unsafe options - it is important to further filter this list based
@@ -115,7 +115,7 @@ on the following criteria:
 more information on how the Google Play Services settings and the known
 providers list are defined.
 
-### Behavior of the save intent
+## Behavior of the save intent
 
 The behavior of the activity or activities that implement the save flow
 is beyond the scope of this specification. However,. if a saved credential
@@ -130,7 +130,7 @@ of the provider is made available. This will allow security-conscious users
 to determine that it is really the credential provider they are interacting
 with, and not some attempt to phish their master password.
 
-### Save response
+## Save response
 
 The save response, returned to the app via `onActivityResult`, can be one of
 two values:

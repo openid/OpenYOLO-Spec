@@ -1,5 +1,5 @@
-% title = "OpenYOLO: In-Context Credential Management"
-% abbrev = "OpenYOLO"
+% title = "OpenYOLO for Android"
+% docName = "draft-openyolo-android-00"
 % submissionType = "independent"
 % category = "exp"
 % area = "Internet"

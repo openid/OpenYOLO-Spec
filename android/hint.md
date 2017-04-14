@@ -1,4 +1,4 @@
-## Retrieving Hints
+# Retrieving Hints
 
 If no existing credentials can be retrieved from a credential provider,
 then OpenYOLO provides a fall-back mechanism that can be used to help in

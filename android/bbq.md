@@ -1,4 +1,4 @@
-## Background broadcast query protocol (BBQ)
+# Background broadcast query protocol (BBQ)
 
 BBQ is a protocol designed to allow an Android app to request data from multiple _data providers_ on the device, in parallel. Requests and responses
 are sent as targeted broadcast messages, with protocol buffers used to encode
@@ -7,7 +7,7 @@ implementations to be fully asynchronous, and protocol buffers allow messages
 to be compact and efficient, while avoiding common issues with custom
 Parcelable types.
 
-### Structure of a request
+## Structure of a request
 
 A broadcast query has the following mandatory properties:
 
@@ -55,7 +55,7 @@ message Parameter {
 }
 ```
 
-### Dispatching a request
+## Dispatching a request
 
 A request is dispatched as one or more targeted broadcast intents. First, the
 requester uses the Android [PackageManager][pm-api] API to determine the set
@@ -82,7 +82,7 @@ bbqIntent.setExtra(EXTRA_QUERY_MESSAGE, query.encode());
 context.sendBroadcast(bbqIntent);
 ```
 
-### Structure of a response
+## Structure of a response
 
 A broadcast query response has the following mandatory properties:
 
@@ -107,7 +107,7 @@ message BroadcastQueryResponse {
 }
 ```
 
-### Receiving a response
+## Receiving a response
 
 Responses are sent back to the requester in the form of targeted broadcasts.
 The requester dynamically registers a broadcast receiver to capture
@@ -129,7 +129,7 @@ a timeout should be used, after which absent responses should be treated as
 though the provider was unable to service the request (equivalent to
 responding with no data-type specific message payload).
 
-### Rooted devices
+## Rooted devices
 
 The BBQ protocol relies on the integrity of the Android broadcast system
 (and the `setPackage` mechanism in particular) to guarantee the privacy of the

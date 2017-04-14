@@ -1,4 +1,4 @@
-## Retrieving credentials
+# Retrieving credentials
 
 Credential retrieval requests are dispatched using the
 [BBQ protocol](bbq-protocol.md) to all credential providers on the device
@@ -31,7 +31,7 @@ take an action to unlock the store before an accurate answer can be determined.
 Where an intent is returned, [startActivityForResult][intent-results] is used
 to dispatch it, and the selected credential data (if any) is returned via `onActivityResult`.
 
-### Retrieve request messages
+## Retrieve request messages
 
 ```protobuf
 message CredentialRetrieveRequest {
@@ -44,7 +44,7 @@ The CredentialRetrieveRequest must explicitly specify all credentials qualifiers
 supports with the exception of the authentication domain which will determined implicitly via the
 callers package name.
 
-### Retrieve response messages
+## Retrieve response messages
 
 ```protobuf
 message CredentialRetrieveResponse {
@@ -72,7 +72,7 @@ should be prompted to choose between the available options. If no
 intent-carrying responses are received, then the requester should proceed to
 a manual sign-in.
 
-### Retrieve intent responses
+## Retrieve intent responses
 
 The intent should be dispatched using [startActivityForResult][intent-results],
 allowing the response to be delivered to via `onActivityResult`. The provider

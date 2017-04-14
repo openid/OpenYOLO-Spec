@@ -1,6 +1,6 @@
-{{android/toml.md}}
+{{consolidated/toml.md}}
 
-{{android/abstract.md}}
+{{consolidated/abstract.md}}
 
 {mainmatter}
 
@@ -9,6 +9,8 @@
 {{common/definitions.md}}
 
 {{common/operations.md}}
+
+# OpenYOLO for Android
 
 {{android/bbq.md}}
 
@@ -21,6 +23,12 @@
 {{android/api.md}}
 
 {{android/spi.md}}
+
+# OpenYOLO for Web
+
+{{web/overview.md}}
+
+{{web/origin-verification.md}}
 
 {{common/references.md}}
 
