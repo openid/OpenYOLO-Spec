@@ -1,27 +1,30 @@
 
-# Why is authentication hard?
+# Problem: Manual authentication is mentally exhausting
 
-The following screen is a common sight when interacting with services in
-an application or website:
+Users are typically presented with a screen like the following when interacting
+with services in an application or website:
 
 {{artwork/auth-screen.md}}
 
-A user typically has to answer three questions in response to such a page:
+The user typically has to answer three questions in response to such a page:
 
-1. Have I already created an account for this service?
-2. How did I sign in?
-3. If I used a password, what was it?
+1. Do I already have an account for this service?
+2. If so, did I use an email address and password, or one of the identity
+   provider options?
+3. If I used an email address and password, what was the password?
 
-Answering these questions for all but the most frequently used applications and
-websites (henceforth referred to as _services_) is difficult. Users now
-typically interact with around [100 apps or sites][dashlane-account-survey],
+For all but most frequently used applications and websites (henceforth referred
+to as _services_), this is a tedious and error-prone process. As of 2016,
+users typically interact with around [100 services][dashlane-account-survey],
 and many of those services are used less than once a month, for
-example to buy flowers or arrange air travel.
+example to buy flowers or arrange air travel. Long session durations can help,
+but only when the user interacts with the service on a single device.
+Purchasing a new device is a particularly painful experience due to the need to
+re-authenticate with all used services.
 
-Long session durations can help, but only when the user interacts with the
-service on a single device. Purchasing a new device is a particularly painful
-experience due to the need to re-authenticate with all used services. A more
-general solution is required.
+Remembering account details for 100+ services is intractable; the natural human
+consequence of this situation is widespread credential reuse across services.
+This is a disaster for the user's security; a better solution is required.
 
 ## Password authentication
 
@@ -57,7 +60,11 @@ authentication suffers from three key issues:
   easy for an attacker.
 
 The problems that passwords cause can only get worse, as users interact with
-more and more services.
+more and more services. Yet, password authentication persists, because it is
+considered to be easy to implement, has no dependencies on external
+entities, and is familiar to users. It is unlikely that password based
+authentication can be completely displaced; as such, any solution in this
+problem space will have to fully accommodate password based authentication.
 
 ## Federated authentication
 
@@ -79,43 +86,90 @@ still prefer to use password authentication over federated authentication -
 they feel more in control of their personal information by explicitly entering
 what they wish to share during account creation.
 
-As such, in the short term federated authentication cannot be considered to be
-the solution to the problems with password authentication. An alternative
-solution that can work with the status quo is required.
+Furthermore, it is easy for users to forget _which_ identity provider they use,
+when multiple options are presented. Services also rarely implement
+_account linking_ correctly, where multiple authentication methods are linked
+to the same core account. Because of this, making the wrong choice often
+leads to a totally different account: for example, choosing Google Sign-in when
+the user's account was actually created using Facebook. The inconsistency
+and frustration caused by this is often enough to drive users to the
+authentication method they know best: password authentication, with a reused
+password across every service.
+
+## Account recovery based authentication
+
+An equally common method of authentication employed by users is to simply
+trigger the _account recovery_ flow every time they need to use the service.
+Accounts are typically created with a recovery email address or phone number,
+and users exploit this fact to regain access to the account when necessary.
+They expect the following flow:
+
+1. An email or SMS message will be sent containing a link to reset the
+   password.
+
+2. The user changes the password, likely to either their current reused
+   password, or something random that they immediately forget.
+
+3. The user is now authenticated.
+
+We shall refer to this method of authentication as "proof of access" -
+by demonstrating that a secret can be retrieved from some communication
+side-channel, the user can gain access to an account. Some services use
+this method explicitly, as the main form of
+authentication. [Slack](https://www.slack.com) calls this "magic link"
+authentication.
+
+Sending an authentication secret (a code or a link) to an email address or
+phone number is essentially a form of federated authentication, and
+the service that manages the email address is effectively the identity provider. In comparison to
+OpenID Connect, this is a rather absurd and inconvenient form of authentication,
+as it requires the user to manually drive the authentication flow.
+It is, however, a model of authentication that users find easy to understand,
+and see as privacy-preserving compared to social login.
+
+If it were possible to provide proof of access to an email address
+or phone number directly to a service, then the manual verification of access
+to that email or phone number would be unnecessary. One may observe that the
+most common email providers are _also_ OAuth2 or OpenID Connect identity
+providers: Google, Microsoft and Yahoo account for over 90% of the US market,
+according to a data analysis conducted by
+[MailChimp in 2015][email-market-share]. These providers typically already have
+the ability to assert proof of access in the form of
+[ID tokens](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
+Providing an easier mechanism to acquire such ID tokens would simplify
+authentication for many services.
 
 ## Credential managers
 
-A _credential manager_ can mitigate the worst properties of passwords, by
-removing the burden of memorization from the user. A credential manager can
-generate strong, unique password for each service a user interacts with.
-Credential managers can even take on the role of rotating passwords, so that
-passwords become shorter lived.
+A _credential manager_ is a piece of software that remembers credentials
+on behalf of a user. Most credential managers focus primarily on
+password based authentication, remembering the user's passwords and offering
+to generate strong, unique password for each new service a user interacts with.
 
-The most common credential manager that users encounter is the form-fill
-functionality provided by most web browsers. Technically knowledgeable users
-often also use a standalone credential manager application, which stores their
-passwords and other sensitive information in a strong cryptographic store.
+The most common credential manager that users encounter is their web browser,
+which presents itself via form-fill on authentication pages. Technically
+knowledgeable users often also use a standalone credential manager applications,
+which integrate with browsers via extensions, or via input-method extensions.
 
-Credential managers, as currently employed, still suffer from some serious
-usability issues:
+Credential managers suffer from some serious usability issues:
 
 - When a credential manager is a standalone application, the user must
-  typically switch to the password manager, find the relevant credential, and
-  copy it manually into the service they are signing in to. This is easier
-  with desktop browsers, where a browser plugin can allow a credential manager
-  to automatically fill the password, or display it in a more convenient
-  location for the user to copy. However, not all browsers support plugins, and
-  in particular mobile Safari and Chrome do not allow them.
+  typically manually switch context to find the relevant credential, and
+  copy-paste it to the service they are signing in to. Browser extensions
+  and input-method extensions can make this easier, but are not supported
+  on all platforms, in particular in mobile applications and browsers.
 
-  Manually copying a password also represents a security risk in itself; it is
-  possible for other applications installed on the device to monitor the
-  clipboard and steal passwords that are copied out of the credential manager.
+  Manually copying a password also represents a security risk in itself;
+  on some platforms it is possible for other applications installed on the
+  device to monitor the clipboard and steal passwords that are copied out of
+  the credential manager.
 
-- Heuristics are necessary to detect and fill in login forms. Such heuristics
-  are fragile to changes in the service, such as when they are redesigned or
-  change path within the domain. Heuristics are employed because there is
-  rarely any viable alternative: services do not provide sufficient information
-  for a credential manager to do a better job.
+- Where a credential is able to integrate with the browser or OS in some way,
+  heuristics are often necessary to detect and fill in login forms. Such
+  heuristics are fragile to changes in the service, such as when they are
+  redesigned or change path within the domain. Heuristics are employed because
+  there is rarely any viable alternative: services do not provide sufficient
+  information for a credential manager to do a better job.
 
   This problem is particularly acute when the login system employs an
   _identifier first_ pattern, where collection of the identifier and a password
@@ -135,55 +189,11 @@ usability issues:
   such, _password generation_ is also heuristic and based on a least common
   denominator schema that is acceptable to the majority of services.
 
-Finally, many users are just simply unaware of what a credential manager is,
-where to get one, or how to use them, which has limited the impact of
-credential managers significantly.
+## Solution: Direct communication between services and credential managers
 
-## Account recovery based authentication
-
-Without a credential manager, when users are faced with a login page for an
-infrequently used service, many simply resort to _account recovery_ as their
-primary method of authentication. The account is initially created with an
-email address or phone number that the user has access to. When authentication
-is next required, the user just selects the "I forgot my password" option, and
-expects the following flow:
-
-1. An email will be sent containing a link to reset the password.
-
-2. The user changes the password, likely to either their current reused
-   password, or something random.
-
-3. The user authenticates with the changed password.
-
-In effect, all that is required is that they prove they have access to the
-email address associated with their account. Knowing that this is possible,
-many users won't even attempt to remember their passwords for these sites.
-
-Some services even use this method explicitly as the main form of
-authentication: [Slack](https://www.slack.com) calls this "magic link"
-authentication, and sending authorization codes to a phone is essentially
-the same.
-
-When considered in isolation, this approach is a rather absurd, inconvenient
-form of federated authentication. It is, however, easy for users to understand.
-The service that manages the email address is effectively the identity provider,
-and the "bearer token" is the email sent for account recovery.
-
-One may also observe that the most common email providers are _also_ OAuth2 or
-OpenID Connect identity providers: Google, Microsoft and Yahoo account for over
-90% of the US market, according to a data analysis conducted by
-[MailChimp in 2015][email-market-share].
-
-If it were possible to provide "proof of access" to an email address directly
-to a service, sending the email itself would be unnecessary. This is what
-the proposed OpenID Fast Identity Verification flow does, by providing an
-ID token for an asserted email address, if the user currently has access.
-
-## Communication: the missing puzzle piece
-
-One fundamental barrier to progress in improving both account security and
-the authentication user experience is that services and credential managers
-cannot talk to each other. If such a communication channel existed, then
+If services could directly communicate with the user's preferred credential
+manager, manual authentication and its associated problems can completely
+disappear. If such a communication channel existed, then
 the following operations would be possible:
 
 - Account creation facilitated by the credential manager. The service could
@@ -192,23 +202,23 @@ the following operations would be possible:
   could (with or without user assistance) select an email address and generate
   a strong, unique password that is guaranteed to work.
 
-- Retrieval of existing credentials. At the appropriate moment, a service could
-  request a credential, and have this automatically returned, or returned
-  after some in-context user consent is solicited. This would be a marked
-  improvement over the user manually finding and copying the credential, and
-  minimizes the opportunity for the credential to be stolen in doing so.
+- Automatic retrieval of existing credentials. At the appropriate moment, a
+  service could request a credential, and have this automatically returned, or
+  returned after some in-context user consent is solicited. This would be a
+  marked improvement over the user manually finding and copying the credential,
+  and minimizes the opportunity for the credential to be stolen in doing so.
 
 - Maintenance of the credential manager store. When the service modifies an
   account, it can notify the credential manager of account changes. This
   information can be used to keep the credential store fresh.
 
-- "Proof of access" to email addresses and phone numbers could be directly
-  solicited. While the credential manager may not have the authority to generate
-  an ID token for a given email address, it could act as a conduit to acquiring
-  such a token.
+- "Proof of access" to email addresses and phone numbers (as described
+  in the
+  [account recovery based authentication](#account-recovery-based-authentication)
+  section above) could be directly solicited. While the credential manager may
+  not have the authority to generate an ID token for a given email address, it
+  could facilitate this process.
 
-Defining a protocol for this communication channel is exactly what OpenYOLO
-aims to achieve. Furthermore, a _default_ credential manager will be provided
-by the OpenID Foundation, with a limited set of functionality that still
-provides significant benefit to users who do not have a credential manager of
-their own.
+OpenYOLO defines a protocol for this communication channel, a
+_discovery mechanism_ for the user's credential managers, and a standard API
+for the client to use the above operations.

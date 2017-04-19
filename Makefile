@@ -37,7 +37,7 @@ output/android/openyolo-android-spec-xml2rfcv2.xml: android/* artwork/* common/*
 output/android/openyolo-android-spec-xml2rfcv3.xml: android/* artwork/* common/* output/android
 	mmark -xml -page android/root.md output/android/openyolo-android-spec-xml2rfcv3.xml
 
-output/android/openyolo-android-spec.html: output/android/openyolo-android-spec-xml2rfcv3.xml output/android
+output/android/openyolo-android-spec.html: output/android/openyolo-android-spec-xml2rfcv3.xml output/android render.xslt
 	java -cp saxon/saxon9he.jar net.sf.saxon.Transform xml2rfc-toc=yes -s:output/android/openyolo-android-spec-xml2rfcv3.xml -xsl:render.xslt -o:output/android/openyolo-android-spec.html
 
 output/android/openyolo-android-spec.txt: output/android/openyolo-android-spec-xml2rfcv2.xml output/android
@@ -52,7 +52,7 @@ output/web/openyolo-web-spec-xml2rfcv2.xml: web/* artwork/* common/* output/web
 output/web/openyolo-web-spec-xml2rfcv3.xml: web/* artwork/* common/* output/web
 	mmark -xml -page web/root.md output/web/openyolo-web-spec-xml2rfcv3.xml
 
-output/web/openyolo-web-spec.html: output/web/openyolo-web-spec-xml2rfcv3.xml output/web
+output/web/openyolo-web-spec.html: output/web/openyolo-web-spec-xml2rfcv3.xml output/web render.xslt
 	java -cp saxon/saxon9he.jar net.sf.saxon.Transform xml2rfc-toc=yes -s:output/web/openyolo-web-spec-xml2rfcv3.xml -xsl:render.xslt -o:output/web/openyolo-web-spec.html
 
 output/web/openyolo-web-spec.txt: output/web/openyolo-web-spec-xml2rfcv2.xml output/web
@@ -67,7 +67,7 @@ output/consolidated/openyolo-spec-xml2rfcv2.xml: consolidated/* artwork/* common
 output/consolidated/openyolo-spec-xml2rfcv3.xml: consolidated/* artwork/* common/* output/consolidated
 	mmark -xml -page consolidated/root.md output/consolidated/openyolo-spec-xml2rfcv3.xml
 
-output/consolidated/openyolo-spec.html: output/consolidated/openyolo-spec-xml2rfcv3.xml output/consolidated
+output/consolidated/openyolo-spec.html: output/consolidated/openyolo-spec-xml2rfcv3.xml output/consolidated render.xslt
 	java -cp saxon/saxon9he.jar net.sf.saxon.Transform xml2rfc-toc=yes -s:output/consolidated/openyolo-spec-xml2rfcv3.xml -xsl:render.xslt -o:output/consolidated/openyolo-spec.html
 
 output/consolidated/openyolo-spec.txt: output/consolidated/openyolo-spec-xml2rfcv2.xml output/consolidated

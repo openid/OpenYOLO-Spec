@@ -415,6 +415,22 @@
       text-decoration: underline;
     }
 
+    .self {
+        color: #999999;
+        margin-left: .3em;
+        text-decoration: none;
+        visibility: hidden;
+        -webkit-user-select: none;<!-- not std CSS yet-->
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+    .self:hover {
+        text-decoration: none;
+    }
+    li:hover > a.self, p:hover > a.self {
+        visibility: visible;
+    }
+
     address {
       margin-top: 1em;
       margin-left: 2em;
