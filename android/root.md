@@ -10,6 +10,8 @@
 
 {{common/operations.md}}
 
+{{android/introduction.md}}
+
 {{android/bbq.md}}
 
 {{android/hint.md}}

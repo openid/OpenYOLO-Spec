@@ -1,4 +1,4 @@
-# Retrieving credentials
+## Retrieving credentials
 
 Credential retrieval requests are dispatched using the
 [BBQ protocol](bbq-protocol.md) to all credential providers on the device

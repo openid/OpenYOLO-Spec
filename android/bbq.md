@@ -1,4 +1,4 @@
-# Background broadcast query protocol (BBQ)
+## Background broadcast query protocol (BBQ)
 
 BBQ is a protocol designed to allow an Android app to request data from multiple _data providers_ on the device, in parallel. Requests and responses
 are sent as targeted broadcast messages, with protocol buffers used to encode
@@ -7,7 +7,7 @@ implementations to be fully asynchronous, and protocol buffers allow messages
 to be compact and efficient, while avoiding common issues with custom
 Parcelable types.
 
-## Structure of a request
+### Structure of a request
 
 A broadcast query has the following mandatory properties:
 
@@ -40,22 +40,19 @@ marked as such with a comment.
 
 ```protobuf
 message BroadcastQuery {
-  string   dataType         = 1; // required
-  string   requestingApp    = 2; // required
-  sfixed64 requestId        = 3; // required
-  sfixed64 responseId       = 4; // required
-  bytes    queryMessage     = 5;
+  // required fields:
+  string dataType = 1;
+  string requestingApp = 2;
+  sfixed64 requestId = 3;
+  sfixed64 responseId = 4;
 
-  repeated Parameter additionalParams = 6;
-}
-
-message Parameter {
-  string name  = 1; // required
-  bytes  value = 2;
+  // optional fields:
+  bytes queryMessage = 5;
+  map<string, bytes> additionalProps = 6;
 }
 ```
 
-## Dispatching a request
+### Dispatching a request
 
 A request is dispatched as one or more targeted broadcast intents. First, the
 requester uses the Android [PackageManager][pm-api] API to determine the set
@@ -72,7 +69,7 @@ A separate request is created for each potential responder, with a unique
 response ID, and sent as a targeted broadcast:
 
 ```java
-BroadcastQuery query = new BroadcastQuery.Builder()
+BroadcastQuery query = BroadcastQuery.newBuilder()
     /* ... */
     .setResponseId(idForResponder.get(responder))
     .build();
@@ -82,7 +79,7 @@ bbqIntent.setExtra(EXTRA_QUERY_MESSAGE, query.encode());
 context.sendBroadcast(bbqIntent);
 ```
 
-## Structure of a response
+### Structure of a response
 
 A broadcast query response has the following mandatory properties:
 
@@ -100,14 +97,17 @@ The structure of the query response message is therefore as follows:
 
 ```protobuf
 message BroadcastQueryResponse {
-  optional sfixed64  requestId             = 1; // required
-  optional sfixed64  responseId            = 2; // required
-  optional bytes     responseMessage       = 3;
-  repeated Parameter additionalParams      = 4;
+  // required fields:
+  sfixed64 requestId = 1;
+  sfixed64 responseId = 2;
+
+  // optional fields:
+  bytes responseMessage = 3;
+  map<string, bytes> additionalProps = 4;
 }
 ```
 
-## Receiving a response
+### Receiving a response
 
 Responses are sent back to the requester in the form of targeted broadcasts.
 The requester dynamically registers a broadcast receiver to capture
@@ -129,13 +129,14 @@ a timeout should be used, after which absent responses should be treated as
 though the provider was unable to service the request (equivalent to
 responding with no data-type specific message payload).
 
-## Rooted devices
+### Security on rooted devices
 
 The BBQ protocol relies on the integrity of the Android broadcast system
-(and the `setPackage` mechanism in particular) to guarantee the privacy of the
-messages sent between a requester and a provider. On a rooted device, it is
-potentially possible for a malicious app or system service with root access to
-read these messages, and expose plain-text passwords.
+(and the `setPackage` mechanism for targeted broadcast messages in particular)
+to guarantee the privacy of the messages sent between a requester and a
+provider. On a rooted device, it is potentially possible for a malicious app or
+system service with root access to read these messages, and expose plain-text
+passwords.
 
 Cryptography provides no additional protection. If an attacker can read the
 private messages sent via the broadcast system, this will typically imply they
