@@ -202,6 +202,38 @@ credentials during this flow - this is the responsibility of the hint retrieval
 operation, and it is expected that the operations will be used at different
 times by the service.
 
+The user interface for selecting existing credentials is out of scope for this
+specification; the reference implementation uses the following
+"credential picker" design:
+
+```
++------------------------------------+
+|                              +---+ |
+| Sign in to ExampleApp with:  | X | |
+|                              +---+ |
+| +--------------------------------+ |
+|                                    |
+|  +---+ John Doe                    |
+|  | O |                             |
+|  |/_\| jdoe@gmail.com              |
+|  +---+                             |
+|        (via Google Sign-in)        |
+|                                    |
+| +--------------------------------+ |
+|                                    |
+|  +---+ Jane Doe                    |
+|  | O |                             |
+|  |/_\| jdoe@example.com            |
+|  +---+                             |
+|        (with password)             |
+|                                    |
+| +--------------------------------+ |
+|                                    |
+|        None of the above           |
+|                                    |
++------------------------------------+
+```
+
 An example credential retrieval request for the site `https://www.example.com`
 could look like:
 

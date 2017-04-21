@@ -55,13 +55,14 @@ preferred credential provider. However, in the meantime, a simple heuristic
 is specified that will determine the user's preferred credential provider
 in most cases:
 
-1. Enumerate all the credential providers installed on the device. Filter these
-   to the _known providers_, as defined by the OpenID Foundation list.
-2. If there are no known providers, there is no preferred provider.
-3. If there is only one known credential provider, this is the preferred
-   provider.
-4. If there are two known providers, and one of them is Google's Smart Lock
-   for passwords, the preferred provider is the non-Google provider.
+1. Enumerate all the credential providers installed on the device. If there
+   are any _unknown providers_, then there is no preferred provider.
+2. If there are no _known providers_, there is no preferred provider.
+3. If there is exactly one installed provider, and it is known,
+   this is the preferred provider.
+4. If there are exactly two installed providers, both are known, and one of
+   them is Google's Smart Lock for passwords, the preferred provider is the
+   non-Google provider.
 5. If there are three or more known providers, there is no preferred provider.
 
 Where there is no preferred provider, the user must explicitly select the
