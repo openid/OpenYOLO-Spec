@@ -3,7 +3,9 @@
 Before providing a high level overview of the OpenYOLO operations, some
 terms that will be used throughout the discussion must be defined. Where data
 structures are described, this document uses
-[Protocol Buffer v3 messages][protobuf] as the definition language.
+[Protocol Buffer v3 messages][protobuf] as the definition language. Where
+specific message instances are described, the
+[Protocol Buffer v3 JSON encoding][protobuf-json] is used.
 
 ## Credentials
 
@@ -46,16 +48,19 @@ Credentials in OpenYOLO are composed of the following properties:
   _should not_ rely upon additional properties, as their meaning is unlikely
   to be consistent across credential providers.
 
-Formally, a credential is structured as the following protocol buffer message:
+A credential is represented by the following protocol buffer message:
 
 ```protobuf
 message Credential {
-  // required fields:
+  // required
   string id = 1;
-  string authDomain = 2;
-  string authMethod = 3;
 
-  // optional fields:
+  // required
+  AuthenticationDomain authDomain = 2;
+
+  // required
+  AuthenticationMethod authMethod = 3;
+
   string displayName = 4;
   string displayPictureUri = 5;
   string password = 6;
@@ -113,12 +118,41 @@ be able to specify their _preferred_ credential provider. This preferred
 provider will be used exclusively for assisted sign-up and credential saving.
 For credential retrieval, additional providers _may_ still be used.
 
+## Token providers
+
+A _token provider_ is a service that is able to issue an authoritative
+"proof of access" ID token for an identifier. For example, Google is the
+token provider for all "gmail.com" email addresses, while Microsoft is the
+token provider for all "live.com" email addresses.
+
+Token providers are identified by their canonical token-issuing domain - the
+domain on which the token endpoint that provides ID tokens is served on
+the web. In the case of Google, this is "https://accounts.google.com".
+
+Token providers can be authoritative for a large set of domains or numbers, and
+there is not often an easy way to determine in advance the token provider for a
+given domain. OpenYOLO does yet not attempt to solve this particular problem.
+
 ## Authentication domains
 
 An _authentication domain_ is defined to be a scope within which a credential
 is considered to be usable. Authentication domains are represented as absolute,
 hierarchical URIs of form `scheme://authority` - no path, query or fragment is
 permitted.
+
+In protocol buffer form, an authentication domain is represented by the
+following message:
+
+```protobuf
+message AuthenticationDomain {
+  // required
+  string uri = 1;
+}
+```
+
+The URI is encapsulated in a message to allow for future extensibility of
+the concept of an authentication domain, without altering the structure of
+containing messages.
 
 Two forms of authentication domain are defined for OpenYOLO:
 
@@ -164,8 +198,24 @@ An _authentication method_ is a mechanism by which a user credential can be
 verified, and is given a unique URI identifier. Any URI of form
 `scheme://authority` can be used to describe an authentication method. URIs
 of this form are used to allow for namespacing of custom authentication methods,
-by using a custom (private) scheme. OpenYOLO defines some standard URIs for the
-three most common types of authentication methods:
+by using a custom (private) scheme.
+
+In protocol buffer form, authentication methods are represented by the
+following message:
+
+```protobuf
+message AuthenticationMethod {
+    // required
+    string uri = 1;
+}
+```
+
+The URI is encapsulated in a message to allow for future extensibility of
+the concept of an authentication method, without altering the structure of
+containing messages.
+
+OpenYOLO defines some standard URIs for the three most common types of
+authentication methods:
 
 - Email identifier based authentication. This implies that the primary
   identifier of the account (from the user's perspective, at least) is their
@@ -221,19 +271,28 @@ a simple scheme for this, composed of the following pieces of information:
   characters from this set that must occur in the password. Where multiple
   required character sets are defined, the sets must be disjoint.
 
-This is formally defined by the following protocol buffer messages:
+This is represented by the following protocol buffer message:
 
 ```protobuf
 message PasswordSpecification {
-  string allowed = 1; // required
-  uint32 minSize = 2; // required
-  uint32 maxSize = 3; // required
+  // required
+  string allowed = 1;
+
+  // required
+  uint32 minSize = 2;
+
+  // required
+  uint32 maxSize = 3;
+
   repeated RequiredCharSet requiredSets = 4;
 }
 
 message RequiredCharSet {
-  string chars = 1; // required
-  uint32 count = 2; // required
+  // required
+  string chars = 1;
+
+  // required
+  uint32 count = 2;
 }
 ```
 
@@ -320,10 +379,59 @@ Such restrictions are either indicative of some anti-pattern in the underlying
 credential store (e.g. the credential is stored in plain text), or are just
 too difficult to define a clear specification of expected behavior.
 
+## Client versions
+
+OpenYOLO client libraries will typically be compiled in to service
+implementations, and therefore cannot be changed without releasing a new
+version of the service that client devices must download. Bugs are inevitable,
+and where these bugs impact the security of the client it is important to
+have a mechanism to protect services from the exploitation of these bugs.
+
+In order to facilitate this, requests sent from a service to a credential
+provider _should_ carry a _client version_ descriptor, which is typically
+compiled into the OpenYOLO client library they are using. This allows a
+credential provider to identify services which are using an exploitable version
+of the client library, and to reject requests from these clients.
+
+In OpenYOLO, a client version is composed of:
+
+- A _vendor_ string, which identifies the author of the client. For the
+  official client libraries shipped by the OpenID Foundation, this will be
+  "openid.net".
+
+- A major, minor and patch version number. Each are non-negative numbers
+  and typically represented in the human-readable form "X.Y.Z", and follow
+  the general principles of [Semantic Versioning](http://semver.org/).
+
+In order to prevent trivial modification of the client version, it _should_
+be statically compiled in to the client library. There is no way to guarantee
+that the client version cannot be tampered with by an attacker, however; as
+such, client versions should be interpreted as an untrusted hint and used
+for the blacklisting of known problematic client versions only.
+
+In protocol buffer form, a client version is represented by the
+following message:
+
+```protobuf
+message ClientVersion {
+  // required
+  string vendor = 1;
+
+  // required
+  uint32 major = 3;
+
+  // required
+  uint32 minor = 4;
+
+  // required
+  uint32 patch = 5;
+}
+```
 
 [asset-links]: https://developers.google.com/digital-asset-links/
 [cancel-result]: https://developer.android.com/reference/android/app/Activity.html#RESULT_CANCELED
 [intent-results]: https://developer.android.com/training/basics/intents/result.html
 [intent-overview]: https://developer.android.com/guide/components/intents-filters.html
 [protobuf]: https://developers.google.com/protocol-buffers
+[protobuf-json]: https://developers.google.com/protocol-buffers/docs/proto3#json
 [signature-class]: https://developer.android.com/reference/android/content/pm/Signature.html
