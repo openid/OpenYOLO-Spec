@@ -15,10 +15,13 @@ necessary information for authentication.
 
 Credentials in OpenYOLO are composed of the following properties:
 
-- An _authentication domain_, where the credential can be used. The
-  authentication domain is often _implicit_, inferred from the origin or
-  Android package name of a service. However, all stored credentials must have
-  an associated authentication domain - there are no "ephemeral" credentials.
+- An _authentication domain_, where the credential was originally saved.
+  All stored credentials must have an associated authentication domain - there
+  are no "ephemeral" credentials. Via an
+  authentication domain _equivalence class_, a credential may be usable on
+  multiple domains which are verifiably related to the declared domain. Due
+  to this, the authentication domain on a credential may differ from that
+  of the service which is requesting a credential.
 
 - An _authentication method_, which describes the system used to verify
   the credential.
@@ -69,8 +72,36 @@ message Credential {
 }
 ```
 
-As password based credentials as so common, a field is reserved for this use
-on Credential messages.
+### Hints
+
+Hints are a variant of credentials that include information for creating new
+accounts. They are represented by a separate protocol buffer message, to
+allow for future extension that may diverge from the definition of credentials.
+Hints are represented by the following protocol buffer message:
+
+```
+message Hint {
+  // required
+  string id = 1;
+
+  // required
+  AuthenticationMethod authMethod = 3;
+
+  string displayName = 4;
+  string displayPictureUri = 5;
+  string generatedPassword = 6;
+  string idToken = 7;
+  map<string, bytes> additionalProps = 8;
+}
+```
+
+The two main differences from credentials are that:
+
+- The authentication domain is not declared, as it is implicitly for use by
+  the requesting service.
+
+- The `password` field is renamed to `generatedPassword`, to express its
+  intent more clearly.
 
 ## Credential providers
 
@@ -127,7 +158,7 @@ token provider for all "live.com" email addresses.
 
 Token providers are identified by their canonical token-issuing domain - the
 domain on which the token endpoint that provides ID tokens is served on
-the web. In the case of Google, this is "https://accounts.google.com".
+the web. In the case of Google, this is `https://accounts.google.com`.
 
 Token providers can be authoritative for a large set of domains or numbers, and
 there is not often an easy way to determine in advance the token provider for a

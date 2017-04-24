@@ -58,13 +58,6 @@ this would look as follows:
   <intent-filter>
     <action android:name="org.openyolo.save"/>
     <category android:name="org.openyolo" />
-    <!--
-    as this app only supports saving ID and password based credentials, this is
-    declared using a data filter.
-    -->
-    <data
-        android:scheme="openyolo"
-        android:host="id-and-password" />
   </intent-filter>
 </activity>
 ```

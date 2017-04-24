@@ -4,6 +4,10 @@
   "[markdown]": {
     "editor.wordWrap": "wordWrapColumn",
     "editor.wordWrapColumn": 80,
-    "editor.quickSuggestions": false
+    "editor.quickSuggestions": false,
+    "editor.rulers": [
+      70,
+      80
+    ]
   }
 }

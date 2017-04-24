@@ -132,8 +132,14 @@ message HintRetrieveResult {
   // required
   HintRetrieveResultCode resultCode = 1;
 
-  Credential credential = 2;
+  Hint hint = 2;
   map<string, bytes> additionalProps = 3;
+}
+
+enum HintRetrieveResultCode {
+  HINT_RETRIEVE_SUCCESS = 0;
+  HINT_RETRIEVE_REJECTED = 1;
+  HINT_RETRIEVE_REJECTED_BY_USER = 2;
 }
 ```
 
@@ -310,7 +316,6 @@ enum CredentialRetrieveResultCode {
 
 An example response could therefore look like:
 
-
 ```json
 {
   "resultCode": "CREDENTIAL_RETRIEVE_SUCCESS",
@@ -374,7 +379,7 @@ dialog style design:
 +------------------------------------+
 ```
 
-### Credential save request message
+### Save request message
 
 A save credential request is represented by the following protocol buffer
 message:
@@ -388,19 +393,7 @@ message CredentialSaveRequest {
     map<string, bytes> additionalProps = 3;
 }
 
-When saving a credential, just the Credential to be saved is simply sent to
-the credential provider. Upon completion of the save operation, the provider
-sends a result code back to the provider, which can be one of:
-
-```protov3
-enum SaveResult {
-  SUCCESS = 0;
-  REJECTED_BY_PROVIDER = 2;
-  REJECTED_BY_USER = 1;
-}
-```
-
-### Credential save result message
+### Save response message
 
 ```protobuf
 message CredentialSaveResult {
@@ -419,7 +412,7 @@ enum CredentialSaveResultCode {
 
 ### Example credential save scenario
 
-TODO
+
 
 ## Credential deletion
 
@@ -457,7 +450,7 @@ dialog style design:
 +--------------------------------------+
 ```
 
-### Credential delete request message
+### Delete request message
 
 ```protobuf
 message CredentialDeleteRequest {
@@ -470,7 +463,7 @@ message CredentialDeleteRequest {
 }
 ```
 
-### Credential delete response message
+### Delete response message
 
 ```protobuf
 message CredentialDeleteResult {

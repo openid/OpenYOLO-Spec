@@ -1,8 +1,9 @@
 
-# Problem: Manual authentication is mentally exhausting
+# Introduction
 
-Users are typically presented with a screen like the following when interacting
-with services in an application or website:
+Manually authenticating in an app or site is mentally exhausting. Users are
+typically presented with a screen like the following when interacting with
+services in an application or website:
 
 {{artwork/auth-screen.md}}
 
@@ -189,7 +190,7 @@ Credential managers suffer from some serious usability issues:
   such, _password generation_ is also heuristic and based on a least common
   denominator schema that is acceptable to the majority of services.
 
-## Solution: Direct communication between services and credential managers
+## Solution: Direct communication with a credential manager
 
 If services could directly communicate with the user's preferred credential
 manager, manual authentication and its associated problems can completely
