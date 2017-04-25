@@ -32,8 +32,10 @@ The following tools are required:
   [Saxon 9 HE](https://sourceforge.net/projects/saxon/files/Saxon-HE/), which
   produces the HTML output version of the document.
 
-Once installed, the `render.sh` script can be run to produce plain text (RFC
-style) and HTML outputs.
+- Make, to drive the above tools.
+
+To produce all output, just run `make`. See the Makefile for the more
+specific targets.
 
 ### Installing mmark
 
