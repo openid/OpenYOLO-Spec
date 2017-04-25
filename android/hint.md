@@ -1,9 +1,9 @@
 ## Retrieving Hints
 
 Hint requests on Android are dispatched to the credential provider using
-an [Intent][android-intent]. A provider must declare its ability to serve
-hints by including an activity in its manifest with the following intent
-filter:
+an [Intent][android-intent]. Providers which wish to support hint retrieval
+declare this by including an activity in their manifest with the following
+intent filter:
 
 ```xml
 <intent-filter>
@@ -12,11 +12,11 @@ filter:
 </intent-filter>
 ```
 
-In order to make a retrieve request, the client creates a hint request message
+In order to send a retrieve request, the client creates a hint request message
 (specified in [SECTION](#hint-request-message)) and encodes it to its binary
-protocol buffer form. An activity Intent is then created to send this to the
-credential provider. The hint request message _must_ be added to the activity
-Intent using an extra, named "org.openyolo.hint.request".
+protocol buffer form. An activity intent is then created to send this to the
+credential provider, attaching the message bytes using an extra, named
+"org.openyolo.hint.request".
 
 An example hint request could be constructed as follows:
 
@@ -38,9 +38,9 @@ provider can interact with the user to allow them to select a hint. The
 provider creates a hint response message (specified in
 [SECTION](#hint-response-message)), and passes this back to the requester via
 [setResult][android-set-result]. The intent data returned to the
-client _must_ carry the hint result using an extra, named
+client carries the hint result message bytes using an extra, named
 "org.openyolo.hint.result". Additionally, the result code contained in that
-hint result _must_ match the result code for the provider activity.
+hint result is also used as the result code for the activity when it terminates.
 
 An example hint result could therefore be sent with the following code:
 

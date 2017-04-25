@@ -22,17 +22,14 @@ An example save request could be constructed as follows:
 
 ```java
 CredentialSaveRequest request = CredentialSaveRequest.newBuilder()
-    .setCredential(
-        Credential.newBuilder()
-            .setId("jdoe@example.com")
-            .setAuthenticationDomain(
-                AuthenticationDomain.newBuilder()
-                    .setUri("android://sha256-...@com.example.app"))
-            .setAuthenticationMethod(
-                AuthenticationMethod.newBuilder()
-                    .setUri("https://auth.example.com"))
-            .setDisplayName("Jane Doe")
-            .build())
+    .setCredential(Credential.newBuilder()
+        .setId("jdoe@example.com")
+        .setAuthenticationDomain(
+            "android://sha256-...@com.example.app")
+        .setAuthenticationMethod(
+            "https://auth.example.com")
+        .setDisplayName("Jane Doe")
+        .build())
     .build();
 
 Intent saveIntent = new Intent()

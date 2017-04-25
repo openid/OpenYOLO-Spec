@@ -26,9 +26,6 @@ A broadcast query has the following mandatory properties:
   for each expected responder, allowing responders to be distinguished and their
   identity to be recovered from the mapping of response ID to package name that
   is created prior to sending the request.
-- A description of the cryptographic scheme used for the exchange:
-    - A string that uniquely identifies the scheme.
-    - A set of key-value pairs carrying scheme-specific parameters.
 
 An additional data-type specific message can be carried in the request if
 necessary, in the form of a byte-array (typically an encoded protocol buffer).
@@ -51,7 +48,6 @@ message BroadcastQuery {
   // required
   sfixed64 responseId = 4;
 
-  // optional fields:
   bytes queryMessage = 5;
   map<string, bytes> additionalProps = 6;
 }
@@ -102,11 +98,12 @@ The structure of the query response message is therefore as follows:
 
 ```protobuf
 message BroadcastQueryResponse {
-  // required fields:
+  // required
   sfixed64 requestId = 1;
+
+  // required
   sfixed64 responseId = 2;
 
-  // optional fields:
   bytes responseMessage = 3;
   map<string, bytes> additionalProps = 4;
 }

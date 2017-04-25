@@ -1,10 +1,10 @@
 # OpenYOLO concepts and definitions
 
 Before providing a high level overview of the OpenYOLO operations, some
-terms that will be used throughout the discussion must be defined. Where data
-structures are described, this document uses
-[Protocol Buffer v3 messages][protobuf] as the definition language. Where
-specific message instances are described, the
+terms that will be used throughout the specification must be defined. Where
+data structures are described, this document uses
+[protocol buffer v3 messages][protobuf] as the definition language. Where
+specific instances of these messages are presented, the
 [Protocol Buffer v3 JSON encoding][protobuf-json] is used.
 
 ## Credentials
@@ -15,21 +15,21 @@ necessary information for authentication.
 
 Credentials in OpenYOLO are composed of the following properties:
 
-- An _authentication domain_, where the credential was originally saved.
-  All stored credentials must have an associated authentication domain - there
-  are no "ephemeral" credentials. Via an
-  authentication domain _equivalence class_, a credential may be usable on
-  multiple domains which are verifiably related to the declared domain. Due
-  to this, the authentication domain on a credential may differ from that
-  of the service which is requesting a credential.
+- An _authentication domain_, where the credential was saved.
+  All credentials must have an associated authentication domain. A credential
+  _may_ be usable on other authentication domains, at the discretion of
+  the credential manager. Authentication domains are described in more detail
+  in [SECTION](#authentication-domains).
 
 - An _authentication method_, which describes the system used to verify
-  the credential.
+  the credential. Authentication methods are described in more detail in
+  [SECTION](#authentication-methods).
 
-- An _identifier_ which designates an account in the context of
+- An _identifier_, which designates an account in the context of
   both the authentication domain and method. Typically, identifiers are
-  email addresses, phone numbers, or some alphanumeric string. Identifiers
-  are not always intended to be human readable.
+  email addresses, phone numbers, or some printable unicode string. Identifiers
+  are typically human readable and distinguishable, but this is not a
+  requirement.
 
 - An optional _display name_, that assists the user in identifying and
   distinguishing credentials. Typically, the display name for a credential is
@@ -45,7 +45,7 @@ Credentials in OpenYOLO are composed of the following properties:
 - An optional _ID token_, which provides "proof of access" to the identifier
   of the credential such as an email address or phone number.
 
-- An optional additional set of non-standard properties. This provides the
+- An optional set of non-standard properties. This provides the
   ability for credential providers to innovate within the constraints of the
   specification, with a view to later standardizing useful properties. Services
   _should not_ rely upon additional properties, as their meaning is unlikely
@@ -72,14 +72,32 @@ message Credential {
 }
 ```
 
+For example, an email and password credential could look like:
+
+```json
+{
+  "id": "jdoe@example.com",
+  "authDomain": {
+    "uri": "https://www.example.com"
+  },
+  "authMethod": {
+    "uri": "openyolo://email"
+  },
+  "displayName": "Jane Doe",
+  "displayPictureUri": "https://www.robohash.org/jdoe",
+  "password": "RiverClyde7"
+}
+```
+
 ### Hints
 
-Hints are a variant of credentials that include information for creating new
-accounts. They are represented by a separate protocol buffer message, to
-allow for future extension that may diverge from the definition of credentials.
-Hints are represented by the following protocol buffer message:
+Hints are a variant of credentials that are tailored to account discovery
+and new account creation. They are represented by a separate protocol buffer
+message from credentials, in order to allow for future extension that may
+diverge from the definition of credentials. Hints are represented by the
+following protocol buffer message:
 
-```
+```protobuf
 message Hint {
   // required
   string id = 1;
@@ -95,13 +113,9 @@ message Hint {
 }
 ```
 
-The two main differences from credentials are that:
-
-- The authentication domain is not declared, as it is implicitly for use by
-  the requesting service.
-
-- The `password` field is renamed to `generatedPassword`, to express its
-  intent more clearly.
+The two main differences from credentials are that noo authentication domain is
+declared, and that the `password` field is renamed to `generatedPassword`, to
+express its intent more clearly.
 
 ## Credential providers
 
@@ -118,14 +132,10 @@ the following:
 - An operating system service, such as Smart Lock for Passwords on Android or
   Keychain on iOS.
 
-While any service can become a credential provider by implementing the OpenYOLO
-protocol, only services for which credential management is a defined and visible
-feature should become credential providers.
-
 ### Known, unknown and preferred providers
 
 Given the sensitive nature of the data being exchanged by the OpenYOLO protocol,
-it  will become an obvious target for attackers. A likely attack is for a
+it will become a target for attackers. A likely attack is for a
 suspicious service to implement the OpenYOLO protocol and attempt to register
 themselves as the user's credential provider. Distinguishing legitimate
 credential providers from malicious providers is therefore an important aspect
@@ -133,8 +143,8 @@ of building trust in the protocol, for both service maintainers and users.
 
 In order to achieve this, a _known provider_ list will be maintained by the
 OpenID Foundation. A static snapshot of this list is included in the OpenYOLO
-API on each platform, and is automatically updated by the client library when
-necessary.
+API on each platform, and will be automatically updated by the client library
+when necessary.
 
 An _unknown_ provider will still be usable - the intention of the known provider
 list is not to strictly whitelist providers, as this would stifle competition.
@@ -144,7 +154,7 @@ Known providers will not have this restriction, and legitimate credential
 providers will be encouraged to register themselves with the OpenID Foundation
 to become known providers.
 
-Additionally, where possible on each supported platform, the user _should_
+Where possible on each supported platform, the user _should_
 be able to specify their _preferred_ credential provider. This preferred
 provider will be used exclusively for assisted sign-up and credential saving.
 For credential retrieval, additional providers _may_ still be used.
@@ -156,9 +166,9 @@ A _token provider_ is a service that is able to issue an authoritative
 token provider for all "gmail.com" email addresses, while Microsoft is the
 token provider for all "live.com" email addresses.
 
-Token providers are identified by their canonical token-issuing domain - the
-domain on which the token endpoint that provides ID tokens is served on
-the web. In the case of Google, this is `https://accounts.google.com`.
+Token providers are identified by their canonical token-issuing domain,
+which hosts the token endpoint that provides ID tokens. In the case of Google,
+this is `https://accounts.google.com`.
 
 Token providers can be authoritative for a large set of domains or numbers, and
 there is not often an easy way to determine in advance the token provider for a
@@ -185,7 +195,7 @@ The URI is encapsulated in a message to allow for future extensibility of
 the concept of an authentication domain, without altering the structure of
 containing messages.
 
-Two forms of authentication domain are defined for OpenYOLO:
+Two forms of authentication domain are presently defined:
 
 - Web authentication domains, which match the domain of the site and can have
   either a http or https scheme (e.g. `https://example.com` and
@@ -220,7 +230,7 @@ OpenYOLO recommends the use of the [Digital Asset Links][asset-links] as a
 standard mechanism to define authentication domain equivalence classes.
 Credential providers _should_ use this information as part of defining the
 equivalence class over authentication domains. It is the responsibility of the
-credential provider to correctly construct and enforce the authentication
+credential provider to correctly construct and utilize the authentication
 domain equivalence class.
 
 ## Authentication methods
@@ -266,10 +276,12 @@ authentication methods:
   standardized as `openyolo://username`.
 
 Where a federated credential from an identity provider is desired,
-the canonical domain of that identity provider's authentication endpoints
-_should_ be as the authentication method. OpenYOLO considers the _canonical_ domain for an identity provider to be the domain on which that providers' sign in page is located. For example, the URI that should be
-used for Google Sign-in is `https://accounts.google.com`, while the URI that
-should be used for Facebook Sign-in accounts is `https://www.facebook.com`.
+the canonical domain of that identity provider _should_ be as the
+authentication method. The _canonical_ domain for an identity provider is
+the domain that hosts the provider's sign in page. For example, the URI that
+should be used for Google Sign-in is `https://accounts.google.com`, while the
+URI that should be used for Facebook Sign-in accounts is
+`https://www.facebook.com`.
 
 Use of consistent authentication method URIs for identity providers is strongly
 recommended, as this helps with hint retrieval - use of federated credentials
@@ -278,19 +290,18 @@ methods are used.
 
 ## Password specifications
 
-services that support password based authentication often impose some
-restrictions on what is considered to be a valid and sufficiently secure
-password for the service. While the intentions behind these restrictions
-are often well-meaning, the inconsistency of these restrictions across different
-services is a constant source of frustration for both users and credential managers.
+services that support password based authentication often impose
+restrictions on what is considered to be a valid password for the service.
+While the intentions behind these restrictions are often well-meaning, the
+inconsistency of these restrictions across different services is a source of
+frustration for both users and credential managers.
 
 When credential managers attempt to generate passwords for a service, they are
-forced to generate using some "lowest common denominator" heuristic
-that produces passwords that are broadly supported. As even this can fail, they
-often must provide a way for the user to modify these generated passwords to
-fit the particular requirements of the service.
+forced to use a "lowest common denominator" heuristic that produces broadly
+supported passwords. Even this can fail, requiring the user to modify the
+generated password.
 
-A better approach would be for the service to declare its password restrictions
+A better approach is for the service to declare its password restrictions
 in a format that can be consumed by credential managers. OpenYOLO defines
 a simple scheme for this, composed of the following pieces of information:
 
@@ -456,6 +467,17 @@ message ClientVersion {
 
   // required
   uint32 patch = 5;
+}
+```
+
+An example client version could look like:
+
+```json
+{
+  "vendor": "openid.net",
+  "major": 1,
+  "minor": 0,
+  "patch": 12
 }
 ```
 

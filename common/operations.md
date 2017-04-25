@@ -6,9 +6,9 @@ OpenYOLO defines four core operations:
   account.
 - _credential retrieval_: Provides access to an existing stored credential for
   the requesting service.
-- _credential save_: Allows a service to store or update a credential in
+- _credential saving_: Allows a service to store or update a credential in
   a credential provider.
-- _credential delete_: Allows a service to delete a credential which is no
+- _credential deletion_: Allows a service to delete a credential which is no
   longer valid.
 
 These are described in more detail in the following sections.
@@ -77,8 +77,7 @@ message TokenRequestInfo {
 }
 ```
 
-A simple hint request (omitting the client version) would then look like the
-following:
+A simple hint request could then look like the following:
 
 ```json
 {
@@ -124,22 +123,23 @@ token provider could look like:
 
 ### Hint response message
 
-A hint retrieval request is represented by the following protocol buffer
+A hint retrieval response is represented by the following protocol buffer
 message:
 
 ```protobuf
 message HintRetrieveResult {
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    SUCCESS = 1;
+    REJECTED_BY_PROVIDER = 2;
+    REJECTED_BY_USER = 3;
+  }
+
   // required
-  HintRetrieveResultCode resultCode = 1;
+  ResultCode resultCode = 1;
 
   Hint hint = 2;
   map<string, bytes> additionalProps = 3;
-}
-
-enum HintRetrieveResultCode {
-  HINT_RETRIEVE_SUCCESS = 0;
-  HINT_RETRIEVE_REJECTED = 1;
-  HINT_RETRIEVE_REJECTED_BY_USER = 2;
 }
 ```
 
@@ -148,33 +148,35 @@ app "com.example.app" could be:
 
 ```json
 {
-  "id": "jblack@example.com",
-  "authDomain": "android://sha256-...@com.example.app",
-  "authMethod": "openyolo://email",
-  "displayName": "Jack Black",
-  "displayPictureUri": "https://www.robohash.org/dcd65581?set=3",
-  "password": "YjW5Zvn3Fc7fY",
-  "idToken":
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX
-      VCJ9.eyJzdWIiOiJqZG9lQGdtYWlsLmNv
-      bSIsImF1ZCI6Imh0dHBzOi8vbG9naW4uZ
-      XhhbXBsZS5jb20iLCJpc3MiOiJodHRwcz
-      ovL2F1dGguZXhhbXBsZS5jb20iLCJuYW1
-      lIjoiSmFuZSBEb2UifQ.CibuoaNMO-2pR
-      QjWUbJMpMLWjKB34AMWCR4pIWD5tnE"
+  "resultCode": "SUCCESS",
+  "hint": {
+    "id": "jblack@example.com",
+    "authMethod": "openyolo://email",
+    "displayName": "Jack Black",
+    "displayPictureUri": "https://www.robohash.org/dcd65581?set=3",
+    "generatedPassword": "YjW5Zvn3Fc7fY",
+    "idToken":
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX
+        VCJ9.eyJzdWIiOiJqZG9lQGdtYWlsLmNv
+        bSIsImF1ZCI6Imh0dHBzOi8vbG9naW4uZ
+        XhhbXBsZS5jb20iLCJpc3MiOiJodHRwcz
+        ovL2F1dGguZXhhbXBsZS5jb20iLCJuYW1
+        lIjoiSmFuZSBEb2UifQ.CibuoaNMO-2pR
+        QjWUbJMpMLWjKB34AMWCR4pIWD5tnE"
+  }
 }
 ```
 
-Alternatively, a federated credential hint for Google Sign-in returned to
-a requesting site `https://login.example.com` may look like:
+Alternatively, a federated credential hint for Google Sign-in may look like:
 
 ```json
 {
-  "id": "jdoe@gmail.com",
-  "authDomain": "https://login.example.com",
-  "authMethod": "https://accounts.google.com",
-  "displayName": "John Doe"
-}
+  "resultCode": "SUCCESS",
+  "hint": {
+    "id": "jdoe@gmail.com",
+    "authMethod": "https://accounts.google.com",
+    "displayName": "John Doe"
+  }
 ```
 
 ### Example hint retrieval scenario
@@ -239,7 +241,7 @@ authentication as early as possible. This allows the service to be appropriately
 personalized to the user, such as providing shopping recommendations based on
 past purchases. This should, of course, respect the user's preferences, as
 there are many legitimate use cases where a user may wish to browse a service
-in a signed-out state even when a saved credential is known.
+in a signed-out state.
 
 ### Credential request message
 
@@ -271,17 +273,11 @@ In response to a credential request, the credential provider can either:
 - Return nothing if no matching credentials are available
 
 Automatically returning a credential is optional, and if it is a facility
-provided by the credential provider, _must_ be something that the user can
+provided by the credential provider, _should_ be something that the user can
 disable. A credential should only be returned by a provider if it believes that
 the credential is a valid, existing credential for the requesting service.
 
-Credential retrieval implementations _must not_ attempt to generate new
-credentials during this flow - this is the responsibility of the hint retrieval
-operation, and it is expected that the operations will be used at different
-times by the service.
-
-An example credential retrieval request for the site `https://www.example.com`
-could look like:
+An example credential retrieval request could look like:
 
 ```json
 {
@@ -299,17 +295,18 @@ buffer message:
 
 ```protobuf
 message CredentialRetrieveResult {
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    SUCCESS = 1;
+    REJECTED_BY_PROVIDER = 2;
+    REJECTED_BY_USER = 3;
+  }
+
   // required
-  CredentialRetrieveResultCode resultCode = 1;
+  ResultCode resultCode = 1;
 
   Credential credential = 2;
   map<string, bytes> additionalProps = 3;
-}
-
-enum CredentialRetrieveResultCode {
-    CREDENTIAL_RETRIEVE_SUCCESS = 0;
-    CREDENTIAL_RETRIEVE_REJECTED = 1;
-    CREDENTIAL_RETRIEVE_REJECTED_BY_USER =2;
 }
 ```
 
@@ -317,7 +314,7 @@ An example response could therefore look like:
 
 ```json
 {
-  "resultCode": "CREDENTIAL_RETRIEVE_SUCCESS",
+  "resultCode": "SUCCESS",
   "credential": {
     "id": "jdoe",
     "authDomain": "https://login.example.com",
@@ -330,7 +327,7 @@ Or, if the user was presented a list of credentials and did not select one:
 
 ```json
 {
-  "resultCode": "CREDENTIAL_RETRIEVE_REJECTED_BY_USER"
+  "resultCode": "REJECTED_BY_USER"
 }
 ```
 
@@ -398,22 +395,20 @@ message CredentialSaveRequest {
 
 ```protobuf
 message CredentialSaveResult {
-    // required
-    CredentialSaveResultCode resultCode = 1;
 
-    map<string, bytes> additionalProps = 2;
-}
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    SUCCESS = 1;
+    REJECTED = 2;
+    REJECTED_BY_USER = 3;
+  }
 
-enum CredentialSaveResultCode {
-    CREDENTIAL_SAVE_SUCCESS = 0;
-    CREDENTIAL_SAVE_REJECTED = 1;
-    CREDENTIAL_SAVE_REJECTED_BY_USER = 2;
+  // required
+  ResultCode resultCode = 1;
+
+  map<string, bytes> additionalProps = 2;
 }
 ```
-
-### Example credential save scenario
-
-
 
 ## Credential deletion
 
@@ -421,10 +416,12 @@ Stale credentials stored in a credential provider are a source of frustration
 for users. Stale credentials are particularly common in browsers that rely on
 heuristics to detect password changes and update saved credentials.
 
-When a credential is stale, it is useless only serves as a barrier to
-authentication. In most cases, the user will be forced to perform a tedious account recovery process. In order to provide services a way to flag stale
-credentials to a provider, a credential deletion operation is defined.
+When a credential is stale, it only serves as a barrier to
+authentication. In most cases, the user will be forced to perform a tedious account recovery process, and if they do not remember to manually delete the
+stale credential, will likely be faced with the same issue again in the future.
 
+In order to provide services a way to flag stale credentials to a provider, a
+credential deletion operation is defined.
 Credential providers _should not_ allow automatic deletion of credentials, as
 this would allow misbehaving services to delete valid credentials. Financial
 institutions are notorious for these kinds of user-hostile policies, and may
@@ -433,23 +430,6 @@ As such, credential deletion _should_ require explicit user confirmation.
 Where this is done legitimately, such as after a retrieved credential is
 discovered to be invalid or a user deletes their account, the request for
 confirmation should not be surprising to the user.
-
-How user confirmation for deleting a credential is solicited is out of the
-scope of this specification; the reference implementation uses a confirmation
-dialog style design:
-
-```
-+--------------------------------------+
-|                                      |
-|     Delete password for account      |
-| jdoe@gmail.com from ExampleProvider? |
-|                                      |
-|       +------+   +-----------+       |
-|       |  OK  |   | No thanks |       |
-|       +------+   +-----------+       |
-|                                      |
-+--------------------------------------+
-```
 
 ### Delete request message
 
@@ -468,19 +448,16 @@ message CredentialDeleteRequest {
 
 ```protobuf
 message CredentialDeleteResult {
-    // required
-    CredentialDeleteResultCode resultCode = 1;
+  enum CredentialDeleteResultCode {
+    UNSPECIFIED = 0;
+    SUCCESS = 1
+    REJECTED_BY_PROVIDER = 1;
+    REJECTED_BY_USER = 2;
+  }
 
-    map<string, bytes> additionalProps = 2;
-}
+  // required
+  ResultCode resultCode = 1;
 
-enum CredentialDeleteResultCode {
-    CREDENTIAL_DELETE_SUCCESS = 0;
-    CREDENTIAL_DELETE_REJECTED = 1;
-    CREDENTIAL_DELETE_REJECTED_BY_USER = 2;
+  map<string, bytes> additionalProps = 2;
 }
 ```
-
-### Example credential deletion scenario
-
-TODO

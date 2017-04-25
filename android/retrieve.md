@@ -59,12 +59,8 @@ An example credential result could therefore be sent with the following code:
 ```java
 Credential credential = Credential.newBuilder()
     .setId("jdoe@example.com")
-    .setAuthDomain(AuthenticationDomain.newBuilder()
-        .setUri("https://login.example.com")
-        .build())
-    .setAuthMethod(AuthenticationMethod.newBuilder()
-        .setUri("openyolo://email")
-        .build())
+    .setAuthDomain("android://sha256-aF...@com.example.app")
+    .setAuthMethod("openyolo://email")
     .setPassword("CorrectH0rseBatterySt4ple")
     .build();
 
@@ -130,13 +126,3 @@ by the requesting service, it should not be blindly trusted by the provider
 when used by the requester. Additionally, it _must not_ contain any privacy or
 security sensitive information, such as pre-fetched credentials. It is
 recommended that the provider implement tamper-detection for the intent.
-
-Once the intent is dispatched by the requesting service, the provider can
-perform any necessary processing and user interaction to release a
-credential. The provider creates a credential response message (specified
-in [SECTION](#credential-response-message)), and passes this back to the
-requester via [setResult][android-set-result]. The intent data returned to the
-client _must_ carry the credential response message using an extra, named
-"org.openyolo.credential.retrieve.result". Additionally, the result code
-contained in that credential result _must_ match the result code for the
-provider activity.

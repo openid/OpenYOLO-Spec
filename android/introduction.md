@@ -1,12 +1,12 @@
 # Android specifics
 
-The OpenYOLO protocol on Android is designed to run on any Android API 15+
+The OpenYOLO protocol on Android is designed to operate on any Android API 15+
 device, including devices which do not have Google Play Services available.
-OpenYOLO operation requests and responses are handled using core communication
-primitives on Android: broadcast messages and activity intents.
+OpenYOLO operation requests and responses are handled using two of the core
+communication primitives on Android: broadcast messages and activity intents.
 
 Devices with Google Play Services already have a credential provider available,
-in the form of Google's Smart Lock for Passwords. In addition to this, the
+in the form of Smart Lock for Passwords. In addition to this, the
 user may have installed an additional credential manager. In such a situation
 is it common for a user to have credentials split across these two providers;
 as such, it is particularly important on Android to be able to query multiple
@@ -14,12 +14,10 @@ providers. To service this goal, this specification also defines the
 Background Broadcast Query (BBQ) protocol, which is used to perform the initial
 step of requesting credentials from installed providers.
 
-Hint and save requests are simpler, as there is no need to interact with
+Hint, save and delete requests are simpler, as there is no need to interact with
 multiple credential providers. For these operations, an Intent is simply
-constructed for a credential provider, with the hint or save request carried
-as a binary protocol buffer via an intent extra. This does, however, leave the
-problem of deciding _which_ credential provider these requests should be sent
-to.
+constructed for a credential provider, with the request message carried
+as a binary protocol buffer via an intent extra.
 
 ## Discovering installed providers
 
@@ -54,13 +52,13 @@ and an operation-specific intent filter.
 
 ### Preferred credential providers on Android
 
-In the future, Android or Google Play Services may directly store a user's
-preferred credential provider. However, in the meantime, a simple heuristic
-is specified that will determine the user's preferred credential provider
-in most cases:
+In the future, Android or Google Play Services may provide a mechanism to
+store a user's preferred credential provider. However, in the meantime, a
+simple heuristic is specified that will determine the user's preferred
+credential provider in most cases:
 
 1. Enumerate all the credential providers installed on the device.
-2. If there are no credentias providers, or there are any _unknown providers_,
+2. If there are no credential providers, or there are any _unknown providers_,
    then there is no preferred provider.
 3. If there is exactly one installed known provider, this it is the preferred
    provider.
@@ -76,7 +74,7 @@ This minimizes the risk of "security surprise", where the user finds themselves
 interacting with an unexpected credential provider.
 
 The heuristic takes into account that pre-installed providers, such as Google's
-Smart Lock for Passwords, are not providers the usually have made a conscious
-choice to use. When an additional provider is manually installed, it is
-more likely that the user's intent is to use that, rather than the
+Smart Lock for Passwords, are not providers the user has made a conscious
+choice to use. Therefore, when an additional provider is manually installed, it
+is more likely that the user's intent is to use that, rather than the
 pre-installed providers.
