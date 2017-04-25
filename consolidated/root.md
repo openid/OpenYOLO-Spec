@@ -12,7 +12,7 @@
 
 # OpenYOLO for Android
 
-{{android/bbq.md}}
+{{android/introduction.md}}
 
 {{android/hint.md}}
 
@@ -20,9 +20,11 @@
 
 {{android/save.md}}
 
-{{android/api.md}}
+{{android/delete.md}}
 
-{{android/spi.md}}
+{{android/bbq.md}}
+
+{{android/references.md}}
 
 # OpenYOLO for Web
 

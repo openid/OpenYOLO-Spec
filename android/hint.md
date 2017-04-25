@@ -1,31 +1,56 @@
 ## Retrieving Hints
 
-If no existing credentials can be retrieved from a credential provider,
-then OpenYOLO provides a fall-back mechanism that can be used to help in
-creating a new account. This mechanism will typically allow a new user
-account to be created without the need to manually enter any information.
+Hint requests on Android are dispatched to the credential provider using
+an [Intent][android-intent]. A provider must declare its ability to serve
+hints by including an activity in its manifest with the following intent
+filter:
 
-First, the app must provide a descriptor of the types of credentials that
-it can support. This is done by providing a list of one or more
-supported authentication methods. If password authentication is supported,
-then a _password specification_ can optionally be provided that describes
-the set of passwords that the app supports.
+```xml
+<intent-filter>
+    <action android:name="org.openyolo.hint"/>
+    <category android:name="org.openyolo" />
+</intent-filter>
+```
 
-This descriptor can then be sent to a credential provider using the OpenYOLO
-API in order to derive a credential hint. If a default credential provider can
-be determined by the OpenYOLO API, then it will construct an intent to send the
-descriptor to this provider and return it for the app to dispatch when ready.
-Similarly, if only one credential provider is available on the device and it is
-a "known" provider, then an intent to directly interact with that provider will
-be constructed and returned. See [Protecting users](protecting-users.md) for
-details on default and known providers.
+In order to make a retrieve request, the client creates a hint request message
+(specified in [SECTION](#hint-request-message)) and encodes it to its binary
+protocol buffer form. An activity Intent is then created to send this to the
+credential provider. The hint request message _must_ be added to the activity
+Intent using an extra, named "org.openyolo.hint.request".
 
-If no default provider is found or multiple providers exist, an intent
-is constructed for a dialog that will allow the user to choose a provider,
-after which an intent will be dispatched to that provider containing the
-descriptor.
+An example hint request could be constructed as follows:
 
-The flow for creating a credential hint based on the descriptor is under the
-control of the provider, and not part of this specification. A hint constructed
-by the provider is returned to the app via the intent data carried by
-`onActivityResult`.
+```java
+HintRetrieveRequest request = HintRetrieveRequest.newBuilder()
+    .addAuthenticationMethod("openyolo://email")
+    .build();
+
+Intent hintIntent = new Intent()
+    .setPackage("com.example.provider");
+    .setAction("org.openyolo.hint")
+    .setCategory("org.openyolo")
+    .putExtra("org.openyolo.hint.request", request.toByteArray());
+```
+
+This intent is dispatched by the client using
+[startActivityForResult][android-start-activity-for-result]. At this point the
+provider can interact with the user to allow them to select a hint. The
+provider creates a hint response message (specified in
+[SECTION](#hint-response-message)), and passes this back to the requester via
+[setResult][android-set-result]. The intent data returned to the
+client _must_ carry the hint result using an extra, named
+"org.openyolo.hint.result". Additionally, the result code contained in that
+hint result _must_ match the result code for the provider activity.
+
+An example hint result could therefore be sent with the following code:
+
+```java
+HintRetrieveResult result = HintRetrieveResult.newBuilder()
+    .setResultCode(HintRetrieveResult.ResultCode.REJECTED_BY_USER);
+Intent hintResultData = new Intent()
+    .putExtra(
+        "org.openyolo.hint.result",
+        result.toByteArray());
+
+setResult(result.getResultCode(), hintResultData);
+```

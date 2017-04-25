@@ -1,4 +1,4 @@
-# OpenYOLO on Android
+# Android specifics
 
 The OpenYOLO protocol on Android is designed to run on any Android API 15+
 device, including devices which do not have Google Play Services available.
@@ -25,9 +25,9 @@ to.
 
 The set of installed credential providers on an Android device can be be
 determined using the system
-[PackageManager](https://developer.android.com/reference/android/content/pm/PackageManager.html) query interface. OpenYOLO providers must define an activity for hint retrieval,
-which must be listed in the provider app manifest with the following
-intent filter:
+[PackageManager](https://developer.android.com/reference/android/content/pm/PackageManager.html) query interface. For an OpenYOLO provider to be able to provide hints, for
+instance, it must define an activity for hint retrieval. This activity is
+listed in the provider's manifest, with an OpenYOLO intent filter:
 
 ```xml
 <intent-filter>
@@ -36,8 +36,8 @@ intent filter:
 </intent-filter>
 ```
 
-Based on this, all installed credential providers can be located through
-the following package manager query:
+The client library within a service can then discover all hint providers on the
+device via the following package manager query:
 
 ```java
 Intent hintIntent = new Intent("org.openyolo.hint");
@@ -48,31 +48,35 @@ List<ResolveInfo> resolvedProviders =
         .queryIntentActivities(saveIntent, 0);
 ```
 
-## Preferred credential providers on Android
+Each OpenYOLO operation is mapped to an activity within the credential provider,
+each of which declares an intent filter with the "org.openyolo" category,
+and an operation-specific intent filter.
+
+### Preferred credential providers on Android
 
 In the future, Android or Google Play Services may directly store a user's
 preferred credential provider. However, in the meantime, a simple heuristic
 is specified that will determine the user's preferred credential provider
 in most cases:
 
-1. Enumerate all the credential providers installed on the device. If there
-   are any _unknown providers_, then there is no preferred provider.
-2. If there are no _known providers_, there is no preferred provider.
-3. If there is exactly one installed provider, and it is known,
-   this is the preferred provider.
-4. If there are exactly two installed providers, both are known, and one of
-   them is Google's Smart Lock for passwords, the preferred provider is the
-   non-Google provider.
-5. If there are three or more known providers, there is no preferred provider.
+1. Enumerate all the credential providers installed on the device.
+2. If there are no credentias providers, or there are any _unknown providers_,
+   then there is no preferred provider.
+3. If there is exactly one installed known provider, this it is the preferred
+   provider.
+4. If there is more than one installed known provider, discount any providers
+   that are pre-installed on the device. If there is only one remaining provider
+   after discounting the pre-installed providers, this is the preferred
+   provider.
+5. Otherwise, there is no preferred provider.
 
 Where there is no preferred provider, the user must explicitly select the
 provider they wish to use for each hint and credential storage operation.
 This minimizes the risk of "security surprise", where the user finds themselves
 interacting with an unexpected credential provider.
 
-The heuristic takes into account that Google's Smart Lock for Passwords will
-be installed by default on the vast majority of Android devices, and that most
-users will not have make a conscious effort to use this credential provider.
-When a second credential provider is manually installed, it is likely that the
-user's intent is to user that provider rather than the "system default" of
-Smart Lock for Passwords.
+The heuristic takes into account that pre-installed providers, such as Google's
+Smart Lock for Passwords, are not providers the usually have made a conscious
+choice to use. When an additional provider is manually installed, it is
+more likely that the user's intent is to use that, rather than the
+pre-installed providers.

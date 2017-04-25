@@ -12,18 +12,20 @@
 
 {{android/introduction.md}}
 
-{{android/bbq.md}}
-
 {{android/hint.md}}
 
 {{android/retrieve.md}}
 
 {{android/save.md}}
 
-{{android/api.md}}
+{{android/delete.md}}
 
-{{android/spi.md}}
+{{android/bbq.md}}
+
+{{android/rooted-devices.md}}
 
 {{common/references.md}}
+
+{{android/references.md}}
 
 {backmatter}

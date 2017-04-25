@@ -248,7 +248,6 @@ buffer message:
 
 ```protobuf
 message CredentialRetrieveRequest {
-    // required
     ClientVersion version = 1;
 
     // at least one authMethod required
@@ -384,6 +383,7 @@ dialog style design:
 A save credential request is represented by the following protocol buffer
 message:
 
+```protobuf
 message CredentialSaveRequest {
     ClientVersion clientVersion = 1;
 
@@ -392,6 +392,7 @@ message CredentialSaveRequest {
 
     map<string, bytes> additionalProps = 3;
 }
+```
 
 ### Save response message
 
