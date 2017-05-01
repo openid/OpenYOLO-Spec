@@ -399,7 +399,7 @@ message CredentialSaveResult {
   enum ResultCode {
     UNSPECIFIED = 0;
     SUCCESS = 1;
-    REJECTED = 2;
+    REJECTED_BY_PROVIDER = 2;
     REJECTED_BY_USER = 3;
   }
 
