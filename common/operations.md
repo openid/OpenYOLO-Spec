@@ -272,12 +272,12 @@ to the service that this login attempt is legitimate.
 To prevent automatic sign-in loops, where a user signs out and is
 inadvertently signed back in again automatically by a credential retrieve
 request, the `requireUserMediation` flag can be set to true. If absent
-from the request message, this is assumed to be false. When true, the
-provider MUST require an explicit credential selection from the
-user, even if only one option is available. This then gives the user the
-opportunity to more clearly state their intent in an account-switch scenario,
-by rejecting the presented credential and entering an account creation or
-manual sign-in flow.
+from the request message, this is assumed to be false. When true, and
+one or more credentials are available, the provider MUST require an explicit
+credential selection from the user, even if only one option is available. This
+then gives the user the opportunity to more clearly state their intent in an
+account-switch scenario, by rejecting the presented credential and entering an
+account creation or manual sign-in flow.
 
 In response to a credential request, the credential provider can either:
 
