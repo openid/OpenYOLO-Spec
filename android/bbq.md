@@ -111,13 +111,15 @@ message BroadcastQueryResponse {
 
 ### Dispatching responses
 
-Responses are sent back to the requester in the form of targeted broadcasts.
-The requester dynamically registers a broadcast receiver to capture
-responses. The _ACTION_ for the response is the requested data type with the
-request ID concatenated in zero-padded hex form, e.g.
-"org.openyolo.credential:000000000000CAFE" where "org.openyolo.credential" is
-the requested data type and "000000000000CAFE" is the request ID (51966 in
-decimal).
+In order to receive a BBQ query response, the requester must dynamically
+register a broadcast receiver for an action of form
+`org.openyolo.credential:REQUEST_ID`, where `REQUEST_ID` is the
+zero-padded, upper-case hexadecimal form of the 64-bit request ID. For example,
+if the request ID were 51966 in decimal, the registered broadcast receiver
+action will be `org.openyolo.credential:000000000000CAFE`.
+
+Responses are sent back to the requester in the form of targetered broadcast
+messages to this action:
 
 ```java
 IntentFilter filter = new IntentFilter();
