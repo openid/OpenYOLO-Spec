@@ -47,7 +47,7 @@ This intent is dispatched by the client using
 [startActivityForResult][android-start-activity-for-result]. At this point the
 provider can perform any processing and user interaction required to
 release a credential. The provider creates a retrieve response message
-(specified in [SECTION](#retrieve-response-message)), and passes this back to
+(specified in [SECTION](#credential-response-message)), and passes this back to
 the requester via [setResult][android-set-result]. The intent data returned to
 the client _must_ carry the retrieve result using an extra, named
 "org.openyolo.credential.retrieve.result". Additionally, the result code
