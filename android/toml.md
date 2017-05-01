@@ -17,4 +17,10 @@
 % organization = "Google, Inc."
 % [author.address]
 % email = "iainmcgin@google.com"
-%
+% phone = "+1-650-253-0000"
+% [author.address.postal]
+% street = "1600 Amphitheater Parkway"
+% city = "Mountain View"
+% region = "California"
+% country = "United States of America"
+% code = "95134"
