@@ -256,7 +256,8 @@ message CredentialRetrieveRequest {
     repeated AuthenticationMethod authMethods = 2;
 
     map<string, TokenRequestInfo> supportedTokenProviders = 3;
-    map<string, bytes> additionalProps = 4;
+    bool requireUserMediation = 4;
+    map<string, bytes> additionalProps = 5;
 }
 ```
 
@@ -266,11 +267,21 @@ Similar to hint requests, the service can also specify its supported token
 providers - the return of a valid ID token can provide an additional signal
 to the service that this login attempt is legitimate.
 
+To prevent automatic sign-in loops, where a user signs out and is
+inadvertently signed back in again automatically by a credential retrieve
+request, the `requireUserMediation` flag can be set to true. If absent
+from the request message, this is assumed to be false. When true, the
+provider MUST require an explicit credential selection from the
+user, even if only one option is available. This then gives the user the
+opportunity to more clearly state their intent in an account-switch scenario,
+by rejecting the presented credential and entering an account creation or
+manual sign-in flow.
+
 In response to a credential request, the credential provider can either:
 
 - directly return a credential for automatic sign-in
 - Show a credential picker to the user
-- Return nothing if no matching credentials are available
+- Return a failure result code if no matching credentials are available.
 
 Automatically returning a credential is optional, and if it is a facility
 provided by the credential provider, _should_ be something that the user can
