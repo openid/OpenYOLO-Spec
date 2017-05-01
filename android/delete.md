@@ -1,9 +1,9 @@
 ## Deleting credentials
 
 Credential delete requests on Android are dispatched to the credential provider
-using an [Intent][android-intent]. A provider must declare its willingness to
-delete stored credentials by including an activity in its manifest with the
-following intent filter:
+using an [Intent][android-intent]. If a provider supports credential deletion,
+it MUST declare this on the manifest entry for its deletion activity,
+using the following intent filter:
 
 ```xml
 <intent-filter>
@@ -15,7 +15,7 @@ following intent filter:
 In order to make a delete request, the client creates a delete request message
 (specified in [SECTION](#delete-request-message)) and encodes it to its binary
 protocol buffer form. An activity Intent is then created to send this to the
-credential provider. The delete request message _must_ be added to the activity
+credential provider. The delete request message MUST be added to the activity
 Intent using an extra, named "org.openyolo.credential.delete.request".
 
 An example delete request could be constructed as follows:
@@ -47,9 +47,9 @@ provider can perform any processing and user interaction required to delete
 the credential. The provider creates a delete response message (specified in
 [SECTION](#delete-response-message)), and passes this back to the requester via
 [setResult][android-set-result]. The intent data returned to the
-client _must_ carry the delete result using an extra, named
+client MUST carry the delete result using an extra, named
 "org.openyolo.credential.delete.result". Additionally, the result code
-contained in that delete result _must_ match the result code for the provider activity.
+contained in that delete result MUST match the result code for the provider activity.
 
 An example save result could therefore be sent with the following code:
 

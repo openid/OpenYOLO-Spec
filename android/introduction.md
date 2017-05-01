@@ -4,7 +4,7 @@ The OpenYOLO protocol on Android is designed to operate on any Android API 15+
 device, including devices which do not have Google Play Services available.
 OpenYOLO operation requests and responses are handled using two of the core
 communication primitives on Android: broadcast messages and activity intents.
-API 15+ is specifically required in order to be able to "target" broadcast
+API 15+ is specifically REQUIRED in order to be able to "target" broadcast
 messages to specific apps, using `Intent.setPackage`. See the
 ["Security considerations and best practices"][broadcast-security] section of
 the [android broadcasts documentation][broadcasts] for more information.
@@ -27,19 +27,12 @@ as a binary protocol buffer via an intent extra.
 
 The set of installed credential providers on an Android device can be be
 determined using the system
-[PackageManager](https://developer.android.com/reference/android/content/pm/PackageManager.html) query interface. For an OpenYOLO provider to be able to provide hints, for
-instance, it must define an activity for hint retrieval. This activity is
-listed in the provider's manifest, with an OpenYOLO intent filter:
+[PackageManager](https://developer.android.com/reference/android/content/pm/PackageManager.html)
+query interface. As OpenYOLO providers do not need to support all defined
+operations in this spec, discovery is performed on a per-operation basis.
 
-```xml
-<intent-filter>
-    <action android:name="org.openyolo.hint"/>
-    <category android:name="org.openyolo" />
-</intent-filter>
-```
-
-The client library within a service can then discover all hint providers on the
-device via the following package manager query:
+For example, to discover whether a provider exists that supports hint
+retrieval, the following package manager query can be used:
 
 ```java
 Intent hintIntent = new Intent("org.openyolo.hint");
@@ -72,8 +65,8 @@ credential provider in most cases:
    provider.
 5. Otherwise, there is no preferred provider.
 
-Where there is no preferred provider, the user must explicitly select the
-provider they wish to use for each hint and credential storage operation.
+Where there is no preferred provider, the user MUST be given the opportunity to
+explicitly select the provider they wish to use for the current operation.
 This minimizes the risk of "security surprise", where the user finds themselves
 interacting with an unexpected credential provider.
 

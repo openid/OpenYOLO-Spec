@@ -2,8 +2,8 @@
 
 The overall security of OpenYOLO on Android is contingent on the security
 of the core communication primitives the platform provides. Specifically,
-it _must_ be the case that intent results be private, and that targeted
-broadcast messages must only be visible to the designated recipient. These
+it MUST be the case that intent results be private, and that targeted
+broadcast messages MUST only be visible to the designated recipient. These
 preconditions are also fundamental to Android security in general - if
 intent results or targeted broadcast messages can be eavesdropped by attackers,
 then no real security exists for inter-process communication.
@@ -48,4 +48,4 @@ as the following attacks are also potentially viable:
 The authors of this specification have no evidence that the kernel modifications
 required to break this protocol exist on real devices or popular distributed
 Android ROMs, but they are certainly feasible. As such, all rooted devices
-should be treated with suspicion when dealing with credential data.
+SHOULD be treated with suspicion when dealing with credential data.

@@ -223,7 +223,7 @@ the following operations would be possible:
 - "Proof of access" to email addresses and phone numbers (as described
   in the
   [account recovery based authentication](#account-recovery-based-authentication)
-  section above) could be directly solicited. While the credential manager may
+  section above) could be directly solicited. While the credential manager might
   not have the authority to generate an ID token for a given email address, it
   could facilitate this process.
 

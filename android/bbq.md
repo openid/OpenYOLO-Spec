@@ -56,7 +56,7 @@ message BroadcastQuery {
 #### Accepting BBQ requests
 
 In order for a client to discover a BBQ query handler for a given query type,
-the handler must declare a broadcast receiver in their manifest as follows:
+the handler MUST declare a broadcast receiver in their manifest as follows:
 
 ```xml
 <receiver
@@ -114,7 +114,7 @@ A broadcast query response has the following mandatory properties:
 - The 64-bit response ID unique to this response, copied from the request.
 
 The response copies the request and response IDs from the request message,
-and may include a data-type specific response message, if necessary.
+and MAY include a data-type specific response message, if necessary.
 The absence of a data-type specific response message is generally interpreted
 to mean that the provider is unable to service the request.
 
@@ -135,7 +135,7 @@ message BroadcastQueryResponse {
 
 #### Accepting BBQ responses
 
-In order to receive a BBQ query response, the requester must dynamically
+In order to receive a BBQ query response, the requester MUST dynamically
 register a broadcast receiver for an action of form
 `DATA_TYPE:REQUEST_ID`, where `DATA_TYPE` is the data type that is being
 queried, and `REQUEST_ID` is the zero-padded, upper-case hexadecimal form of
@@ -178,9 +178,8 @@ In order to avoid waiting indefinitely for responses from faulty or slow
 receivers, a timeout SHOULD be used, after which absent responses MUST be
 treated as though the provider was unable to service the request. This is
 equivalent to a response message from the provider with no data-type specific
-message payload. It is recommended that a timeout of at least two seconds
-should be used; older Android devices under memory pressure may take this
-long to instantiate the broadcast receiver for the query handler and to allow
-it to process the request. Shorter timeouts MAY be used for particularly
-time sensitive queries, but with the expectation that providers may randomly
-fail to respond in time.
+message payload. A timeout of at least two seconds SHOULD be used; older
+Android devices under memory pressure can take this long to instantiate the
+broadcast receiver for the query handler and to allow it to process the
+request. Shorter timeouts MAY be used for particularly time sensitive queries,
+but with the expectation that providers may randomly fail to respond in time.

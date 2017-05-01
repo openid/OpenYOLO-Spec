@@ -1,9 +1,8 @@
 ## Retrieving Hints
 
 Hint requests on Android are dispatched to the credential provider using
-an [Intent][android-intent]. Providers which wish to support hint retrieval
-declare this by including an activity in their manifest with the following
-intent filter:
+an [Intent][android-intent]. If a provider supports hint retrieval, it MUST
+declare this on the manifest entry for its hint activity, using the following intent filter:
 
 ```xml
 <intent-filter>

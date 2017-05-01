@@ -16,17 +16,18 @@ necessary information for authentication.
 Credentials in OpenYOLO are composed of the following properties:
 
 - An _authentication domain_, where the credential was saved.
-  All credentials must have an associated authentication domain. A credential
-  _may_ be usable on other authentication domains, at the discretion of
-  the credential manager. Authentication domains are described in more detail
-  in [SECTION](#authentication-domains).
+  All credentials MUST have an associated authentication domain. A credential
+  MAY be usable on other authentication domains. Authentication domains are
+  described in more detail in [SECTION](#authentication-domains).
 
 - An _authentication method_, which describes the system used to verify
-  the credential. Authentication methods are described in more detail in
+  the credential. All credentials MUST have an associated authentication
+  method. Authentication methods are described in more detail in
   [SECTION](#authentication-methods).
 
 - An _identifier_, which designates an account in the context of
-  both the authentication domain and method. Typically, identifiers are
+  both the authentication domain and method. All credentials MUST have an
+  identifier. Typically, identifiers are
   email addresses, phone numbers, or some printable unicode string. Identifiers
   are typically human readable and distinguishable, but this is not a
   requirement.
@@ -39,7 +40,7 @@ Credentials in OpenYOLO are composed of the following properties:
   Typically, the display picture is either a picture of the user, an avatar that they have chosen, or one they been assigned.
 
 - An optional _password_, which is a human-readable secret used to authenticate
-  with the service. Specifically, this field _must not_ be used to store
+  with the service. Specifically, this field MUST NOT be used to store
   secrets that a user would not use directly, such as bearer tokens.
 
 - An optional _ID token_, which provides "proof of access" to the identifier
@@ -48,7 +49,7 @@ Credentials in OpenYOLO are composed of the following properties:
 - An optional set of non-standard properties. This provides the
   ability for credential providers to innovate within the constraints of the
   specification, with a view to later standardizing useful properties. Services
-  _should not_ rely upon additional properties, as their meaning is unlikely
+  SHOULD NOT rely upon additional properties, as their meaning is unlikely
   to be consistent across credential providers.
 
 A credential is represented by the following protocol buffer message:
@@ -93,7 +94,7 @@ For example, an email and password credential could look like:
 
 Hints are a variant of credentials that are tailored to account discovery
 and new account creation. They are represented by a separate protocol buffer
-message from credentials, in order to allow for future extension that may
+message from credentials, in order to allow for future extension that might
 diverge from the definition of credentials. Hints are represented by the
 following protocol buffer message:
 
@@ -154,10 +155,10 @@ Known providers will not have this restriction, and legitimate credential
 providers will be encouraged to register themselves with the OpenID Foundation
 to become known providers.
 
-Where possible on each supported platform, the user _should_
+Where possible on each supported platform, the user SHOULD
 be able to specify their _preferred_ credential provider. This preferred
 provider will be used exclusively for assisted sign-up and credential saving.
-For credential retrieval, additional providers _may_ still be used.
+For credential retrieval, additional providers MAY still be used.
 
 ## Token providers
 
@@ -207,14 +208,14 @@ Two forms of authentication domain are presently defined:
   `package` is the package name of an app (e.g. com.example.app), and
   `fingerprint` is a Base64, URL-safe encoding of the app's public key
   (provided by the [Signature][signature-class] type in Android). The fingerprint string includes both the hash algorithm used, and the hash data,
-  e.g. `sha512-7fmduHK...`. All OpenYOLO credential providers _must_ support
-  both `sha256` and `sha512` as hash algorithms for fingerprints, and _may_
+  e.g. `sha512-7fmduHK...`. All OpenYOLO credential providers MUST support
+  both `sha256` and `sha512` as hash algorithms for fingerprints, and MAY
   support any other hash algorithm that provides equivalent or better
   security than SHA-256.
 
 An _authentication system_ which validates credentials
-may be represented by multiple distinct authentication domains. For example,
-a credential for `android://sha256-...@com.example.app` may be usable on
+MAY be represented by multiple distinct authentication domains. For example,
+a credential for `android://sha256-...@com.example.app` might be usable on
 `https://example.com` or `https://www.example.com`, when these three entities
 all use the same authentication system.
 
@@ -222,13 +223,14 @@ An authentication domain _equivalence class_ defines the set of authentication
 domains associated with a given authentication system, and therefore the
 places where credentials can be used safely across domains. Such equivalence
 classes improve the usability of OpenYOLO, but must be carefully defined to
-avoid compromising the security of a user's credentials - equivalence classes
-_must_ explicitly defined by the service and not assumed or heuristically
-constructed by the credential provider.
+avoid compromising the security of a user's credentials. Equivalence classes
+SHOULD be explicitly defined by the service that owns the associated domains
+and apps, and SHOULD NOT be assumed or heuristically constructed by the
+credential provider.
 
 OpenYOLO recommends the use of the [Digital Asset Links][asset-links] as a
 standard mechanism to define authentication domain equivalence classes.
-Credential providers _should_ use this information as part of defining the
+Credential providers SHOULD use this information as part of defining the
 equivalence class over authentication domains. It is the responsibility of the
 credential provider to correctly construct and utilize the authentication
 domain equivalence class.
@@ -276,7 +278,7 @@ authentication methods:
   standardized as `openyolo://username`.
 
 Where a federated credential from an identity provider is desired,
-the canonical domain of that identity provider _should_ be as the
+the canonical domain of that identity provider SHOULD be used as the
 authentication method. The _canonical_ domain for an identity provider is
 the domain that hosts the provider's sign in page. For example, the URI that
 should be used for Google Sign-in is `https://accounts.google.com`, while the
@@ -305,13 +307,13 @@ A better approach is for the service to declare its password restrictions
 in a format that can be consumed by credential managers. OpenYOLO defines
 a simple scheme for this, composed of the following pieces of information:
 
-- The set of allowed characters in a password, which _must_ be a subset of the
+- The set of allowed characters in a password, which MUST be a subset of the
   ASCII printable character set.
 - The minimum and maximum length of a password.
-- Zero or more _required character sets_. A required character set must be
+- Zero or more _required character sets_. A required character set MUST be
   a subset of the allowed character set, and specify the minimum number of
   characters from this set that must occur in the password. Where multiple
-  required character sets are defined, the sets must be disjoint.
+  required character sets are defined, the sets MUST be disjoint.
 
 This is represented by the following protocol buffer message:
 
@@ -430,7 +432,7 @@ and where these bugs impact the security of the client it is important to
 have a mechanism to protect services from the exploitation of these bugs.
 
 In order to facilitate this, requests sent from a service to a credential
-provider _should_ carry a _client version_ descriptor, which is typically
+provider SHOULD carry a _client version_ descriptor, which is typically
 compiled into the OpenYOLO client library they are using. This allows a
 credential provider to identify services which are using an exploitable version
 of the client library, and to reject requests from these clients.
@@ -445,11 +447,12 @@ In OpenYOLO, a client version is composed of:
   and typically represented in the human-readable form "X.Y.Z", and follow
   the general principles of [Semantic Versioning](http://semver.org/).
 
-In order to prevent trivial modification of the client version, it _should_
+In order to prevent trivial modification of the client version, it SHOULD
 be statically compiled in to the client library. There is no way to guarantee
 that the client version cannot be tampered with by an attacker, however; as
-such, client versions should be interpreted as an untrusted hint and used
-for the blacklisting of known problematic client versions only.
+such, client versions SHOULD NOT be interpreted as authoritative, and
+SHOULD NOT be used for purposes other than blacklisting of known problematic
+client versions only.
 
 In protocol buffer form, a client version is represented by the
 following message:
