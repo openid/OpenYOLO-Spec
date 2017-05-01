@@ -297,24 +297,8 @@
       <xsl:with-param name="section" select="'boilerplate'"/>
     </xsl:call-template>
 
-    <xsl:if test="not($abstract-first)">
-      <xsl:if test="$xml2rfc-private=''">
-        <xsl:call-template name="emit-ietf-preamble">
-          <xsl:with-param name="notes" select="$notes-in-boilerplate|$edited-notes-in-boilerplate"/>
-        </xsl:call-template>
-      </xsl:if>
-    </xsl:if>
-
     <xsl:if test="$notes-follow-abstract">
       <xsl:apply-templates select="$notes-not-in-boilerplate|$edited-notes-not-in-boilerplate" />
-    </xsl:if>
-
-    <xsl:if test="$abstract-first">
-      <xsl:if test="$xml2rfc-private=''">
-        <xsl:call-template name="emit-ietf-preamble">
-          <xsl:with-param name="notes" select="$notes-in-boilerplate|$edited-notes-in-boilerplate"/>
-        </xsl:call-template>
-      </xsl:if>
     </xsl:if>
 
     <xsl:if test="not($notes-follow-abstract)">

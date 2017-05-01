@@ -2,6 +2,8 @@
 
 {{android/abstract.md}}
 
+{{common/openid-copyright.md}}
+
 {{common/rfc2119terms.md}}
 
 {mainmatter}
