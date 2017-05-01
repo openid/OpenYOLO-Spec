@@ -4,6 +4,10 @@ The OpenYOLO protocol on Android is designed to operate on any Android API 15+
 device, including devices which do not have Google Play Services available.
 OpenYOLO operation requests and responses are handled using two of the core
 communication primitives on Android: broadcast messages and activity intents.
+API 15+ is specifically required in order to be able to "target" broadcast
+messages to specific apps, using `Intent.setPackage`. See the
+["Security considerations and best practices"][broadcast-security] section of
+the [android broadcasts documentation][broadcasts] for more information.
 
 Devices with Google Play Services already have a credential provider available,
 in the form of Smart Lock for Passwords. In addition to this, the
@@ -39,11 +43,11 @@ device via the following package manager query:
 
 ```java
 Intent hintIntent = new Intent("org.openyolo.hint");
-saveIntent.addCategory("org.openyolo");
+hintIntent.addCategory("org.openyolo");
 
 List<ResolveInfo> resolvedProviders =
     mApplicationContext.getPackageManager()
-        .queryIntentActivities(saveIntent, 0);
+        .queryIntentActivities(hintIntent, 0);
 ```
 
 Each OpenYOLO operation is mapped to an activity within the credential provider,
