@@ -177,6 +177,7 @@ Alternatively, a federated credential hint for Google Sign-in may look like:
     "authMethod": "https://accounts.google.com",
     "displayName": "John Doe"
   }
+}
 ```
 
 ### Example hint retrieval scenario
