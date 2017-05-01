@@ -4,7 +4,6 @@
 % submissionType = "independent"
 % category = "exp"
 % area = "Internet"
-% workgroup = "Account Chooser"
 % keyword = ["password", "credential", "security"]
 %
 % [pi]

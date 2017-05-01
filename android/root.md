@@ -2,6 +2,8 @@
 
 {{android/abstract.md}}
 
+{{common/rfc2119terms.md}}
+
 {mainmatter}
 
 {{common/introduction.md}}
