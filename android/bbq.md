@@ -53,21 +53,45 @@ message BroadcastQuery {
 }
 ```
 
-### Dispatching requests
+#### Accepting BBQ requests
 
-A request is dispatched as one or more targeted broadcast intents. First, the
+In order for a client to discover a BBQ query handler for a given query type,
+the handler must declare a broadcast receiver in their manifest as follows:
+
+```xml
+<receiver
+    android:name="com.example.BbqQueryHandler"
+    android:exported="true">
+  <intent-filter>
+      <action android:name="DATA_TYPE" />
+      <category android:name="com.google.bbq" />
+  </intent-filter>
+</receiver>
+```
+
+This declares a BBQ query handler for "DATA_TYPE", which would typically be
+substituted for the appropriate query type (e.g. "org.openyolo.credential").
+The category "com.google.bbq" MUST be present for the client to
+recognize this receiver as a BBQ query handler.
+
+#### Dispatching requests
+
+A request is dispatched as targeted broadcast message, with a separate
+message sent to each potential handler. First, the
 requester uses the Android [PackageManager][android-package-manager] API to
 determine the set of apps which can provide data of the required type:
 
 ```java
 Intent intent = new Intent(dataType);
-intent.addCategory(BBQ_CATEGORY);
+intent.addCategory("com.google.bbq.query");
 List<ResolveInfo> responderInfos =
     packageManager.queryBroadcastReceivers(intent, 0);
 ```
 
-A separate request is created for each potential responder, with a unique
-response ID, and sent as a targeted broadcast:
+A separate request message is created for each potential responder, with a
+unique response ID, and sent as a targeted broadcast. The query
+protobol buffer message is carried as an intent extra under the name
+"com.google.bbq.query.request":
 
 ```java
 BroadcastQuery query = BroadcastQuery.newBuilder()
@@ -75,8 +99,9 @@ BroadcastQuery query = BroadcastQuery.newBuilder()
     .setResponseId(idForResponder.get(responder))
     .build();
 Intent bbqIntent = new Intent(dataType);
+bbqIntent.addCategory("com.google.bbq");
 bbqIntent.setPackage(responder);
-bbqIntent.setExtra(EXTRA_QUERY_MESSAGE, query.encode());
+bbqIntent.setExtra("com.google.bbq.query.request", query.encode());
 context.sendBroadcast(bbqIntent);
 ```
 
@@ -88,7 +113,6 @@ A broadcast query response has the following mandatory properties:
   request.
 - The 64-bit response ID unique to this response, copied from the request.
 
-Query responses are also represented as a protocol buffer messages.
 The response copies the request and response IDs from the request message,
 and may include a data-type specific response message, if necessary.
 The absence of a data-type specific response message is generally interpreted
@@ -109,27 +133,54 @@ message BroadcastQueryResponse {
 }
 ```
 
-### Dispatching responses
+#### Accepting BBQ responses
 
 In order to receive a BBQ query response, the requester must dynamically
 register a broadcast receiver for an action of form
-`org.openyolo.credential:REQUEST_ID`, where `REQUEST_ID` is the
-zero-padded, upper-case hexadecimal form of the 64-bit request ID. For example,
-if the request ID were 51966 in decimal, the registered broadcast receiver
-action will be `org.openyolo.credential:000000000000CAFE`.
-
-Responses are sent back to the requester in the form of targetered broadcast
-messages to this action:
+`DATA_TYPE:REQUEST_ID`, where `DATA_TYPE` is the data type that is being
+queried, and `REQUEST_ID` is the zero-padded, upper-case hexadecimal form of
+the 64-bit request ID. For example, if the request ID were 51966 in decimal,
+the registered broadcast receiver action will be
+`org.openyolo.credential:000000000000CAFE`:
 
 ```java
 IntentFilter filter = new IntentFilter();
-filter.addAction(encodeAction(dataType, requestId));
-filter.addCategory(BBQ_CATEGORY);
+filter.addAction("org.openyolo.credential:000000000000CAFE");
+filter.addCategory("com.google.bbq");
 context.registerReceiver(new BroadcastReciever() { ... }, filter);
 ```
 
-In order to avoid waiting indefinitely for responses from faulty or slow
-receivers, a timeout _should_ be used, after which absent responses should be
-treated as though the provider was unable to service the request (equivalent to
-responding with no data-type specific message payload).
+In order to avoid a race condition, this response handler MUST be registered
+prior to dispatching a query.
 
+#### Dispatching BBQ responses
+
+Responses are sent back to the requester from the query handler in the form of
+targeted broadcast messages to the dynamically registered action. The intent
+describing this response broadcast is constructed such that the action is
+set to the dynamically registered broadcast receiver of the client for the
+query, and the response protocol buffer message is carried as an extra
+with name "com.google.bbq.query.response". For example:
+
+```java
+Intent responseBroadcast = new Intent(
+    "org.openyolo.credential:000000000000CAFE");
+responseBroadcast.addCategory("com.google.bbq");
+responseBroadcast.setPackage("com.example.app");
+responseBroadcast.putExtra("com.google.bbq.query.response",
+        responseMessage);
+sendBroadcast(responseBroadcast);
+```
+
+### Use of timeouts
+
+In order to avoid waiting indefinitely for responses from faulty or slow
+receivers, a timeout SHOULD be used, after which absent responses MUST be
+treated as though the provider was unable to service the request. This is
+equivalent to a response message from the provider with no data-type specific
+message payload. It is recommended that a timeout of at least two seconds
+should be used; older Android devices under memory pressure may take this
+long to instantiate the broadcast receiver for the query handler and to allow
+it to process the request. Shorter timeouts MAY be used for particularly
+time sensitive queries, but with the expectation that providers may randomly
+fail to respond in time.
