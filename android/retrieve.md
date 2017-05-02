@@ -73,7 +73,7 @@ Credential credential = Credential.newBuilder()
 
 CredentialRetrieveResult result =
     CredentialRetrieveResult.newBuilder()
-        .setResultCode(CredentialRetrieveResult.ResultCode.CREDENTIAL_SELECTED)
+        .setResultCode(CREDENTIAL_SELECTED)
         .setCredential(credential)
         .build();
 

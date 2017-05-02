@@ -61,7 +61,9 @@ An example save result could therefore be sent with the following code:
 
 ```java
 CredentialSaveResult result = CredentialSaveResult.newBuilder()
-    .setResultCode(CredentialSaveResult.ResultCode.SAVED);
+    .setResultCode(SAVED)
+    .build();
+
 Intent saveResultData = new Intent()
     .putExtra(
         "org.openyolo.credential.save.result",

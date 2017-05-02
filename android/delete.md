@@ -57,7 +57,9 @@ An example save result could therefore be sent with the following code:
 
 ```java
 CredentialDeleteResult result = CredentialDeleteResult.newBuilder()
-    .setResultCode(CredentialSaveResult.ResultCode.USER_REFUSED);
+    .setResultCode(USER_REFUSED)
+    .build();
+
 Intent deleteResultData = new Intent()
     .putExtra(
         "org.openyolo.credential.delete.result",

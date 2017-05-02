@@ -47,7 +47,8 @@ An example hint result could therefore be sent with the following code:
 
 ```java
 HintRetrieveResult result = HintRetrieveResult.newBuilder()
-    .setResultCode(HintRetrieveResult.ResultCode.NO_HINTS_AVAILABLE);
+    .setResultCode(NO_HINTS_AVAILABLE)
+    .build();
 Intent hintResultData = new Intent()
     .putExtra(
         "org.openyolo.hint.result",
