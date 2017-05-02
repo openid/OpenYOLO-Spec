@@ -131,9 +131,11 @@ message:
 message HintRetrieveResult {
   enum ResultCode {
     UNSPECIFIED = 0;
-    SUCCESS = 1;
-    REJECTED_BY_PROVIDER = 2;
-    REJECTED_BY_USER = 3;
+    BAD_REQUEST = 1;
+    HINT_SELECTED = 2;
+    NO_HINTS_AVAILABLE = 3;
+    USER_REQUESTS_MANUAL_AUTH = 4;
+    USER_CANCELED = 5;
   }
 
   // required
@@ -144,12 +146,41 @@ message HintRetrieveResult {
 }
 ```
 
+The result codes are defined as follows:
+
+- `UNSPECIFIED`: The generic catch-all for a request failure. This SHOULD NOT
+  be used by providers, unless the other defined response codes do not apply.
+
+- `BAD_REQUEST`: The request sent by the client was malformed or violated some
+  security constraint enforced by the provider. This error should be treated
+  as permanent; repeating the exact same request should result in the same
+  error code response.
+
+- `HINT_SELECTED`: The user selected a hint, which has been returned in the
+  hint field of the message.
+
+- `NO_HINTS_AVAILABLE`: No hints are available that match the constraints of the
+  request.
+
+- `USER_REQUESTS_MANUAL_AUTH`: The user canceled the selection of a hint in
+  a manner that indicates they wish to proceed with authentication, but by
+  manually entering their details. Providers SHOULD return this code
+  if they display an option like "none of the above" or "use different account"
+  and the user selects it.
+
+- `USER_CANCELED`: The user canceled the selection of a hint in a manner that
+  indicates they do not wish to authenticate at this time. Providers SHOULD
+  return this code if:
+  - The user presses the back button on their device
+  - The user clicks outside the control area of a modal dialog
+  - The user chooses some explicit option like "not now".
+
 An email and password credential hint that could be returned for a requesting
 app "com.example.app" could be:
 
 ```json
 {
-  "result_code": "SUCCESS",
+  "result_code": "HINT_SELECTED",
   "hint": {
     "id": "jblack@example.com",
     "auth_method": "openyolo://email",
@@ -311,9 +342,11 @@ buffer message:
 message CredentialRetrieveResult {
   enum ResultCode {
     UNSPECIFIED = 0;
-    SUCCESS = 1;
-    REJECTED_BY_PROVIDER = 2;
-    REJECTED_BY_USER = 3;
+    BAD_REQUEST = 1;
+    CREDENTIAL_SELECTED = 2;
+    NO_CREDENTIALS_AVAILABLE = 3;
+    USER_REQUESTS_MANUAL_AUTH = 4;
+    CANCEL_AUTH = 5;
   }
 
   // required
@@ -323,6 +356,36 @@ message CredentialRetrieveResult {
   map<string, bytes> additional_props = 3;
 }
 ```
+
+The result codes are defined as follows:
+
+- `UNSPECIFIED`: The generic catch-all for a request failure. This SHOULD NOT
+  be used by providers, unless the other defined response codes do not apply.
+
+- `BAD_REQUEST`: The request sent by the client was malformed or violated some
+  security constraint enforced by the provider. This error should be treated
+  as permanent; repeating the exact same request should result in the same
+  error code response.
+
+- `CREDENTIAL_SELECTED`: The user selected a hint, which has been returned in
+  the hint field of the message.
+
+- `NO_CREDENTIALS_AVAILABLE`: No credentials are available that match the
+  constraints of the request.
+
+- `USER_REQUESTS_MANUAL_AUTH`: The user canceled the selection of a hint in
+  a manner that indicates they wish to proceed with authentication, but by
+  manually entering their details. Providers SHOULD return this code
+  if they display an option like "none of the above" or "use different account"
+  and the user selects it.
+
+- `USER_CANCELED`: The user canceled the selection of a hint in a manner that
+  indicates they do not wish to authenticate at this time. Providers SHOULD
+  return this code if:
+  - The user presses the back button on their device
+  - The user clicks outside the control area of a modal dialog
+  - The user chooses some explicit option like "not now".
+
 
 An example response could therefore look like:
 
@@ -412,9 +475,11 @@ message CredentialSaveResult {
 
   enum ResultCode {
     UNSPECIFIED = 0;
-    SUCCESS = 1;
-    REJECTED_BY_PROVIDER = 2;
-    REJECTED_BY_USER = 3;
+    BAD_REQUEST = 1;
+    SAVED = 2;
+    PROVIDER_REFUSED = 3;
+    USER_CANCELED = 4;
+    USER_REFUSED = 5;
   }
 
   // required
@@ -423,6 +488,32 @@ message CredentialSaveResult {
   map<string, bytes> additional_props = 2;
 }
 ```
+
+The result codes are defined as follows:
+
+- `UNSPECIFIED`: The generic catch-all for a request failure. This SHOULD NOT
+  be used by providers, unless the other defined response codes do not apply.
+
+- `BAD_REQUEST`: The request sent by the client was malformed or violated some
+  security constraint enforced by the provider. This error should be treated
+  as permanent; repeating the exact same request should result in the same
+  error code response.
+
+- `SAVED`: The credential was saved, or an equivalent credential was updated.
+
+- `PROVIDER_REFUSED`: The provider refused to save the credential, due to
+  some policy restriction. For example, a provider may refuse to update an
+  existing credential if it is stored in a shared keychain. The client
+  SHOULD NOT request to save this credential again.
+
+- `USER_CANCELED`: The user dismissed the request to save the credential,
+  by either pressing the back button, clicking outside the area of a modal
+  dialog, or some other "soft" cancelation that is not an explicit refusal
+  to delete the credential. The client MAY request to save this credential
+  again at a later time.
+
+- `USER_REFUSED`: The user refused the request to save this credential. The
+  client SHOULD NOT request to save this credential again.
 
 ## Credential deletion
 
@@ -447,6 +538,9 @@ confirmation will not be surprising to the user.
 
 ### Delete request message
 
+A credential deletion request is represented by the following protocol buffer
+message:
+
 ```protobuf
 message CredentialDeleteRequest {
     ClientVersion client_version = 1;
@@ -460,13 +554,19 @@ message CredentialDeleteRequest {
 
 ### Delete response message
 
+A credential deletion response is represented by the following protocol buffer
+message:
+
 ```protobuf
 message CredentialDeleteResult {
-  enum CredentialDeleteResultCode {
+  enum ResultCode {
     UNSPECIFIED = 0;
-    SUCCESS = 1
-    REJECTED_BY_PROVIDER = 1;
-    REJECTED_BY_USER = 2;
+    BAD_REQUEST = 1;
+    DELETED = 2;
+    NO_MATCHING_CREDENTIAL = 3;
+    PROVIDER_REFUSED = 4;
+    USER_CANCELED = 5;
+    USER_REFUSED = 6;
   }
 
   // required
@@ -475,3 +575,33 @@ message CredentialDeleteResult {
   map<string, bytes> additional_props = 2;
 }
 ```
+
+The result codes are defined as follows:
+
+- `UNSPECIFIED`: The generic catch-all for a request failure. This SHOULD NOT
+  be used by providers, unless the other defined response codes do not apply.
+
+- `BAD_REQUEST`: The request sent by the client was malformed or violated some
+  security constraint enforced by the provider. This error should be treated
+  as permanent; repeating the exact same request should result in the same
+  error code response.
+
+- `DELETED`: The credential was deleted.
+
+- `NO_MATCHING_CREDENTIAL`: The credential was not deleted, as there was no
+  matching credential to delete.
+
+- `PROVIDER_REFUSED`: The provider refused to delete the provided credential,
+  due to some policy restriction it is enforcing. For example, a provider
+  could refuse to delete a credential from a shared keychain. The client
+  SHOULD NOT request to delete this credential again.
+
+- `USER_CANCELED`: The user dismissed the request to delete the credential,
+  by either pressing the back button, clicking outside the area of a modal
+  dialog, or some other "soft" cancelation that is not an explicit refusal
+  to delete the credential. The client MAY request to delete this credential
+  again at a later time.
+
+- `USER_REFUSED`: The user explicitly refused to delete the credential,
+  by selecting a "do not delete" (or similarly phrased) option in the
+  presented UI. The client SHOULD NOT request to delete this credential again.
