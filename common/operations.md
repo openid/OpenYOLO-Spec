@@ -61,20 +61,20 @@ message:
 
 ```protobuf
 message HintRetrieveRequest {
-    ClientVersion version = 1;
+    ClientVersion client_version = 1;
 
     // at least one authMethod required
-    repeated AuthenticationMethod authMethods = 2;
+    repeated AuthenticationMethod auth_methods = 2;
 
-    PasswordSpecification passwordSpec = 3;
-    map<string, TokenRequestInfo> supportedTokenProviders = 4;
-    map<string, bytes> additionalProps = 5;
+    PasswordSpecification password_spec = 3;
+    map<string, TokenRequestInfo> supported_token_providers = 4;
+    map<string, bytes> additional_props = 5;
 }
 
 message TokenRequestInfo {
-    string clientId = 1;
+    string client_id = 1;
     string nonce = 2;
-    map<string, bytes> additionalProps = 3;
+    map<string, bytes> additional_props = 3;
 }
 ```
 
@@ -82,7 +82,7 @@ A simple hint request could then look like the following:
 
 ```json
 {
-  "authMethods": [
+  "auth_methods": [
     "openyolo://email",
     "https://accounts.google.com",
     "https://www.facebook.com"
@@ -101,21 +101,21 @@ token provider could look like:
 
 ```json
 {
-  "authMethods": [
+  "auth_methods": [
     "openyolo://email"
   ],
-  "passwordSpec": {
+  "password_spec": {
     "allowed": "0123456789",
-    "minSize": 6,
-    "maxSize": 6
+    "min_size": 6,
+    "max_size": 6
   },
-  "supportedTokenProviders": {
+  "supported_token_providers": {
     "https://accounts.google.com": {
-      "clientId": "CLIENT.apps.googleusercontent.com",
+      "client_id": "CLIENT.apps.googleusercontent.com",
       "nonce": "asdf123"
     },
     "https://auth.example.com": {
-      "clientId": "11451",
+      "client_id": "11451",
       "nonce": "asdf123"
     }
   }
@@ -137,10 +137,10 @@ message HintRetrieveResult {
   }
 
   // required
-  ResultCode resultCode = 1;
+  ResultCode result_code = 1;
 
   Hint hint = 2;
-  map<string, bytes> additionalProps = 3;
+  map<string, bytes> additional_props = 3;
 }
 ```
 
@@ -149,14 +149,14 @@ app "com.example.app" could be:
 
 ```json
 {
-  "resultCode": "SUCCESS",
+  "result_code": "SUCCESS",
   "hint": {
     "id": "jblack@example.com",
-    "authMethod": "openyolo://email",
-    "displayName": "Jack Black",
-    "displayPictureUri": "https://www.robohash.org/dcd65581?set=3",
-    "generatedPassword": "YjW5Zvn3Fc7fY",
-    "idToken":
+    "auth_method": "openyolo://email",
+    "display_name": "Jack Black",
+    "display_picture_uri": "https://www.robohash.org/dcd65581?set=3",
+    "generated_password": "YjW5Zvn3Fc7fY",
+    "id_token":
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX
         VCJ9.eyJzdWIiOiJqZG9lQGdtYWlsLmNv
         bSIsImF1ZCI6Imh0dHBzOi8vbG9naW4uZ
@@ -172,11 +172,11 @@ Alternatively, a federated credential hint for Google Sign-in might look like:
 
 ```json
 {
-  "resultCode": "SUCCESS",
+  "result_code": "SUCCESS",
   "hint": {
     "id": "jdoe@gmail.com",
-    "authMethod": "https://accounts.google.com",
-    "displayName": "John Doe"
+    "auth_method": "https://accounts.google.com",
+    "display_name": "John Doe"
   }
 }
 ```
@@ -252,14 +252,14 @@ buffer message:
 
 ```protobuf
 message CredentialRetrieveRequest {
-    ClientVersion version = 1;
+    ClientVersion client_version = 1;
 
     // at least one authMethod required
-    repeated AuthenticationMethod authMethods = 2;
+    repeated AuthenticationMethod auth_methods = 2;
 
-    map<string, TokenRequestInfo> supportedTokenProviders = 3;
-    bool requireUserMediation = 4;
-    map<string, bytes> additionalProps = 5;
+    map<string, TokenRequestInfo> supported_token_providers = 3;
+    bool require_user_mediation = 4;
+    map<string, bytes> additional_props = 5;
 }
 ```
 
@@ -271,7 +271,7 @@ to the service that this login attempt is legitimate.
 
 To prevent automatic sign-in loops, where a user signs out and is
 inadvertently signed back in again automatically by a credential retrieve
-request, the `requireUserMediation` flag can be set to true. If absent
+request, the `require_user_mediation` flag can be set to true. If absent
 from the request message, this is assumed to be false. When true, and
 one or more credentials are available, the provider MUST require an explicit
 credential selection from the user, even if only one option is available. This
@@ -295,7 +295,7 @@ An example credential retrieval request could look like:
 
 ```json
 {
-  "authMethods": [
+  "auth_methods": [
     "openyolo://phone",
     "https://www.facebook.com"
   ]
@@ -317,10 +317,10 @@ message CredentialRetrieveResult {
   }
 
   // required
-  ResultCode resultCode = 1;
+  ResultCode result_code = 1;
 
   Credential credential = 2;
-  map<string, bytes> additionalProps = 3;
+  map<string, bytes> additional_props = 3;
 }
 ```
 
@@ -328,11 +328,11 @@ An example response could therefore look like:
 
 ```json
 {
-  "resultCode": "SUCCESS",
+  "result_code": "SUCCESS",
   "credential": {
     "id": "jdoe",
-    "authDomain": "https://login.example.com",
-    "authMethod": "https://www.facebook.com"
+    "auth_domain": "https://login.example.com",
+    "auth_method": "https://www.facebook.com"
   }
 }
 ```
@@ -341,7 +341,7 @@ Or, if the user was presented a list of credentials and did not select one:
 
 ```json
 {
-  "resultCode": "REJECTED_BY_USER"
+  "result_code": "REJECTED_BY_USER"
 }
 ```
 
@@ -396,12 +396,12 @@ message:
 
 ```protobuf
 message CredentialSaveRequest {
-    ClientVersion clientVersion = 1;
+    ClientVersion client_version = 1;
 
     // required
     Credential credential = 2;
 
-    map<string, bytes> additionalProps = 3;
+    map<string, bytes> additional_props = 3;
 }
 ```
 
@@ -418,9 +418,9 @@ message CredentialSaveResult {
   }
 
   // required
-  ResultCode resultCode = 1;
+  ResultCode result_code = 1;
 
-  map<string, bytes> additionalProps = 2;
+  map<string, bytes> additional_props = 2;
 }
 ```
 
@@ -449,12 +449,12 @@ confirmation will not be surprising to the user.
 
 ```protobuf
 message CredentialDeleteRequest {
-    ClientVersion clientVersion = 1;
+    ClientVersion client_version = 1;
 
     // required
     Credential credential = 2;
 
-    map<string, bytes> additionalProps = 3;
+    map<string, bytes> additional_props = 3;
 }
 ```
 
@@ -470,8 +470,8 @@ message CredentialDeleteResult {
   }
 
   // required
-  ResultCode resultCode = 1;
+  ResultCode result_code = 1;
 
-  map<string, bytes> additionalProps = 2;
+  map<string, bytes> additional_props = 2;
 }
 ```

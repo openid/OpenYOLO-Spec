@@ -60,16 +60,16 @@ message Credential {
   string id = 1;
 
   // required
-  AuthenticationDomain authDomain = 2;
+  AuthenticationDomain auth_domain = 2;
 
   // required
-  AuthenticationMethod authMethod = 3;
+  AuthenticationMethod auth_method = 3;
 
-  string displayName = 4;
-  string displayPictureUri = 5;
+  string display_name = 4;
+  string display_picture_uri = 5;
   string password = 6;
-  string idToken = 7;
-  map<string, bytes> additionalProps = 8;
+  string id_token = 7;
+  map<string, bytes> additional_props = 8;
 }
 ```
 
@@ -78,14 +78,14 @@ For example, an email and password credential could look like:
 ```json
 {
   "id": "jdoe@example.com",
-  "authDomain": {
+  "auth_domain": {
     "uri": "https://www.example.com"
   },
-  "authMethod": {
+  "auth_method": {
     "uri": "openyolo://email"
   },
-  "displayName": "Jane Doe",
-  "displayPictureUri": "https://www.robohash.org/jdoe",
+  "display_name": "Jane Doe",
+  "display_picture_uri": "https://www.robohash.org/jdoe",
   "password": "RiverClyde7"
 }
 ```
@@ -104,18 +104,18 @@ message Hint {
   string id = 1;
 
   // required
-  AuthenticationMethod authMethod = 3;
+  AuthenticationMethod auth_method = 3;
 
-  string displayName = 4;
-  string displayPictureUri = 5;
-  string generatedPassword = 6;
-  string idToken = 7;
-  map<string, bytes> additionalProps = 8;
+  string display_name = 4;
+  string display_picture_uri = 5;
+  string generated_password = 6;
+  string id_token = 7;
+  map<string, bytes> additional_props = 8;
 }
 ```
 
 The two main differences from credentials are that noo authentication domain is
-declared, and that the `password` field is renamed to `generatedPassword`, to
+declared, and that the `password` field is renamed to `generated_password`, to
 express its intent more clearly.
 
 ## Credential providers
@@ -323,12 +323,12 @@ message PasswordSpecification {
   string allowed = 1;
 
   // required
-  uint32 minSize = 2;
+  uint32 min_size = 2;
 
   // required
-  uint32 maxSize = 3;
+  uint32 max_size = 3;
 
-  repeated RequiredCharSet requiredSets = 4;
+  repeated RequiredCharSet required_sets = 4;
 }
 
 message RequiredCharSet {
@@ -353,9 +353,9 @@ character set abbreviated):
 ```json
 {
   "allowed": "abcdef...",
-  "minSize": 6,
-  "maxSize": 128,
-  "requiredSets": [
+  "min_size": 6,
+  "max_size": 128,
+  "required_sets": [
     {
       "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
       "count": 1
@@ -374,8 +374,8 @@ defined:
 ```json
 {
   "allowed": "0123456789",
-  "minSize": 6,
-  "maxSize": 6
+  "min_size": 6,
+  "max_size": 6
 }
 ```
 
@@ -385,9 +385,9 @@ not explicitly specify an alternative, is:
 ```json
 {
   "allowed": "abcdefghijkmnopqrstxyzABCDEFGHJKLMNPQRSTXY3456789",
-  "minSize": 12,
-  "maxSize": 16,
-  "requiredSets": [
+  "min_size": 12,
+  "max_size": 16,
+  "required_sets": [
     {
       "chars": "abcdefghijkmnopqrstxyz",
       "count": 1

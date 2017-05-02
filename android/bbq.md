@@ -37,19 +37,19 @@ The request is represented by the following protocol buffer message:
 ```protobuf
 message BroadcastQuery {
   // required
-  string dataType = 1;
+  string data_type = 1;
 
   // required
-  string requestingApp = 2;
+  string requesting_app = 2;
 
   // required
-  sfixed64 requestId = 3;
+  sfixed64 request_id = 3;
 
   // required
-  sfixed64 responseId = 4;
+  sfixed64 response_id = 4;
 
-  bytes queryMessage = 5;
-  map<string, bytes> additionalProps = 6;
+  bytes query_message = 5;
+  map<string, bytes> additional_props = 6;
 }
 ```
 
@@ -123,13 +123,13 @@ The structure of the query response message is therefore as follows:
 ```protobuf
 message BroadcastQueryResponse {
   // required
-  sfixed64 requestId = 1;
+  sfixed64 request_id = 1;
 
   // required
-  sfixed64 responseId = 2;
+  sfixed64 response_id = 2;
 
-  bytes responseMessage = 3;
-  map<string, bytes> additionalProps = 4;
+  bytes response_message = 3;
+  map<string, bytes> additional_props = 4;
 }
 ```
 

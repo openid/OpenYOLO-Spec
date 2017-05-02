@@ -106,8 +106,8 @@ with a credential request message (specified in
 
 ```protobuf
 message CredentialRetrieveBbqResponse {
-    bytes retrieveIntent = 1;
-    map<string, bytes> additionalProps = 2;
+    bytes retrieve_intent = 1;
+    map<string, bytes> additional_props = 2;
 }
 ```
 
