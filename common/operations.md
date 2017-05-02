@@ -204,7 +204,7 @@ Alternatively, a federated credential hint for Google Sign-in might look like:
 
 ```json
 {
-  "result_code": "SUCCESS",
+  "result_code": "HINT_SELECTED",
   "hint": {
     "id": "jdoe@gmail.com",
     "auth_method": "https://accounts.google.com",
@@ -392,7 +392,7 @@ An example response could therefore look like:
 
 ```json
 {
-  "result_code": "SUCCESS",
+  "result_code": "CREDENTIAL_SELECTED",
   "credential": {
     "id": "jdoe",
     "auth_domain": "https://login.example.com",
@@ -405,7 +405,7 @@ Or, if the user was presented a list of credentials and did not select one:
 
 ```json
 {
-  "result_code": "REJECTED_BY_USER"
+  "result_code": "USER_CANCELED"
 }
 ```
 

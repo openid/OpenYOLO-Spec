@@ -17,7 +17,7 @@ protocol buffer form. An activity intent is then created to send this to the
 credential provider, attaching the message bytes using an extra, named
 "org.openyolo.hint.request".
 
-An example hint request could be constructed as follows:
+An example hint request could be created and dispatched as follows:
 
 ```java
 HintRetrieveRequest request = HintRetrieveRequest.newBuilder()
@@ -29,6 +29,8 @@ Intent hintIntent = new Intent()
     .setAction("org.openyolo.hint")
     .setCategory("org.openyolo")
     .putExtra("org.openyolo.hint.request", request.toByteArray());
+
+startActivityForResult(hintIntent, RC_HINT);
 ```
 
 This intent is dispatched by the client using
@@ -45,7 +47,7 @@ An example hint result could therefore be sent with the following code:
 
 ```java
 HintRetrieveResult result = HintRetrieveResult.newBuilder()
-    .setResultCode(HintRetrieveResult.ResultCode.REJECTED_BY_USER);
+    .setResultCode(HintRetrieveResult.ResultCode.NO_HINTS_AVAILABLE);
 Intent hintResultData = new Intent()
     .putExtra(
         "org.openyolo.hint.result",

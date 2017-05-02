@@ -45,7 +45,8 @@ Intent hintIntent = new Intent()
     .putExtra(
         "org.openyolo.credential.retrieve.request",
         request.toByteArray());
-startActivityForResult(hintIntent, RC_HINT);
+
+startActivityForResult(hintIntent, RC_RETRIEVE);
 ```
 
 ### Returning a response
@@ -72,7 +73,7 @@ Credential credential = Credential.newBuilder()
 
 CredentialRetrieveResult result =
     CredentialRetrieveResult.newBuilder()
-        .setResultCode(CredentialRetrieveResult.ResultCode.SUCCESS)
+        .setResultCode(CredentialRetrieveResult.ResultCode.CREDENTIAL_SELECTED)
         .setCredential(credential)
         .build();
 

@@ -22,7 +22,7 @@ Intent using an extra, named "org.openyolo.credential.save.request".
 This intent is dispatched by the client using
 [startActivityForResult][android-start-activity-for-result].
 
-An example save request could be constructed and dispatched as follows:
+An example save request could be created and dispatched as follows:
 
 ```java
 CredentialSaveRequest request = CredentialSaveRequest.newBuilder()
@@ -61,7 +61,7 @@ An example save result could therefore be sent with the following code:
 
 ```java
 CredentialSaveResult result = CredentialSaveResult.newBuilder()
-    .setResultCode(CredentialSaveResult.ResultCode.SUCCESS);
+    .setResultCode(CredentialSaveResult.ResultCode.SAVED);
 Intent saveResultData = new Intent()
     .putExtra(
         "org.openyolo.credential.save.result",

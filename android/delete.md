@@ -18,7 +18,7 @@ protocol buffer form. An activity Intent is then created to send this to the
 credential provider. The delete request message MUST be added to the activity
 Intent using an extra, named "org.openyolo.credential.delete.request".
 
-An example delete request could be constructed as follows:
+An example delete request could be created and dispatched as follows:
 
 ```java
 CredentialDeleteRequest request =
@@ -39,6 +39,8 @@ Intent deleteIntent = new Intent()
     .putExtra(
         "org.openyolo.credential.delete.request",
         request.toByteArray());
+
+startActivityForResult(deleteIntent, RC_DELETE);
 ```
 
 This intent is dispatched by the client using
@@ -55,7 +57,7 @@ An example save result could therefore be sent with the following code:
 
 ```java
 CredentialDeleteResult result = CredentialDeleteResult.newBuilder()
-    .setResultCode(CredentialSaveResult.ResultCode.REJECTED);
+    .setResultCode(CredentialSaveResult.ResultCode.USER_REFUSED);
 Intent deleteResultData = new Intent()
     .putExtra(
         "org.openyolo.credential.delete.result",
