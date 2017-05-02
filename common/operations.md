@@ -33,7 +33,8 @@ need the following core pieces of information:
 
 - A _display name_ and _profile picture_ for the user, in order to personalize
   the service. Where it is possible for a user to have multiple accounts with
-  the service, the
+  the service, the display name and profile picture help the user to
+  distinguish between these accounts.
 
 The OpenYOLO _hint retrieval_ operation allows a service to request this
 information from the credential provider. In response, the credential provider
