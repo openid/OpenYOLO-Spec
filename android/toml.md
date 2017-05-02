@@ -1,5 +1,5 @@
 % title = "OpenYOLO for Android"
-% docName = "draft-openyolo-android-01"
+% docName = "draft-openyolo-android-02"
 % submissionType = "independent"
 % category = "exp"
 % area = "Internet"
