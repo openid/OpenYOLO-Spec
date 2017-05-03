@@ -1,0 +1,1087 @@
+<!DOCTYPE html
+  SYSTEM "about:legacy-compat">
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>OpenYOLO for Android</title><script type="application/javascript">
+function anchorRewrite() {
+  map = { };
+  if (window.location.hash.length >= 1) {
+    var fragid = window.location.hash.substr(1);
+    if (fragid) {
+      if (! document.getElementById(fragid)) {
+        var prefix = "rfc.";
+        var mapped = map[fragid];
+        if (mapped) {
+          window.location.hash = mapped;
+        } else if (fragid.indexOf("section-") == 0) {
+          window.location.hash = prefix + "section." + fragid.substring(8);
+        } else if (fragid.indexOf("appendix-") == 0) {
+          window.location.hash = prefix + "section." + fragid.substring(9);
+        } else if (fragid.indexOf("s-") == 0) {
+          var postfix = fragid.substring(2);
+          if (postfix.startsWith("abstract")) {
+            window.location.hash = prefix + postfix;
+          } else if (postfix.startsWith("note-")) {
+            window.location.hash = prefix + "note." + postfix.substring(5);
+          } else {
+            window.location.hash = prefix + "section." + postfix;
+          }
+        } else if (fragid.indexOf("p-") == 0) {
+          var r = fragid.substring(2);
+          var p = r.indexOf("-");
+          if (p >= 0) {
+            window.location.hash = prefix + "section." + r.substring(0, p) + ".p." + r.substring(p + 1);
+          }
+        }
+      }
+    }  
+  }
+}
+window.addEventListener('hashchange', anchorRewrite);
+window.addEventListener('DOMContentLoaded', anchorRewrite);
+</script><link rel="shortcut icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAADnUExURf////r6+r+/v/f39/3nzrS0tP7+/rOzs/iTHvmnR+vr6/j4+LW1tebm5urq6tvb2/z8/Lm5uc7OztnZ2fDw8MHBweTk5P/59Li4uLe3t7y8vLa2tv39/b29vdDQ0PjkzL6+vsO+ucPDw8vLy+/v7+Dg4PiWI/q6bvmoSeLi4v7z5vHx8fn5+fvBfv7x4tfX1/v7++7u7ujo6NPT08XFxeXl5fzUpuPj497e3sLCwru7u/mcMfvlzfzmzvzNl//79tLS0tra2szMzOnp6c3Nzdzc3PDq5d3d3fmbL+Hh4eDSw8bGxtXV1TGsX/AAAAD6SURBVDjLY2CgAdDCL62nroFPWlxXjYMTnwIWDo5Br4DZFqSAWwCrJCOvgwK7PEgBP6uSDx+6tICjNDsQQBSAWKK8DIZCCHkxKZCgpJMNSAGfLIjDasIuCJfXB4koOcvAHMnlwmMlCVTDBpVXBUpLW7Ah+ULEEqSFnRsiz8UKZBshe5NbDmwLuzZEgTKQKYweDsymxqKsEL+wSQAV6GALKANGMKUClGfCF5IihBSwCQJVMOOLCyFsjkQGYG+K4YtNTaACHnc2PNENjh4FXgHc6cEcHFk83l44E4yMKyi42BU5OKzNcKQmRk85JnZFDzt7fEmS0U2c+lkZAOAoE2iFNzVGAAAAAElFTkSuQmCC"><meta name="theme-color" content="#f38019"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><style type="text/css">
+    @import url('https://fonts.googleapis.com/css?family=Noto+Sans:r,b,i,bi');
+    @import url('https://fonts.googleapis.com/css?family=Roboto+Mono:r,b,i,bi');
+
+    body {
+      background-color: #fafafa;
+      color: #5a5a5a;
+      font-family: 'Noto Sans', sans-serif;
+      font-size: 12pt;
+      margin: 1em;
+      overflow-wrap: break-word;
+    }
+
+    body > * {
+      max-width: 50em;
+      margin: auto;
+      overflow-x: hidden;
+    }
+
+    #identifiers {
+      margin: 8pt 0;
+    }
+
+    #identifiers > div {
+    }
+
+    #identifiers dt {
+      display: inline;
+      float: none;
+      font-style: italic;
+      vertical-align: top;
+    }
+
+    #identifiers dt:after {
+      content: ": ";
+      vertical-align: top;
+    }
+
+    #identifiers dd {
+      display: inline;
+      margin: 0;
+    }
+
+    .authors {
+      display: block;
+      text-align: center;
+      margin-top: 0.5em;
+    }
+
+    .authors .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+
+    .authors .org {
+      font-style: italic;
+    }
+
+    a {
+      text-decoration: none;
+      color: #f38019
+    }
+
+    a.smpl {
+      color: black;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    a:active {
+      text-decoration: underline;
+    }
+
+    .self {
+        color: #999999;
+        margin-left: .3em;
+        text-decoration: none;
+        visibility: hidden;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+    .self:hover {
+        text-decoration: none;
+    }
+    li:hover > a.self, p:hover > a.self {
+        visibility: visible;
+    }
+
+    address {
+      margin-top: 1em;
+      margin-left: 2em;
+      font-style: normal;
+    }
+
+    
+
+    samp, span.tt, code, pre {
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    
+
+    cite {
+      font-style: normal;
+    }
+
+    dl > dt {
+      float: left;
+      margin-right: 1em;
+    }
+    dl.nohang > dt {
+      float: none;
+    }
+    dl > dd {
+      margin-bottom: .5em;
+    }
+    dl.compact > dd {
+      margin-bottom: .0em;
+    }
+    dl > dd > dl {
+      margin-top: 0.5em;
+    }
+    ul.empty {
+      list-style-type: none;
+    }
+    ul.empty li {
+      margin-top: .5em;
+    }
+    dl p {
+      margin-left: 0em;
+    }
+    dl.reference > dt {
+      font-weight: bold;
+    }
+
+    h1 {
+      color: #f38019;
+      font-size: 150%;
+      line-height: 18pt;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 8pt;
+      margin-bottom: 0pt;
+    }
+    h2 {
+      font-size: 130%;
+      line-height: 21pt;
+      page-break-after: avoid;
+    }
+    h2.np {
+      page-break-before: always;
+    }
+    h3 {
+      font-size: 120%;
+      line-height: 15pt;
+      page-break-after: avoid;
+    }
+    h4 {
+      font-size: 110%;
+      page-break-after: avoid;
+    }
+    h5, h6 {
+      page-break-after: avoid;
+    }
+    h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+      color: black;
+    }
+
+    ol.la {
+      list-style-type: lower-alpha;
+    }
+    ol.ua {
+      list-style-type: upper-alpha;
+    }
+    ol p {
+      margin-left: 0em;
+    }
+    
+
+    pre {
+      font-size: 11pt;
+      background-color: #E0E0E0;
+      padding: .25em;
+      page-break-inside: avoid;
+      overflow-x: auto;
+    }
+
+    
+
+    pre.text2 {
+      border-style: dotted;
+      border-width: 1px;
+      background-color: #E0E0E0;
+    }
+    pre.inline {
+      background-color: white;
+      padding: 0em;
+      page-break-inside: auto;
+      
+    }
+    pre.text {
+      border-style: dotted;
+      border-width: 1px;
+      background-color: #fafafa;
+    }
+    pre.drawing {
+      border-style: solid;
+      border-width: 1px;
+      background-color: #fafafa;
+      padding: 2em;
+    }
+
+    
+
+    table.header {
+      border-spacing: 1px;
+      width: 95%;
+      font-size: 11pt;
+      color: white;
+    }
+    td.top {
+      vertical-align: top;
+    }
+    td.topnowrap {
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    table.header td {
+      background-color: #7c7d80;
+      width: 50%;
+      padding: 2px 8px;
+    }
+
+    
+
+    ul.toc, ul.toc ul {
+      list-style: none;
+      padding-left: 0em;
+    }
+
+    ul.toc li {
+      line-height: 150%;
+      font-weight: bold;
+      margin-left: 0em;
+    }
+
+    ul.toc li li {
+      line-height: normal;
+      font-weight: normal;
+      font-size: 11pt;
+      margin-left: 0em;
+    }
+
+    ul.toc a {
+      color: #f38019;
+    }
+
+    li.excluded {
+      font-size: 0pt;
+    }
+    ul p {
+      margin-left: 0em;
+    }
+    .filename, h1, h2, h3, h4 {
+      font-family: 'Noto Sans', segoe, optima, arial, sans-serif;
+    }
+
+    
+
+    .comment {
+      background-color: yellow;
+    }
+
+    
+
+    .center {
+      text-align: center;
+    }
+
+    .error {
+      color: red;
+      font-style: italic;
+      font-weight: bold;
+    }
+    .figure {
+      font-weight: bold;
+      text-align: center;
+      font-size: 10pt;
+    }
+    .filename {
+      color: #5a5a5a;
+      font-size: 112%;
+      font-weight: bold;
+      line-height: 21pt;
+      text-align: center;
+      margin-top: 0.25em;
+    }
+    .fn {
+      font-weight: bold;
+    }
+    .left {
+      text-align: left;
+    }
+    .right {
+      text-align: right;
+    }
+    .warning {
+      font-size: 130%;
+      background-color: yellow;
+    }
+
+    
+
+    @media screen {
+      pre.text, pre.text2 {
+        width: 69em;
+      }
+    }
+
+    @media print {
+      .noprint {
+        display: none;
+      }
+
+      a {
+        color: black;
+        text-decoration: none;
+      }
+
+      table.header {
+        width: 90%;
+      }
+
+      td.header {
+        width: 50%;
+        color: black;
+        background-color: white;
+        vertical-align: top;
+        font-size: 110%;
+      }
+
+      ul.toc a:last-child::after {
+        content: leader('.') target-counter(attr(href), page);
+      }
+
+      ul.ind li li a {
+        content: target-counter(attr(href), page);
+      }
+
+      pre {
+        font-size: 10pt;
+      }
+
+      .print2col {
+        column-count: 2;
+        -moz-column-count: 2;
+        column-fill: auto;
+      }
+
+    
+    }
+
+    @page {
+      @top-left {
+          content: "Internet-Draft";
+      }
+      @top-right {
+          content: "May 2017";
+      }
+      @top-center {
+          content: "OpenYOLO for Android";
+      }
+      @bottom-left {
+          content: "McGinniss";
+      }
+      @bottom-center {
+          content: "Expires November 3, 2017";
+      }
+      @bottom-right {
+          content: "[Page " counter(page) "]";
+      }
+    }
+    @page:first {
+        @top-left {
+          content: normal;
+        }
+        @top-right {
+          content: normal;
+        }
+        @top-center {
+          content: normal;
+        }
+    }
+
+    @media only screen and (max-device-width: 480px) {
+      p {
+        text-align: justify;
+        text-justify: distribute;
+        -webkit-hyphens: auto;
+      }
+
+      pre {
+        font-size: 9pt;
+      }
+
+      table.header {
+        display: block;
+        border-spacing: 1px;
+        font-size: 11pt;
+        color: white;
+      }
+
+      table.header tbody {
+        display: flex;
+        flex-direction: column;
+      }
+
+      table.header tr {
+        display: run-in;
+      }
+
+      table.header td {
+        display: block;
+        background-color: #7c7d80;
+        width: auto;
+      }
+
+      table.header td.left {
+        order: 0;
+      }
+
+      table.header td.right {
+        order: 1;
+      }
+    }
+    </style><link rel="Contents" href="#rfc.toc"><link rel="Author" href="#rfc.authors"><link rel="Copyright" href="#rfc.copyrightnotice"><link rel="Chapter" title="1 Introduction" href="#rfc.section.1"><link rel="Chapter" title="2 OpenYOLO concepts and definitions" href="#rfc.section.2"><link rel="Chapter" title="3 Operations" href="#rfc.section.3"><link rel="Chapter" title="4 Android specifics" href="#rfc.section.4"><link rel="Chapter" title="5 Security on rooted devices" href="#rfc.section.5"><meta name="generator" content="http://greenbytes.de/tech/webdav/rfc2629.xslt, Revision 1.908, 2017/04/06 12:58:20, XSLT vendor: Saxonica http://www.saxonica.com/"><meta name="keywords" content="password, credential, security"><link rel="schema.dcterms" href="http://purl.org/dc/terms/"><meta name="dcterms.creator" content="McGinniss, I."><meta name="dcterms.identifier" content="urn:ietf:id:draft-openyolo-android-03"><meta name="dcterms.issued" content="2017-05-02"><meta name="dcterms.abstract" content="OpenYOLO for Android is a protocol for retrieving, updating and assisting in the creation of authentication credentials. This document describes the core concepts of OpenYOLO, and the platform-specific details for implementing the OpenYOLO protocol on Android. What's in a name? YOLO stands for &#34;You Only Login Once&#34;, which is the internal code-name for Google's Smart Lock for Passwords API on Android. OpenYOLO is the open standards successor to YOLO, and came to be as a result of an initial collaboration between Google and Dashlane. OpenYOLO leverages the lessons learned from YOLO, and also ensures that implementations of OpenYOLO can compete on a level playing field. OpenYOLO would not have been likely to succeed without AgileBits, Keeper Security and LastPass, to whom we are grateful for their continued support and engagement."><meta name="description" content="OpenYOLO for Android is a protocol for retrieving, updating and assisting in the creation of authentication credentials. This document describes the core concepts of OpenYOLO, and the platform-specific details for implementing the OpenYOLO protocol on Android. What's in a name? YOLO stands for &#34;You Only Login Once&#34;, which is the internal code-name for Google's Smart Lock for Passwords API on Android. OpenYOLO is the open standards successor to YOLO, and came to be as a result of an initial collaboration between Google and Dashlane. OpenYOLO leverages the lessons learned from YOLO, and also ensures that implementations of OpenYOLO can compete on a level playing field. OpenYOLO would not have been likely to succeed without AgileBits, Keeper Security and LastPass, to whom we are grateful for their continued support and engagement."></head><body><header><div id="rfc.title"><h1>OpenYOLO for Android</h1><div class="filename">draft-openyolo-android-03</div></div><div class="authors"><div class="author"><div class="author-name">I. McGinniss</div><div class="org">Google, Inc.</div></div></div><dl id="identifiers"><div><dt>Published</dt><dd>May&nbsp;2, 2017</dd></div><div><dt>Expires</dt><dd>November 3, 2017</dd></div></dl></header><section id="rfc.abstract"><h2><a href="#rfc.abstract">Abstract</a></h2><div id="rfc.abstract.p.1"><p>OpenYOLO for Android is a protocol for retrieving, updating and assisting in the creation of authentication credentials. This document describes the core concepts of OpenYOLO, and the platform-specific details for implementing the OpenYOLO protocol on Android.</p></div><div id="rfc.abstract.p.2"><p><strong>What's in a name?</strong> </p></div><div id="rfc.abstract.p.3"><p>YOLO stands for "You Only Login Once", which is the internal code-name for Google's <a href="https://developers.google.com/identity/smartlock-passwords/android/">Smart Lock for Passwords</a> API on Android. OpenYOLO is the open standards successor to YOLO, and came to be as a result of an initial collaboration between Google and <a href="https://www.dashlane.com">Dashlane</a>. OpenYOLO leverages the lessons learned from YOLO, and also ensures that implementations of OpenYOLO can compete on a level playing field.</p></div><div id="rfc.abstract.p.4"><p>OpenYOLO would not have been likely to succeed without <a href="https://agilebits.com/">AgileBits</a>, <a href="https://keepersecurity.com/">Keeper Security</a> and <a href="https://www.lastpass.com/">LastPass</a>, to whom we are grateful for their continued support and engagement.</p></div></section><hr class="noprint"><nav id="rfc.toc"><h2 class="np"><a href="#rfc.toc">Table of Contents</a></h2><ul class="toc"><li><a href="#rfc.section.1">1.</a>&nbsp;&nbsp;&nbsp;<a href="#introduction">Introduction</a><ul><li><a href="#rfc.section.1.1">1.1.</a>&nbsp;&nbsp;&nbsp;<a href="#password-authentication">Password authentication</a></li><li><a href="#rfc.section.1.2">1.2.</a>&nbsp;&nbsp;&nbsp;<a href="#federated-authentication">Federated authentication</a></li><li><a href="#rfc.section.1.3">1.3.</a>&nbsp;&nbsp;&nbsp;<a href="#account-recovery-based-authentication">Account recovery based authentication</a></li><li><a href="#rfc.section.1.4">1.4.</a>&nbsp;&nbsp;&nbsp;<a href="#credential-managers">Credential managers</a></li><li><a href="#rfc.section.1.5">1.5.</a>&nbsp;&nbsp;&nbsp;<a href="#solution-direct-communication-with-a-credential-manager">Solution: Direct communication with a credential manager</a></li></ul></li><li><a href="#rfc.section.2">2.</a>&nbsp;&nbsp;&nbsp;<a href="#openyolo-concepts-and-definitions">OpenYOLO concepts and definitions</a><ul><li><a href="#rfc.section.2.1">2.1.</a>&nbsp;&nbsp;&nbsp;<a href="#credentials">Credentials</a><ul><li><a href="#rfc.section.2.1.1">2.1.1.</a>&nbsp;&nbsp;&nbsp;<a href="#hints">Hints</a></li></ul></li><li><a href="#rfc.section.2.2">2.2.</a>&nbsp;&nbsp;&nbsp;<a href="#credential-providers">Credential providers</a><ul><li><a href="#rfc.section.2.2.1">2.2.1.</a>&nbsp;&nbsp;&nbsp;<a href="#known-unknown-and-preferred-providers">Known, unknown and preferred providers</a></li></ul></li><li><a href="#rfc.section.2.3">2.3.</a>&nbsp;&nbsp;&nbsp;<a href="#token-providers">Token providers</a></li><li><a href="#rfc.section.2.4">2.4.</a>&nbsp;&nbsp;&nbsp;<a href="#authentication-domains">Authentication domains</a></li><li><a href="#rfc.section.2.5">2.5.</a>&nbsp;&nbsp;&nbsp;<a href="#authentication-methods">Authentication methods</a></li><li><a href="#rfc.section.2.6">2.6.</a>&nbsp;&nbsp;&nbsp;<a href="#password-specifications">Password specifications</a></li><li><a href="#rfc.section.2.7">2.7.</a>&nbsp;&nbsp;&nbsp;<a href="#client-versions">Client versions</a></li></ul></li><li><a href="#rfc.section.3">3.</a>&nbsp;&nbsp;&nbsp;<a href="#operations">Operations</a><ul><li><a href="#rfc.section.3.1">3.1.</a>&nbsp;&nbsp;&nbsp;<a href="#hint-retrieval">Hint retrieval</a><ul><li><a href="#rfc.section.3.1.1">3.1.1.</a>&nbsp;&nbsp;&nbsp;<a href="#hint-request-message">Hint request message</a></li><li><a href="#rfc.section.3.1.2">3.1.2.</a>&nbsp;&nbsp;&nbsp;<a href="#hint-response-message">Hint response message</a></li><li><a href="#rfc.section.3.1.3">3.1.3.</a>&nbsp;&nbsp;&nbsp;<a href="#example-hint-retrieval-scenario">Example hint retrieval scenario</a></li></ul></li><li><a href="#rfc.section.3.2">3.2.</a>&nbsp;&nbsp;&nbsp;<a href="#credential-retrieval">Credential retrieval</a><ul><li><a href="#rfc.section.3.2.1">3.2.1.</a>&nbsp;&nbsp;&nbsp;<a href="#credential-request-message">Credential request message</a></li><li><a href="#rfc.section.3.2.2">3.2.2.</a>&nbsp;&nbsp;&nbsp;<a href="#credential-response-message">Credential response message</a></li><li><a href="#rfc.section.3.2.3">3.2.3.</a>&nbsp;&nbsp;&nbsp;<a href="#example-credential-retrieval-scenario">Example credential retrieval scenario</a></li></ul></li><li><a href="#rfc.section.3.3">3.3.</a>&nbsp;&nbsp;&nbsp;<a href="#credential-saving">Credential saving</a><ul><li><a href="#rfc.section.3.3.1">3.3.1.</a>&nbsp;&nbsp;&nbsp;<a href="#save-request-message">Save request message</a></li><li><a href="#rfc.section.3.3.2">3.3.2.</a>&nbsp;&nbsp;&nbsp;<a href="#save-response-message">Save response message</a></li></ul></li><li><a href="#rfc.section.3.4">3.4.</a>&nbsp;&nbsp;&nbsp;<a href="#credential-deletion">Credential deletion</a><ul><li><a href="#rfc.section.3.4.1">3.4.1.</a>&nbsp;&nbsp;&nbsp;<a href="#delete-request-message">Delete request message</a></li><li><a href="#rfc.section.3.4.2">3.4.2.</a>&nbsp;&nbsp;&nbsp;<a href="#delete-response-message">Delete response message</a></li></ul></li></ul></li><li><a href="#rfc.section.4">4.</a>&nbsp;&nbsp;&nbsp;<a href="#android-specifics">Android specifics</a><ul><li><a href="#rfc.section.4.1">4.1.</a>&nbsp;&nbsp;&nbsp;<a href="#discovering-installed-providers">Discovering installed providers</a><ul><li><a href="#rfc.section.4.1.1">4.1.1.</a>&nbsp;&nbsp;&nbsp;<a href="#preferred-credential-providers-on-android">Preferred credential providers on Android</a></li></ul></li><li><a href="#rfc.section.4.2">4.2.</a>&nbsp;&nbsp;&nbsp;<a href="#retrieving-hints">Retrieving Hints</a></li><li><a href="#rfc.section.4.3">4.3.</a>&nbsp;&nbsp;&nbsp;<a href="#retrieving-credentials">Retrieving credentials</a><ul><li><a href="#rfc.section.4.3.1">4.3.1.</a>&nbsp;&nbsp;&nbsp;<a href="#dispatching-a-direct-retrieve-request">Dispatching a direct retrieve request</a></li><li><a href="#rfc.section.4.3.2">4.3.2.</a>&nbsp;&nbsp;&nbsp;<a href="#returning-a-response">Returning a response</a></li><li><a href="#rfc.section.4.3.3">4.3.3.</a>&nbsp;&nbsp;&nbsp;<a href="#parallel-credential-retrieval">Parallel credential retrieval</a></li></ul></li><li><a href="#rfc.section.4.4">4.4.</a>&nbsp;&nbsp;&nbsp;<a href="#saving-credentials">Saving credentials</a><ul><li><a href="#rfc.section.4.4.1">4.4.1.</a>&nbsp;&nbsp;&nbsp;<a href="#dispatching-a-save-request">Dispatching a save request</a></li><li><a href="#rfc.section.4.4.2">4.4.2.</a>&nbsp;&nbsp;&nbsp;<a href="#returning-a-response-1">Returning a response</a></li></ul></li><li><a href="#rfc.section.4.5">4.5.</a>&nbsp;&nbsp;&nbsp;<a href="#deleting-credentials">Deleting credentials</a></li><li><a href="#rfc.section.4.6">4.6.</a>&nbsp;&nbsp;&nbsp;<a href="#the-background-broadcast-query-protocol-bbq">The background broadcast query protocol (BBQ)</a><ul><li><a href="#rfc.section.4.6.1">4.6.1.</a>&nbsp;&nbsp;&nbsp;<a href="#bbq-requests">BBQ requests</a></li><li><a href="#rfc.section.4.6.2">4.6.2.</a>&nbsp;&nbsp;&nbsp;<a href="#bbq-responses">BBQ responses</a></li><li><a href="#rfc.section.4.6.3">4.6.3.</a>&nbsp;&nbsp;&nbsp;<a href="#use-of-timeouts">Use of timeouts</a></li></ul></li></ul></li><li><a href="#rfc.section.5">5.</a>&nbsp;&nbsp;&nbsp;<a href="#security-on-rooted-devices">Security on rooted devices</a></li><li><a href="#rfc.authors">Author's Address</a></li></ul></nav><section id="rfc.note.1" class="note"><h2><a href="#rfc.note.1">Copyright notice</a></h2><div id="rfc.note.1.p.1"><p>Copyright (c) 2017 The OpenID Foundation.</p></div><div id="rfc.note.1.p.2"><p>The OpenID Foundation (OIDF) grants to any Contributor, developer, implementer, or other interested party a non-exclusive, royalty free, worldwide copyright license to reproduce, prepare derivative works from, distribute, perform and display, this Implementers Draft or Final Specification solely for the purposes of (i) developing specifications, and (ii) implementing Implementers Drafts and Final Specifications based on such documents, provided that attribution be made to the OIDF as the source of the material, but that such attribution does not indicate an endorsement by the OIDF.</p></div><div id="rfc.note.1.p.3"><p>The technology described in this specification was made available from contributions from various sources, including members of the OpenID Foundation and others. Although the OpenID Foundation has taken steps to help ensure that the technology is available for distribution, it takes no position regarding the validity or scope of any intellectual property or other rights that might be claimed to pertain to the implementation or use of the technology described in this specification or the extent to which any license under such rights might or might not be available; neither does it represent that it has made any independent effort to identify any such rights. The OpenID Foundation and the contributors to this specification make no (and hereby expressly disclaim any) warranties (express, implied, or otherwise), including implied warranties of merchantability, non-infringement, fitness for a particular purpose, or title, related to this specification, and the entire risk as to implementing this specification is assumed by the implementer. The OpenID Intellectual Property Rights policy requires contributors to offer a patent promise not to assert certain patent claims against other contributors and against implementers. The OpenID Foundation invites any interested party to bring to its attention any copyrights, patents, patent applications, or other proprietary rights that may cover technology that may be required to practice this specification.</p></div></section><section id="rfc.note.2" class="note"><h2><a href="#rfc.note.2">Requirements Notation and Conventions</a></h2><div id="rfc.note.2.p.1"><p>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <a href="https://tools.ietf.org/html/rfc2119">RFC 2119</a>.</p></div></section><hr class="noprint"><section id="introduction"><h2 id="rfc.section.1" class="np"><a href="#rfc.section.1">1.</a>&nbsp;<a href="#introduction">Introduction</a></h2><div id="rfc.section.1.p.1" class="avoidbreakafter"><p>Manually authenticating in an app or site is mentally exhausting. Users are typically presented with a screen like the following when interacting with an application or website:</p></div><pre>
++------------------------------------------+
+|                                          |
+|       To continue, please sign in:       |
+|                                          |
+|    Email                                 |
+|   ------------------------------------   |
+|                                          |
+|    Password                              |
+|   ------------------------------------   |
+|                                          |
+|   Forgotten your password? [Click here]  |
+|                                          |
+|   =============== Or: ================   |
+|                                          |
+|   +-------------+     +--------------+   |
+|   |   Google    |     |   Facebook   |   |
+|   +-------------+     +--------------+   |
+|                                          |
+|       If you don't have an account,      |
+|                [click here]              |
+|                                          |
++------------------------------------------+
+</pre><div id="rfc.section.1.p.2" class="avoidbreakafter"><p>The user typically has to mentally process three questions in response to such a page:</p></div><div id="rfc.section.1.p.3"><ol><li>Do I already have an account for this service?</li> <li>If so, did I use an email address and password, or one of the identity provider options?</li> <li>If I used an email address and password, what was the password?<a class="self" href="#rfc.section.1.p.3">¶</a></li> </ol></div><div id="rfc.section.1.p.4"><p>For all but most frequently used apps and websites (henceforth referred to as <em>services</em>), this is a tedious and error-prone process. As of 2016, users typically interact with around <a href="https://blog.dashlane.com/infographic-online-overload-its-worse-than-you-thought/">100 services</a>. Many of those services are used less than once a month, for example to buy flowers or arrange air travel. Switching to a new device is a particularly painful experience due to the need to re-authenticate with all used services.</p></div><div id="rfc.section.1.p.5"><p>Remembering unique account details for 100+ services is infeasible; the natural human consequence of this situation is widespread credential reuse across services. This is a disaster for the user's security - an alternative approach is needed.</p></div><section id="password-authentication"><h3 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a>&nbsp;<a href="#password-authentication">Password authentication</a></h3><div id="rfc.section.1.1.p.1" class="avoidbreakafter"><p>Password based authentication, despite many attempts to displace it, remains the most common form of authentication in use today. Password authentication suffers from three key issues:</p></div><div id="rfc.section.1.1.p.2"><ul><li><div><p>User selected passwords are often <em>weak</em>. Most users do not know how to produce <a href="https://doi.org/10.1109/MSP.2004.81">high entropy passwords</a>. The basic strategies employed involve using combinations of common dictionary words, years and names, all of which easily succumb to social engineering and dictionary attacks.</p></div></li> <li><div><p>Password credentials are often <em>transferable</em>. The limits of humans to memorize long strings of random information is <a href="https://doi.org/10.1145/322796.322806">well studied</a>; the typical user cannot be expected to memorize more than 5 passwords for unrelated services. The natural consequence is that users frequently reuse their passwords, which when combined with email addresses as identifiers, makes the credentials transferable across unrelated services. If a password is uncovered for a user on one service, an attacker can simply try this credential on other services with a high success rate.</p></div></li> <li><div><p>Password credentials are often <em>long lived</em>. There is no intrinsic expiration time on a password credential, and password rotation is not uniformly enforced across all password using services. If a password is uncovered by an attacker, it can be used for a significant period of time, perhaps indefinitely.</p></div> <div><p>Even where a service does enforce password rotation, such as once a year, "digit rotation" is commonly employed by users to circumvent this: they simply increment a counter at some position in the password, typically at the end. This makes guessing future passwords from current passwords particularly easy for an attacker.</p></div><a class="self" href="#rfc.section.1.1.p.2">¶</a></li> </ul></div><div id="rfc.section.1.1.p.3" class="avoidbreakafter"><p>The problems that passwords cause only get worse as users interact with more and more services. Yet, password authentication persists:</p></div><div id="rfc.section.1.1.p.4"><ul><li><div><p>Password authentication is familiar to users, and is therefore is often their default choice.</p></div></li> <li><div><p>It is considered to be easy to implement, despite the numerous account system breaches that demonstrate the opposite.</p></div></li> <li><div><p>It has no dependencies on external entities, like identity providers. The stability of the system is entirely under the control of the implementer, for better or worse.</p></div><a class="self" href="#rfc.section.1.1.p.4">¶</a></li> </ul></div><div id="rfc.section.1.1.p.5"><p>It is unlikely that password based authentication can be completely displaced; as such, any solution in this problem space will have to accommodate password based authentication.</p></div></section><section id="federated-authentication"><h3 id="rfc.section.1.2"><a href="#rfc.section.1.2">1.2.</a>&nbsp;<a href="#federated-authentication">Federated authentication</a></h3><div id="rfc.section.1.2.p.1"><p>Federated authentication, in the form of <a href="https://tools.ietf.org/html/rfc6749">OAuth2</a> and <a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect</a>, solves the problem of account overload by centralizing authentication for the user with a small number of trusted <em>identity providers</em>. Furthermore, by providing proof of authentication to a service (referred to as a <em>relying party</em> in this context) in the form of cryptographically signed <a href="https://tools.ietf.org/html/rfc7519">ID tokens</a>, overall security is significantly improved when compared to password based authentication.</p></div><div id="rfc.section.1.2.p.2"><p>However, the success of federated authentication is still limited - OAuth2 and OpenID Connect are regarded as difficult to implement, and federated authentication was unnecessarily tainted by "social login" in the early 2010s. Federated authentication became associated with unnecessary and invasive sharing of personal information. This association has largely been undone, but the perception of privacy invasion lingers.</p></div><div id="rfc.section.1.2.p.3"><p>Furthermore, it is easy for users to forget <em>which</em> identity provider they use, when multiple options are presented. Services also rarely implement <em>account linking</em> correctly, where multiple authentication methods are attached to the same core account. Because of this, making the wrong choice often leads to a totally different account: for example, choosing Google Sign-in when the user's account was actually created using Facebook. The inconsistency and frustration caused by this is often enough to drive users to the authentication method they know best - email and password authentication, with a reused password across every service.</p></div></section><section id="account-recovery-based-authentication"><h3 id="rfc.section.1.3"><a href="#rfc.section.1.3">1.3.</a>&nbsp;<a href="#account-recovery-based-authentication">Account recovery based authentication</a></h3><div id="rfc.section.1.3.p.1" class="avoidbreakafter"><p>An equally common method of authentication employed by users is to simply trigger the <em>account recovery</em> flow every time they need to use the service. Accounts are typically created with a recovery email address or phone number, and users exploit this fact to regain access to the account when necessary. They expect the following flow:</p></div><div id="rfc.section.1.3.p.2"><ol><li><div><p>An email or SMS message will be sent containing a link to reset the password.</p></div></li> <li><div><p>The user clicks the link to change their password, likely to either their current reused password, or something else that they immediately forget.</p></div></li> <li><div><p>The user is now authenticated. When the session expires or the user changes device the process is often repeated.</p></div><a class="self" href="#rfc.section.1.3.p.2">¶</a></li> </ol></div><div id="rfc.section.1.3.p.3"><p>We shall refer to this method of authentication as "proof of access" - by demonstrating that a secret can be communicated via some trusted side-channel, the user can gain access to the account. Some services use this method explicitly, as the main form of authentication - <a href="https://www.slack.com">Slack</a> refers to this as "magic link" authentication.</p></div><div id="rfc.section.1.3.p.4"><p>Sending an authentication secret (a code or a link) to an email address or phone number is essentially a form of federated authentication. In comparison to OpenID Connect, this is a rather absurd and inconvenient, as it requires the user to manually drive the authentication flow. It is, however, a model of authentication that users find easy to understand, despite its shortcomings.</p></div><div id="rfc.section.1.3.p.5"><p>If it were possible to provide proof of access to an email address or phone number directly to a service from an authoritative source, then the manual verification of access to that email or phone number would be unnecessary. The most common email providers are <em>also</em> OAuth2 or OpenID Connect identity providers: Google, Microsoft and Yahoo account for over 90% of the US market, according to a data analysis conducted by <a href="https://blog.mailchimp.com/major-email-provider-trends-in-2015-gmail-takes-a-really-big-lead/">MailChimp in 2015</a>. These providers already have the ability to assert proof of access in the form of <a href="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID tokens</a>. Providing an easier mechanism to acquire such ID tokens would simplify authentication for many services.</p></div></section><section id="credential-managers"><h3 id="rfc.section.1.4"><a href="#rfc.section.1.4">1.4.</a>&nbsp;<a href="#credential-managers">Credential managers</a></h3><div id="rfc.section.1.4.p.1"><p>A <em>credential manager</em> is a piece of software that remembers credentials on behalf of a user. Most credential managers focus on password based authentication, and offer to generate strong, unique password for each new service a user interacts with.</p></div><div id="rfc.section.1.4.p.2"><p>The most common credential manager that users encounter is their web browser, which presents itself via form-fill on authentication pages. Technically knowledgeable users often also have a standalone credential manager.</p></div><div id="rfc.section.1.4.p.3" class="avoidbreakafter"><p>Credential managers suffer from the following usability issues, which limit their appeal:</p></div><div id="rfc.section.1.4.p.4"><ul><li><div><p>When a credential manager is a standalone application, the user must manually switch context to find the relevant credential, and copy-paste it to the service they are signing in to. Browser extensions can make this easier, but are not supported on all platforms, in particular on mobile devices.</p></div> <div><p>Manually copying a password also represents a security risk in itself; on some platforms it is possible for other applications installed on the device to monitor the clipboard and steal passwords that are copied out of the credential manager.</p></div></li> <li><div><p>Where a credential manager is able to integrate with the browser or OS in some way, heuristics are often necessary to detect and fill in login forms. Such heuristics are fragile to changes in the service, such as when they are redesigned or change path within the domain. Heuristics are employed because there is rarely any viable alternative: services do not provide sufficient information for a credential manager to do a better job.</p></div> <div><p>This problem is particularly acute when the login system employs an <em>identifier first</em> pattern, where collection of the identifier and a password are split across separate screens. In such situations, heuristics typically fail to detect the relationship between the fields across these separate screens.</p></div></li> <li><div><p>Credential managers are often blind to relationships between apps and sites that share the same authentication system - saving a credential for one site does not automatically make this credential available on other, related sites.</p></div></li> <li><div><p>Credential managers do not assist federated authentication: they cannot help the user remember if they signed in to the service using Google or Facebook, only whether they filled in an identifier and password.</p></div></li> <li><div><p>Credential managers are unaware of password restrictions in use on the site: how long they must be, whether they must include a number or symbol, etc. As such, <em>password generation</em> is also heuristic and based on a least common denominator schema that is acceptable to the majority of services.</p></div><a class="self" href="#rfc.section.1.4.p.4">¶</a></li> </ul></div></section><section id="solution-direct-communication-with-a-credential-manager"><h3 id="rfc.section.1.5"><a href="#rfc.section.1.5">1.5.</a>&nbsp;<a href="#solution-direct-communication-with-a-credential-manager">Solution: Direct communication with a credential manager</a></h3><div id="rfc.section.1.5.p.1" class="avoidbreakafter"><p>If services could directly communicate with the user's preferred credential manager, manual authentication and its associated problems can completely disappear. If such a communication channel existed, then the following operations would be possible:</p></div><div id="rfc.section.1.5.p.2"><ul><li><div><p>Account creation facilitated by the credential manager. The service could describe to the credential manager what authentication methods it supports, and what password restrictions it has. In response, a credential provider could (with or without user assistance) select an email address and generate a strong, unique password that is guaranteed to work.</p></div></li> <li><div><p>Automatic retrieval of existing credentials. At the appropriate moment, a service could request a credential, and have this automatically returned, or returned after some in-context user consent is solicited. This would be a marked improvement over the user manually finding and copying the credential, and minimizes the opportunity for the credential to be stolen in doing so.</p></div></li> <li><div><p>Maintenance of the credential manager store. When the service modifies an account, it can notify the credential manager of account changes. This information can be used to keep the credential store fresh.</p></div></li> <li><div><p>"Proof of access" to email addresses and phone numbers (as described in the <a href="#account-recovery-based-authentication" title="Account recovery based authentication">Section&nbsp;1.3</a> section above) could be directly solicited. While the credential manager might not have the authority to generate an ID token for a given email address, it could facilitate this process.</p></div><a class="self" href="#rfc.section.1.5.p.2">¶</a></li> </ul></div><div id="rfc.section.1.5.p.3"><p>OpenYOLO defines a protocol for direct communication between services and credential managers, in order to enable these operations.</p></div></section></section><hr class="noprint"><section id="openyolo-concepts-and-definitions"><h2 id="rfc.section.2" class="np"><a href="#rfc.section.2">2.</a>&nbsp;<a href="#openyolo-concepts-and-definitions">OpenYOLO concepts and definitions</a></h2><div id="rfc.section.2.p.1"><p>Before providing a high level overview of the OpenYOLO operations, some terms that will be used throughout the specification must be defined. Where data structures are described, this document uses <a href="https://developers.google.com/protocol-buffers">protocol buffer v3 messages</a> as the definition language. Where specific instances of these messages are presented, the <a href="https://developers.google.com/protocol-buffers/docs/proto3#json">Protocol Buffer v3 JSON encoding</a> is used.</p></div><section id="credentials"><h3 id="rfc.section.2.1"><a href="#rfc.section.2.1">2.1.</a>&nbsp;<a href="#credentials">Credentials</a></h3><div id="rfc.section.2.1.p.1"><p>A <em>credential</em> is a set of properties that are used to help authenticate a user. Credentials can be <em>partial</em>, where they do not provide all necessary information for authentication.</p></div><div id="rfc.section.2.1.p.2" class="avoidbreakafter"><p>Credentials in OpenYOLO are composed of the following properties:</p></div><div id="rfc.section.2.1.p.3"><ul><li><div><p>An <em>authentication domain</em>, where the credential was saved. All credentials MUST have an associated authentication domain. A credential MAY be usable on other authentication domains. Authentication domains are described in more detail in <a href="#authentication-domains" title="Authentication domains">Section&nbsp;2.4</a>.</p></div></li> <li><div><p>An <em>authentication method</em>, which describes the system used to verify the credential. All credentials MUST have an associated authentication method. Authentication methods are described in more detail in <a href="#authentication-methods" title="Authentication methods">Section&nbsp;2.5</a>.</p></div></li> <li><div><p>An <em>identifier</em>, which designates an account in the context of both the authentication domain and method. All credentials MUST have an identifier. Typically, identifiers are email addresses, phone numbers, or some printable unicode string. Identifiers are typically human readable and distinguishable, but this is not a requirement.</p></div></li> <li><div><p>An optional <em>display name</em>, that assists the user in identifying and distinguishing credentials. Typically, the display name for a credential is the user's real name, or a chosen alias.</p></div></li> <li><div><p>An optional <em>display picture</em>, that fulfills a similar role to display name. Typically, the display picture is either a picture of the user, an avatar that they have chosen, or one they been assigned.</p></div></li> <li><div><p>An optional <em>password</em>, which is a human-readable secret used to authenticate with the service. Specifically, this field MUST NOT be used to store secrets that a user would not use directly, such as bearer tokens.</p></div></li> <li><div><p>An optional <em>ID token</em>, which provides "proof of access" to the identifier of the credential such as an email address or phone number.</p></div></li> <li><div><p>An optional set of non-standard properties. This provides the ability for credential providers to innovate within the constraints of the specification, with a view to later standardizing useful properties. Services SHOULD NOT rely upon additional properties, as their meaning is unlikely to be consistent across credential providers.</p></div><a class="self" href="#rfc.section.2.1.p.3">¶</a></li> </ul></div><div id="rfc.section.2.1.p.4" class="avoidbreakafter"><p>A credential is represented by the following protocol buffer message:</p></div><pre>
+message Credential {
+  // required
+  string id = 1;
+
+  // required
+  AuthenticationDomain auth_domain = 2;
+
+  // required
+  AuthenticationMethod auth_method = 3;
+
+  string display_name = 4;
+  string display_picture_uri = 5;
+  string password = 6;
+  string id_token = 7;
+  map&lt;string, bytes&gt; additional_props = 8;
+}
+</pre><div id="rfc.section.2.1.p.5" class="avoidbreakafter"><p>For example, an email and password credential could look like:</p></div><pre>
+{
+  "id": "jdoe@example.com",
+  "auth_domain": {
+    "uri": "https://www.example.com"
+  },
+  "auth_method": {
+    "uri": "openyolo://email"
+  },
+  "display_name": "Jane Doe",
+  "display_picture_uri": "https://www.robohash.org/jdoe",
+  "password": "RiverClyde7"
+}
+</pre><section id="hints"><h4 id="rfc.section.2.1.1"><a href="#rfc.section.2.1.1">2.1.1.</a>&nbsp;<a href="#hints">Hints</a></h4><div id="rfc.section.2.1.1.p.1" class="avoidbreakafter"><p>Hints are a variant of credentials that are tailored to account discovery and new account creation. They are represented by a separate protocol buffer message from credentials, in order to allow for future extension that might diverge from the definition of credentials. Hints are represented by the following protocol buffer message:</p></div><pre>
+message Hint {
+  // required
+  string id = 1;
+
+  // required
+  AuthenticationMethod auth_method = 3;
+
+  string display_name = 4;
+  string display_picture_uri = 5;
+  string generated_password = 6;
+  string id_token = 7;
+  map&lt;string, bytes&gt; additional_props = 8;
+}
+</pre><div id="rfc.section.2.1.1.p.2"><p>The two main differences from credentials are that noo authentication domain is declared, and that the <span class="tt">password</span> field is renamed to <span class="tt">generated_password</span>, to express its intent more clearly.</p></div></section></section><section id="credential-providers"><h3 id="rfc.section.2.2"><a href="#rfc.section.2.2">2.2.</a>&nbsp;<a href="#credential-providers">Credential providers</a></h3><div id="rfc.section.2.2.p.1" class="avoidbreakafter"><p>A <em>credential provider</em> is a <em>credential manager</em> which implements the OpenYOLO protocol. Credential providers are typically one of the following:</p></div><div id="rfc.section.2.2.p.2"><ul><li><div><p>A dedicated service whose sole purpose is to store and recall credentials for the user.</p></div></li> <li><div><p>A web browser or custom input method, which provides credential management, but not as its primary focus.</p></div></li> <li><div><p>An operating system service, such as Smart Lock for Passwords on Android or Keychain on iOS.</p></div><a class="self" href="#rfc.section.2.2.p.2">¶</a></li> </ul></div><section id="known-unknown-and-preferred-providers"><h4 id="rfc.section.2.2.1"><a href="#rfc.section.2.2.1">2.2.1.</a>&nbsp;<a href="#known-unknown-and-preferred-providers">Known, unknown and preferred providers</a></h4><div id="rfc.section.2.2.1.p.1"><p>Given the sensitive nature of the data being exchanged by the OpenYOLO protocol, it will become a target for attackers. A likely attack is for a suspicious service to implement the OpenYOLO protocol and attempt to register themselves as the user's credential provider. Distinguishing legitimate credential providers from malicious providers is therefore an important aspect of building trust in the protocol, for both service maintainers and users.</p></div><div id="rfc.section.2.2.1.p.2"><p>In order to achieve this, a <em>known provider</em> list will be maintained by the OpenID Foundation. A static snapshot of this list is included in the OpenYOLO API on each platform, and will be automatically updated by the client library when necessary.</p></div><div id="rfc.section.2.2.1.p.3"><p>An <em>unknown</em> provider will still be usable - the intention of the known provider list is not to strictly whitelist providers, as this would stifle competition. However, additional user consent will be required upon every interaction with an unknown provider, to ensure the user is aware of the potential risks. Known providers will not have this restriction, and legitimate credential providers will be encouraged to register themselves with the OpenID Foundation to become known providers.</p></div><div id="rfc.section.2.2.1.p.4"><p>Where possible on each supported platform, the user SHOULD be able to specify their <em>preferred</em> credential provider. This preferred provider will be used exclusively for assisted sign-up and credential saving. For credential retrieval, additional providers MAY still be used.</p></div></section></section><section id="token-providers"><h3 id="rfc.section.2.3"><a href="#rfc.section.2.3">2.3.</a>&nbsp;<a href="#token-providers">Token providers</a></h3><div id="rfc.section.2.3.p.1"><p>A <em>token provider</em> is a service that is able to issue an authoritative "proof of access" ID token for an identifier. For example, Google is the token provider for all "gmail.com" email addresses, while Microsoft is the token provider for all "live.com" email addresses.</p></div><div id="rfc.section.2.3.p.2"><p>Token providers are identified by their canonical token-issuing domain, which hosts the token endpoint that provides ID tokens. In the case of Google, this is <span class="tt">https://accounts.google.com</span>.</p></div><div id="rfc.section.2.3.p.3"><p>Token providers can be authoritative for a large set of domains or numbers, and there is not often an easy way to determine in advance the token provider for a given domain. OpenYOLO does yet not attempt to solve this particular problem.</p></div></section><section id="authentication-domains"><h3 id="rfc.section.2.4"><a href="#rfc.section.2.4">2.4.</a>&nbsp;<a href="#authentication-domains">Authentication domains</a></h3><div id="rfc.section.2.4.p.1"><p>An <em>authentication domain</em> is defined to be a scope within which a credential is considered to be usable. Authentication domains are represented as absolute, hierarchical URIs of form <span class="tt">scheme://authority</span> - no path, query or fragment is permitted.</p></div><div id="rfc.section.2.4.p.2" class="avoidbreakafter"><p>In protocol buffer form, an authentication domain is represented by the following message:</p></div><pre>
+message AuthenticationDomain {
+  // required
+  string uri = 1;
+}
+</pre><div id="rfc.section.2.4.p.3"><p>The URI is encapsulated in a message to allow for future extensibility of the concept of an authentication domain, without altering the structure of containing messages.</p></div><div id="rfc.section.2.4.p.4" class="avoidbreakafter"><p>Two forms of authentication domain are presently defined:</p></div><div id="rfc.section.2.4.p.5"><ul><li><div><p>Web authentication domains, which match the domain of the site and can have either a http or https scheme (e.g. <span class="tt">https://example.com</span> and <span class="tt">http://www.example.com</span> are valid web authentication domains). HTTPS is <em>strongly preferred</em> for use with OpenYOLO, but HTTP is also supported for testing and development purposes.</p></div></li> <li><div><p>Android authentication domains, of form <span class="tt">android://fingerprint@package</span> where <span class="tt">package</span> is the package name of an app (e.g. com.example.app), and <span class="tt">fingerprint</span> is a Base64, URL-safe encoding of the app's public key (provided by the <a href="https://developer.android.com/reference/android/content/pm/Signature.html">Signature</a> type in Android). The fingerprint string includes both the hash algorithm used, and the hash data, e.g. <span class="tt">sha512-7fmduHK...</span>. All OpenYOLO credential providers MUST support both <span class="tt">sha256</span> and <span class="tt">sha512</span> as hash algorithms for fingerprints, and MAY support any other hash algorithm that provides equivalent or better security than SHA-256.</p></div><a class="self" href="#rfc.section.2.4.p.5">¶</a></li> </ul></div><div id="rfc.section.2.4.p.6"><p>An <em>authentication system</em> which validates credentials MAY be represented by multiple distinct authentication domains. For example, a credential for <span class="tt">android://sha256-...@com.example.app</span> might be usable on <span class="tt">https://example.com</span> or <span class="tt">https://www.example.com</span>, when these three entities all use the same authentication system.</p></div><div id="rfc.section.2.4.p.7"><p>An authentication domain <em>equivalence class</em> defines the set of authentication domains associated with a given authentication system, and therefore the places where credentials can be used safely across domains. Such equivalence classes improve the usability of OpenYOLO, but must be carefully defined to avoid compromising the security of a user's credentials. Equivalence classes SHOULD be explicitly defined by the service that owns the associated domains and apps, and SHOULD NOT be assumed or heuristically constructed by the credential provider.</p></div><div id="rfc.section.2.4.p.8"><p>OpenYOLO recommends the use of the <a href="https://developers.google.com/digital-asset-links/">Digital Asset Links</a> as a standard mechanism to define authentication domain equivalence classes. Credential providers SHOULD use this information as part of defining the equivalence class over authentication domains. It is the responsibility of the credential provider to correctly construct and utilize the authentication domain equivalence class.</p></div></section><section id="authentication-methods"><h3 id="rfc.section.2.5"><a href="#rfc.section.2.5">2.5.</a>&nbsp;<a href="#authentication-methods">Authentication methods</a></h3><div id="rfc.section.2.5.p.1"><p>An <em>authentication method</em> is a mechanism by which a user credential can be verified, and is given a unique URI identifier. Any URI of form <span class="tt">scheme://authority</span> can be used to describe an authentication method. URIs of this form are used to allow for namespacing of custom authentication methods, by using a custom (private) scheme.</p></div><div id="rfc.section.2.5.p.2" class="avoidbreakafter"><p>In protocol buffer form, authentication methods are represented by the following message:</p></div><pre>
+message AuthenticationMethod {
+    // required
+    string uri = 1;
+}
+</pre><div id="rfc.section.2.5.p.3"><p>The URI is encapsulated in a message to allow for future extensibility of the concept of an authentication method, without altering the structure of containing messages.</p></div><div id="rfc.section.2.5.p.4" class="avoidbreakafter"><p>OpenYOLO defines some standard URIs for the three most common types of authentication methods:</p></div><div id="rfc.section.2.5.p.5"><ul><li><div><p>Email identifier based authentication. This implies that the primary identifier of the account (from the user's perspective, at least) is their email address. Authentication requires a password or proof of access to the stated email address. The URI for this authentication method is standardized as <span class="tt">openyolo://email</span>.</p></div></li> <li><div><p>Phone number based authentication. This implies that the primary identifier for the account is a phone number, represented to OpenYOLO in <a href="https://www.itu.int/rec/T-REC-E.164/en">E.164</a> format. Authentication requires a password or proof of access to the stated phone number. The URI for this authentication method is standardized as <span class="tt">openyolo://phone</span>.</p></div></li> <li><div><p>User name and password based authentication. This implies that the primary identifier is some printable unicode string of characters, and that authentication requires a password. The URI for this authentication method is standardized as <span class="tt">openyolo://username</span>.</p></div><a class="self" href="#rfc.section.2.5.p.5">¶</a></li> </ul></div><div id="rfc.section.2.5.p.6"><p>Where a federated credential from an identity provider is desired, the canonical domain of that identity provider SHOULD be used as the authentication method. The <em>canonical</em> domain for an identity provider is the domain that hosts the provider's sign in page. For example, the URI that should be used for Google Sign-in is <span class="tt">https://accounts.google.com</span>, while the URI that should be used for Facebook Sign-in accounts is <span class="tt">https://www.facebook.com</span>.</p></div><div id="rfc.section.2.5.p.7"><p>Use of consistent authentication method URIs for identity providers is strongly recommended, as this helps with hint retrieval - use of federated credentials on other services can be surfaced more easily when consistent authentication methods are used.</p></div></section><section id="password-specifications"><h3 id="rfc.section.2.6"><a href="#rfc.section.2.6">2.6.</a>&nbsp;<a href="#password-specifications">Password specifications</a></h3><div id="rfc.section.2.6.p.1"><p>services that support password based authentication often impose restrictions on what is considered to be a valid password for the service. While the intentions behind these restrictions are often well-meaning, the inconsistency of these restrictions across different services is a source of frustration for both users and credential managers.</p></div><div id="rfc.section.2.6.p.2"><p>When credential managers attempt to generate passwords for a service, they are forced to use a "lowest common denominator" heuristic that produces broadly supported passwords. Even this can fail, requiring the user to modify the generated password.</p></div><div id="rfc.section.2.6.p.3" class="avoidbreakafter"><p>A better approach is for the service to declare its password restrictions in a format that can be consumed by credential managers. OpenYOLO defines a simple scheme for this, composed of the following pieces of information:</p></div><div id="rfc.section.2.6.p.4"><ul><li>The set of allowed characters in a password, which MUST be a subset of the ASCII printable character set.</li> <li>The minimum and maximum length of a password.</li> <li>Zero or more <em>required character sets</em>. A required character set MUST be a subset of the allowed character set, and specify the minimum number of characters from this set that must occur in the password. Where multiple required character sets are defined, the sets MUST be disjoint.<a class="self" href="#rfc.section.2.6.p.4">¶</a></li> </ul></div><div id="rfc.section.2.6.p.5" class="avoidbreakafter"><p>This is represented by the following protocol buffer message:</p></div><pre>
+message PasswordSpecification {
+  // required
+  string allowed = 1;
+
+  // required
+  uint32 min_size = 2;
+
+  // required
+  uint32 max_size = 3;
+
+  repeated RequiredCharSet required_sets = 4;
+}
+
+message RequiredCharSet {
+  // required
+  string chars = 1;
+
+  // required
+  uint32 count = 2;
+}
+</pre><div id="rfc.section.2.6.p.6" class="avoidbreakafter"><p>This allows the expression of most password restrictions. As an example, consider an authentication system that requires passwords be:</p></div><div id="rfc.section.2.6.p.7"><ul><li>Composed of any ASCII printable characters</li> <li>Be between 6 and 128 characters long</li> <li>Have at least one upper case character and one number.<a class="self" href="#rfc.section.2.6.p.7">¶</a></li> </ul></div><div id="rfc.section.2.6.p.8" class="avoidbreakafter"><p>This can be defined as follows (with the full contents of the allowed character set abbreviated):</p></div><pre>
+{
+  "allowed": "abcdef...",
+  "min_size": 6,
+  "max_size": 128,
+  "required_sets": [
+    {
+      "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "count": 1
+    },
+    {
+      "chars": "1234567890",
+      "count": 1
+    }
+  ]
+}
+</pre><div id="rfc.section.2.6.p.9" class="avoidbreakafter"><p>Other common forms of credential, such as PIN numbers, can also be easily defined:</p></div><pre>
+{
+  "allowed": "0123456789",
+  "min_size": 6,
+  "max_size": 6
+}
+</pre><div id="rfc.section.2.6.p.10" class="avoidbreakafter"><p>The default password specification used by OpenYOLO, where a provider does not explicitly specify an alternative, is:</p></div><pre>
+{
+  "allowed": "abcdefghijkmnopqrstxyzABCDEFGHJKLMNPQRSTXY3456789",
+  "min_size": 12,
+  "max_size": 16,
+  "required_sets": [
+    {
+      "chars": "abcdefghijkmnopqrstxyz",
+      "count": 1
+    },
+    {
+      "chars": "ABCDEFGHJKLMNPQRSTXY",
+      "count": 1
+    },
+    {
+      "chars": "3456789",
+      "count": 1
+    }
+  ]
+}
+</pre><div id="rfc.section.2.6.p.11"><p>This produces passwords of length 12 to 16 based on a "distinguishable" character set. Characters which look similar, such as l (Lima), I (India) and 1 (one) are omitted so as to avoid transcription errors should the user ever have to view and copy a generated password manually. It is designed to be broadly compatible and produce passwords with sufficient entropy to resist offline attacks, but it is still preferable for services to declare their own password restrictions.</p></div><div id="rfc.section.2.6.p.12" class="avoidbreakafter"><p>It is worth noting that this specification does not support the definition of the following types of password restriction:</p></div><div id="rfc.section.2.6.p.13"><ul><li>Positional restrictions, such as "the first character cannot be a number" or "the last two characters cannot be numbers".</li> <li>Semantic restrictions, such as "the password cannot contain an english word" or "the password cannot contain a year".<a class="self" href="#rfc.section.2.6.p.13">¶</a></li> </ul></div><div id="rfc.section.2.6.p.14"><p>Such restrictions are either indicative of some anti-pattern in the underlying credential store (e.g. the credential is stored in plain text), or are just too difficult to define a clear specification of expected behavior.</p></div></section><section id="client-versions"><h3 id="rfc.section.2.7"><a href="#rfc.section.2.7">2.7.</a>&nbsp;<a href="#client-versions">Client versions</a></h3><div id="rfc.section.2.7.p.1"><p>OpenYOLO client libraries will typically be compiled in to service implementations, and therefore cannot be changed without releasing a new version of the service that client devices must download. Bugs are inevitable, and where these bugs impact the security of the client it is important to have a mechanism to protect services from the exploitation of these bugs.</p></div><div id="rfc.section.2.7.p.2"><p>In order to facilitate this, requests sent from a service to a credential provider SHOULD carry a <em>client version</em> descriptor, which is typically compiled into the OpenYOLO client library they are using. This allows a credential provider to identify services which are using an exploitable version of the client library, and to reject requests from these clients.</p></div><div id="rfc.section.2.7.p.3" class="avoidbreakafter"><p>In OpenYOLO, a client version is composed of:</p></div><div id="rfc.section.2.7.p.4"><ul><li><div><p>A <em>vendor</em> string, which identifies the author of the client. For the official client libraries shipped by the OpenID Foundation, this will be "openid.net".</p></div></li> <li><div><p>A major, minor and patch version number. Each are non-negative numbers and typically represented in the human-readable form "X.Y.Z", and follow the general principles of <a href="http://semver.org/">Semantic Versioning</a>.</p></div><a class="self" href="#rfc.section.2.7.p.4">¶</a></li> </ul></div><div id="rfc.section.2.7.p.5"><p>In order to prevent trivial modification of the client version, it SHOULD be statically compiled in to the client library. There is no way to guarantee that the client version cannot be tampered with by an attacker, however; as such, client versions SHOULD NOT be interpreted as authoritative, and SHOULD NOT be used for purposes other than blacklisting of known problematic client versions only.</p></div><div id="rfc.section.2.7.p.6" class="avoidbreakafter"><p>In protocol buffer form, a client version is represented by the following message:</p></div><pre>
+message ClientVersion {
+  // required
+  string vendor = 1;
+
+  // required
+  uint32 major = 3;
+
+  // required
+  uint32 minor = 4;
+
+  // required
+  uint32 patch = 5;
+}
+</pre><div id="rfc.section.2.7.p.7" class="avoidbreakafter"><p>An example client version could look like:</p></div><pre>
+{
+  "vendor": "openid.net",
+  "major": 1,
+  "minor": 0,
+  "patch": 12
+}
+</pre></section></section><hr class="noprint"><section id="operations"><h2 id="rfc.section.3" class="np"><a href="#rfc.section.3">3.</a>&nbsp;<a href="#operations">Operations</a></h2><div id="rfc.section.3.p.1" class="avoidbreakafter"><p>OpenYOLO defines four core operations:</p></div><div id="rfc.section.3.p.2"><ul><li><em>hint retrieval</em>: Provides basic account information to help create a new account.</li> <li><em>credential retrieval</em>: Provides access to an existing stored credential for the requesting service.</li> <li><em>credential saving</em>: Allows a service to store or update a credential in a credential provider.</li> <li><em>credential deletion</em>: Allows a service to delete a credential which is no longer valid.<a class="self" href="#rfc.section.3.p.2">¶</a></li> </ul></div><div id="rfc.section.3.p.3"><p>A provider MAY implement any subset of these operations; none are required. Each operation is described in more detail in the following sections.</p></div><section id="hint-retrieval"><h3 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a>&nbsp;<a href="#hint-retrieval">Hint retrieval</a></h3><div id="rfc.section.3.1.p.1" class="avoidbreakafter"><p>When an service wants to create a new account for the user, they typically need the following core pieces of information:</p></div><div id="rfc.section.3.1.p.2"><ul><li><div><p>The <em>authentication method</em> that the user prefers to use, drawn from the set that the service supports. For instance, a service might allow a user to create an account with a phone number, Google Sign-in or Facebook Sign-in. If a non-federated authentication method is used, a <em>generated password</em> that conforms to the service's password restrictions is desirable.</p></div></li> <li><div><p>A unique <em>identifier</em> for the account, which is typically an email address, or phone number that would also be used for account recovery. For many services, proof of access to this identifier is crucial, and so an ID token is also desired to avoid an out-of-context verification.</p></div></li> <li><div><p>A <em>display name</em> and <em>profile picture</em> for the user, in order to personalize the service. Where it is possible for a user to have multiple accounts with the service, the display name and profile picture help the user to distinguish between these accounts.</p></div><a class="self" href="#rfc.section.3.1.p.2">¶</a></li> </ul></div><div id="rfc.section.3.1.p.3"><p>The OpenYOLO <em>hint retrieval</em> operation allows a service to request this information from the credential provider. In response, the credential provider is expected to present a choice of the user's commonly-used identifiers or federated credentials, enabling a "single tap" account creation experience. After selection, the provider might return a Credential object representing the user's selection, optionally including a generated password or ID token if applicable. A hint MUST NOT be returned automatically by a credential provider - user interaction is strictly required before any personally identifying information is returned.</p></div><div id="rfc.section.3.1.p.4"><p>Where a proof of access ID token is desired, a service MUST declare the <em>token providers</em> that is supports. Additionally, for each supported token provider, a <em>client ID</em> MAY be required. This is typically a value generated by the token provider during registration as an OAuth2 client. Finally, a <em>nonce</em> can be provided that will be included in any generated ID token, as a protection against replay attacks. Non-standard properties specific to each token provider MAY be specified via an additional properties map.</p></div><section id="hint-request-message"><h4 id="rfc.section.3.1.1"><a href="#rfc.section.3.1.1">3.1.1.</a>&nbsp;<a href="#hint-request-message">Hint request message</a></h4><div id="rfc.section.3.1.1.p.1" class="avoidbreakafter"><p>A hint retrieval request is represented by the following protocol buffer message:</p></div><pre>
+message HintRetrieveRequest {
+    ClientVersion client_version = 1;
+
+    // at least one authMethod required
+    repeated AuthenticationMethod auth_methods = 2;
+
+    PasswordSpecification password_spec = 3;
+    map&lt;string, TokenRequestInfo&gt; supported_token_providers = 4;
+    map&lt;string, bytes&gt; additional_props = 5;
+}
+
+message TokenRequestInfo {
+    string client_id = 1;
+    string nonce = 2;
+    map&lt;string, bytes&gt; additional_props = 3;
+}
+</pre><div id="rfc.section.3.1.1.p.2" class="avoidbreakafter"><p>A simple hint request could then look like the following:</p></div><pre>
+{
+  "auth_methods": [
+    "openyolo://email",
+    "https://accounts.google.com",
+    "https://www.facebook.com"
+  ]
+}
+</pre><div id="rfc.section.3.1.1.p.3"><p>This indicates that the service supports email and password based authentication, Google Sign-in and Facebook Sign-in. The service has not declared a password specification, therefore the OpenYOLO default specification SHOULD be used by the credential provider if necessary. No supported token providers have been specified, therefore no ID token is desired.</p></div><div id="rfc.section.3.1.1.p.4" class="avoidbreakafter"><p>A more complex request, with a custom password specification and two supported token provider could look like:</p></div><pre>
+{
+  "auth_methods": [
+    "openyolo://email"
+  ],
+  "password_spec": {
+    "allowed": "0123456789",
+    "min_size": 6,
+    "max_size": 6
+  },
+  "supported_token_providers": {
+    "https://accounts.google.com": {
+      "client_id": "CLIENT.apps.googleusercontent.com",
+      "nonce": "asdf123"
+    },
+    "https://auth.example.com": {
+      "client_id": "11451",
+      "nonce": "asdf123"
+    }
+  }
+}
+</pre></section><section id="hint-response-message"><h4 id="rfc.section.3.1.2"><a href="#rfc.section.3.1.2">3.1.2.</a>&nbsp;<a href="#hint-response-message">Hint response message</a></h4><div id="rfc.section.3.1.2.p.1" class="avoidbreakafter"><p>A hint retrieval response is represented by the following protocol buffer message:</p></div><pre>
+message HintRetrieveResult {
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    BAD_REQUEST = 1;
+    HINT_SELECTED = 2;
+    NO_HINTS_AVAILABLE = 3;
+    USER_REQUESTS_MANUAL_AUTH = 4;
+    USER_CANCELED = 5;
+  }
+
+  // required
+  ResultCode result_code = 1;
+
+  Hint hint = 2;
+  map&lt;string, bytes&gt; additional_props = 3;
+}
+</pre><div id="rfc.section.3.1.2.p.2" class="avoidbreakafter"><p>The result codes are defined as follows:</p></div><div id="rfc.section.3.1.2.p.3"><ul><li><div><p><span class="tt">UNSPECIFIED</span>: The generic catch-all for a request failure. This SHOULD NOT be used by providers, unless the other defined response codes do not apply.</p></div></li> <li><div><p><span class="tt">BAD_REQUEST</span>: The request sent by the client was malformed or violated some security constraint enforced by the provider. This error should be treated as permanent; repeating the exact same request should result in the same error code response.</p></div></li> <li><div><p><span class="tt">HINT_SELECTED</span>: The user selected a hint, which has been returned in the hint field of the message.</p></div></li> <li><div><p><span class="tt">NO_HINTS_AVAILABLE</span>: No hints are available that match the constraints of the request.</p></div></li> <li><div><p><span class="tt">USER_REQUESTS_MANUAL_AUTH</span>: The user canceled the selection of a hint in a manner that indicates they wish to proceed with authentication, but by manually entering their details. Providers SHOULD return this code if they display an option like "none of the above" or "use different account" and the user selects it.</p></div></li> <li><div class="avoidbreakafter"><p><span class="tt">USER_CANCELED</span>: The user canceled the selection of a hint in a manner that indicates they do not wish to authenticate at this time. Providers SHOULD return this code if:</p></div> <div><ul><li>The user presses the back button on their device</li> <li>The user clicks outside the control area of a modal dialog</li> <li>The user chooses some explicit option like "not now".</li> </ul></div><a class="self" href="#rfc.section.3.1.2.p.3">¶</a></li> </ul></div><div id="rfc.section.3.1.2.p.4" class="avoidbreakafter"><p>An email and password credential hint that could be returned for a requesting app "com.example.app" could be:</p></div><pre>
+{
+  "result_code": "HINT_SELECTED",
+  "hint": {
+    "id": "jblack@example.com",
+    "auth_method": "openyolo://email",
+    "display_name": "Jack Black",
+    "display_picture_uri": "https://www.robohash.org/dcd65581?set=3",
+    "generated_password": "YjW5Zvn3Fc7fY",
+    "id_token":
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX
+        VCJ9.eyJzdWIiOiJqZG9lQGdtYWlsLmNv
+        bSIsImF1ZCI6Imh0dHBzOi8vbG9naW4uZ
+        XhhbXBsZS5jb20iLCJpc3MiOiJodHRwcz
+        ovL2F1dGguZXhhbXBsZS5jb20iLCJuYW1
+        lIjoiSmFuZSBEb2UifQ.CibuoaNMO-2pR
+        QjWUbJMpMLWjKB34AMWCR4pIWD5tnE"
+  }
+}
+</pre><div id="rfc.section.3.1.2.p.5" class="avoidbreakafter"><p>Alternatively, a federated credential hint for Google Sign-in might look like:</p></div><pre>
+{
+  "result_code": "HINT_SELECTED",
+  "hint": {
+    "id": "jdoe@gmail.com",
+    "auth_method": "https://accounts.google.com",
+    "display_name": "John Doe"
+  }
+}
+</pre></section><section id="example-hint-retrieval-scenario"><h4 id="rfc.section.3.1.3"><a href="#rfc.section.3.1.3">3.1.3.</a>&nbsp;<a href="#example-hint-retrieval-scenario">Example hint retrieval scenario</a></h4><div id="rfc.section.3.1.3.p.1"><p>Jane Doe is visiting the travel site <span class="tt">https://adventures.example.com</span> for the first time. Upon first page load, the site attempts to retrieve an existing credential using OpenYOLO, but nothing is saved so it does not interrupt Jane's flow further at this point.</p></div><div id="rfc.section.3.1.3.p.2" class="avoidbreakafter"><p>After browsing a few travel packages, Jane notices a button with label "save for later", and decides to press it. The service navigates to an account creation screen, explaining that an account must be created to save the package. At this point, the service sends a hint retrieval request, and a hint selector dialog is presented:</p></div><pre>
++------------------------------------+
+|                              +---+ |
+| Continue With:               | X | |
+|                              +---+ |
+| +--------------------------------+ |
+|                                    |
+|  +---+ Jane Doe                    |
+|  | O |                             |
+|  |/_\| jdoe@gmail.com              |
+|  +---+                             |
+|        (with generated password)   |
+|                                    |
+| +--------------------------------+ |
+|                                    |
+|  +---+ John Doe                    |
+|  | O |                             |
+|  |/_\| john@example.com            |
+|  +---+                             |
+|        (with generated password)   |
+|                                    |
+| +--------------------------------+ |
+|                                    |
+|  +---+ Jill Doe                    |
+|  | O |                             |
++--+---+-----------------------------+
+</pre><div id="rfc.section.3.1.3.p.3"><p>Jane selects her most commonly used email address; a password is generated and a credential returned to the service, and the provider is able to produce an ID token for the selected email address.</p></div><div id="rfc.section.3.1.3.p.4"><p>The service utilizes the returned hint to bootstrap the new account, and after successfully creating the account requests that the credential provider save the credential. As the credential has not been modified by the site from the details in the returned hint, it saves the credential automatically.</p></div><div id="rfc.section.3.1.3.p.5"><p>From Jane's perspective, this all happens from a single click on an account in a presented dialog. She is now signed in, and the travel package she selected is now saved to her account so she can return to it later.</p></div></section></section><section id="credential-retrieval"><h3 id="rfc.section.3.2"><a href="#rfc.section.3.2">3.2.</a>&nbsp;<a href="#credential-retrieval">Credential retrieval</a></h3><div id="rfc.section.3.2.p.1"><p>Where an existing credential is known for a service, it is often beneficial to the service and the user for that credential to be retrieved and used for authentication as early as possible. This allows the service to be appropriately personalized to the user, such as providing shopping recommendations based on past purchases. This SHOULD, of course, respect the user's preferences, as there are many legitimate use cases where a user might wish to browse a service in a signed-out state.</p></div><section id="credential-request-message"><h4 id="rfc.section.3.2.1"><a href="#rfc.section.3.2.1">3.2.1.</a>&nbsp;<a href="#credential-request-message">Credential request message</a></h4><div id="rfc.section.3.2.1.p.1" class="avoidbreakafter"><p>A credential retrieval request is represented by the following protocol buffer message:</p></div><pre>
+message CredentialRetrieveRequest {
+    ClientVersion client_version = 1;
+
+    // at least one authMethod required
+    repeated AuthenticationMethod auth_methods = 2;
+
+    map&lt;string, TokenRequestInfo&gt; supported_token_providers = 3;
+    bool require_user_mediation = 4;
+    map&lt;string, bytes&gt; additional_props = 5;
+}
+</pre><div id="rfc.section.3.2.1.p.2"><p>The service lists the authentication methods that it supports, which are used to filter the set of credentials that are stored by the credential provider. Similar to hint requests, the service can also specify its supported token providers - the return of a valid ID token can provide an additional signal to the service that this login attempt is legitimate.</p></div><div id="rfc.section.3.2.1.p.3"><p>To prevent automatic sign-in loops, where a user signs out and is inadvertently signed back in again automatically by a credential retrieve request, the <span class="tt">require_user_mediation</span> flag can be set to true. If absent from the request message, this is assumed to be false. When true, and one or more credentials are available, the provider MUST require an explicit credential selection from the user, even if only one option is available. This then gives the user the opportunity to more clearly state their intent in an account-switch scenario, by rejecting the presented credential and entering an account creation or manual sign-in flow.</p></div><div id="rfc.section.3.2.1.p.4" class="avoidbreakafter"><p>In response to a credential request, the credential provider can either:</p></div><div id="rfc.section.3.2.1.p.5"><ul><li>directly return a credential for automatic sign-in</li> <li>Show a credential picker to the user</li> <li>Return a failure result code if no matching credentials are available.<a class="self" href="#rfc.section.3.2.1.p.5">¶</a></li> </ul></div><div id="rfc.section.3.2.1.p.6"><p>Automatically returning a credential is optional, and if it is a facility provided by the credential provider, SHOULD be something that the user can disable. A credential SHOULD NOT be returned by a provider unless it believes that the credential is a valid, existing credential for the requesting service.</p></div><div id="rfc.section.3.2.1.p.7" class="avoidbreakafter"><p>An example credential retrieval request could look like:</p></div><pre>
+{
+  "auth_methods": [
+    "openyolo://phone",
+    "https://www.facebook.com"
+  ]
+}
+</pre></section><section id="credential-response-message"><h4 id="rfc.section.3.2.2"><a href="#rfc.section.3.2.2">3.2.2.</a>&nbsp;<a href="#credential-response-message">Credential response message</a></h4><div id="rfc.section.3.2.2.p.1" class="avoidbreakafter"><p>The response to a credential request is represented by the following protocol buffer message:</p></div><pre>
+message CredentialRetrieveResult {
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    BAD_REQUEST = 1;
+    CREDENTIAL_SELECTED = 2;
+    NO_CREDENTIALS_AVAILABLE = 3;
+    USER_REQUESTS_MANUAL_AUTH = 4;
+    CANCEL_AUTH = 5;
+  }
+
+  // required
+  ResultCode result_code = 1;
+
+  Credential credential = 2;
+  map&lt;string, bytes&gt; additional_props = 3;
+}
+</pre><div id="rfc.section.3.2.2.p.2" class="avoidbreakafter"><p>The result codes are defined as follows:</p></div><div id="rfc.section.3.2.2.p.3"><ul><li><div><p><span class="tt">UNSPECIFIED</span>: The generic catch-all for a request failure. This SHOULD NOT be used by providers, unless the other defined response codes do not apply.</p></div></li> <li><div><p><span class="tt">BAD_REQUEST</span>: The request sent by the client was malformed or violated some security constraint enforced by the provider. This error should be treated as permanent; repeating the exact same request should result in the same error code response.</p></div></li> <li><div><p><span class="tt">CREDENTIAL_SELECTED</span>: The user selected a hint, which has been returned in the hint field of the message.</p></div></li> <li><div><p><span class="tt">NO_CREDENTIALS_AVAILABLE</span>: No credentials are available that match the constraints of the request.</p></div></li> <li><div><p><span class="tt">USER_REQUESTS_MANUAL_AUTH</span>: The user canceled the selection of a hint in a manner that indicates they wish to proceed with authentication, but by manually entering their details. Providers SHOULD return this code if they display an option like "none of the above" or "use different account" and the user selects it.</p></div></li> <li><div class="avoidbreakafter"><p><span class="tt">USER_CANCELED</span>: The user canceled the selection of a hint in a manner that indicates they do not wish to authenticate at this time. Providers SHOULD return this code if:</p></div> <div><ul><li>The user presses the back button on their device</li> <li>The user clicks outside the control area of a modal dialog</li> <li>The user chooses some explicit option like "not now".</li> </ul></div><a class="self" href="#rfc.section.3.2.2.p.3">¶</a></li> </ul></div><div id="rfc.section.3.2.2.p.4" class="avoidbreakafter"><p>An example response could therefore look like:</p></div><pre>
+{
+  "result_code": "CREDENTIAL_SELECTED",
+  "credential": {
+    "id": "jdoe",
+    "auth_domain": "https://login.example.com",
+    "auth_method": "https://www.facebook.com"
+  }
+}
+</pre><div id="rfc.section.3.2.2.p.5" class="avoidbreakafter"><p>Or, if the user was presented a list of credentials and did not select one:</p></div><pre>
+{
+  "result_code": "USER_CANCELED"
+}
+</pre></section><section id="example-credential-retrieval-scenario"><h4 id="rfc.section.3.2.3"><a href="#rfc.section.3.2.3">3.2.3.</a>&nbsp;<a href="#example-credential-retrieval-scenario">Example credential retrieval scenario</a></h4><div id="rfc.section.3.2.3.p.1"><p>Jane has just bought a new phone and has just installed the "TechNews" app. When she opens the app, it immediately sends a credential retrieval request for email, Google and Facebook stored credentials. Jane frequently used TechNews on her old phone and had saved his email address and password with her credential provider. Her credential provider receives the request, and automatically returns the saved credential to the TechNews app and displays a notification that it has done so. The TechNews app uses the credential to sign in, and shows Jane her personalized feed of news.</p></div></section></section><section id="credential-saving"><h3 id="rfc.section.3.3"><a href="#rfc.section.3.3">3.3.</a>&nbsp;<a href="#credential-saving">Credential saving</a></h3><div id="rfc.section.3.3.p.1"><p>Once a user has created an account or successfully signed in using an existing account, it is beneficial to them for this credential to be saved to their credential provider. This ensures that when the user changes device, or their session is invalidated, re-authentication is simplified through the use of the credential retrieval operation.</p></div><div id="rfc.section.3.3.p.2"><p>In the case where a service saves a credential that is already known, this is still a useful signal to the credential provider that the saved data is accurate. Where discrepancies are detected, such as a change in password, this provides an opportunity to confirm and update the saved data. Credential providers MAY allow automatic saving of credentials, but it is recommended to seek explicit confirmation from the user where the credential data is new or sensitive (i.e. contains a previously unseen identifier or password).</p></div><div id="rfc.section.3.3.p.3" class="avoidbreakafter"><p>How this confirmation is solicited from the user is outside the scope of this specification; the reference implementation uses the following confirmation dialog style design:</p></div><pre>
++------------------------------------+
+|                                    |
+| Save your password for ExampleApp  |
+|         to ExampleProvider?        |
+|                                    |
+|    +----+ +--------------------+   |
+|    | OK | | Never for this app |   |
+|    +----+ +--------------------+   |
+|                                    |
++------------------------------------+
+</pre><section id="save-request-message"><h4 id="rfc.section.3.3.1"><a href="#rfc.section.3.3.1">3.3.1.</a>&nbsp;<a href="#save-request-message">Save request message</a></h4><div id="rfc.section.3.3.1.p.1" class="avoidbreakafter"><p>A save credential request is represented by the following protocol buffer message:</p></div><pre>
+message CredentialSaveRequest {
+    ClientVersion client_version = 1;
+
+    // required
+    Credential credential = 2;
+
+    map&lt;string, bytes&gt; additional_props = 3;
+}
+</pre></section><section id="save-response-message"><h4 id="rfc.section.3.3.2"><a href="#rfc.section.3.3.2">3.3.2.</a>&nbsp;<a href="#save-response-message">Save response message</a></h4><pre>
+message CredentialSaveResult {
+
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    BAD_REQUEST = 1;
+    SAVED = 2;
+    PROVIDER_REFUSED = 3;
+    USER_CANCELED = 4;
+    USER_REFUSED = 5;
+  }
+
+  // required
+  ResultCode result_code = 1;
+
+  map&lt;string, bytes&gt; additional_props = 2;
+}
+</pre><div id="rfc.section.3.3.2.p.1" class="avoidbreakafter"><p>The result codes are defined as follows:</p></div><div id="rfc.section.3.3.2.p.2"><ul><li><div><p><span class="tt">UNSPECIFIED</span>: The generic catch-all for a request failure. This SHOULD NOT be used by providers, unless the other defined response codes do not apply.</p></div></li> <li><div><p><span class="tt">BAD_REQUEST</span>: The request sent by the client was malformed or violated some security constraint enforced by the provider. This error should be treated as permanent; repeating the exact same request should result in the same error code response.</p></div></li> <li><div><p><span class="tt">SAVED</span>: The credential was saved, or an equivalent credential was updated.</p></div></li> <li><div><p><span class="tt">PROVIDER_REFUSED</span>: The provider refused to save the credential, due to some policy restriction. For example, a provider may refuse to update an existing credential if it is stored in a shared keychain. The client SHOULD NOT request to save this credential again.</p></div></li> <li><div><p><span class="tt">USER_CANCELED</span>: The user dismissed the request to save the credential, by either pressing the back button, clicking outside the area of a modal dialog, or some other "soft" cancelation that is not an explicit refusal to delete the credential. The client MAY request to save this credential again at a later time.</p></div></li> <li><div><p><span class="tt">USER_REFUSED</span>: The user refused the request to save this credential. The client SHOULD NOT request to save this credential again.</p></div><a class="self" href="#rfc.section.3.3.2.p.2">¶</a></li> </ul></div></section></section><section id="credential-deletion"><h3 id="rfc.section.3.4"><a href="#rfc.section.3.4">3.4.</a>&nbsp;<a href="#credential-deletion">Credential deletion</a></h3><div id="rfc.section.3.4.p.1"><p>Stale credentials stored in a credential provider are a source of frustration for users. Stale credentials are particularly common in browsers that rely on heuristics to detect password changes and update saved credentials.</p></div><div id="rfc.section.3.4.p.2"><p>When a credential is stale, it only serves as a barrier to authentication. In most cases, the user will be forced to perform a tedious account recovery process, and if they do not remember to manually delete the stale credential, will likely be faced with the same issue again in the future.</p></div><div id="rfc.section.3.4.p.3"><p>In order to provide services a way to flag stale credentials to a provider, a credential deletion operation is defined. Credential providers SHOULD NOT allow automatic deletion of credentials, as this would allow misbehaving services to delete valid credentials. Financial institutions are notorious for these kinds of user-hostile policies, and might attempt to delete valid credentials as a misguided way to "protect" the user. As such, credential deletion SHOULD require explicit user confirmation. Where this is done legitimately, such as after a retrieved credential is discovered to be invalid or a user deletes their account, the request for confirmation will not be surprising to the user.</p></div><section id="delete-request-message"><h4 id="rfc.section.3.4.1"><a href="#rfc.section.3.4.1">3.4.1.</a>&nbsp;<a href="#delete-request-message">Delete request message</a></h4><div id="rfc.section.3.4.1.p.1" class="avoidbreakafter"><p>A credential deletion request is represented by the following protocol buffer message:</p></div><pre>
+message CredentialDeleteRequest {
+    ClientVersion client_version = 1;
+
+    // required
+    Credential credential = 2;
+
+    map&lt;string, bytes&gt; additional_props = 3;
+}
+</pre></section><section id="delete-response-message"><h4 id="rfc.section.3.4.2"><a href="#rfc.section.3.4.2">3.4.2.</a>&nbsp;<a href="#delete-response-message">Delete response message</a></h4><div id="rfc.section.3.4.2.p.1" class="avoidbreakafter"><p>A credential deletion response is represented by the following protocol buffer message:</p></div><pre>
+message CredentialDeleteResult {
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    BAD_REQUEST = 1;
+    DELETED = 2;
+    NO_MATCHING_CREDENTIAL = 3;
+    PROVIDER_REFUSED = 4;
+    USER_CANCELED = 5;
+    USER_REFUSED = 6;
+  }
+
+  // required
+  ResultCode result_code = 1;
+
+  map&lt;string, bytes&gt; additional_props = 2;
+}
+</pre><div id="rfc.section.3.4.2.p.2" class="avoidbreakafter"><p>The result codes are defined as follows:</p></div><div id="rfc.section.3.4.2.p.3"><ul><li><div><p><span class="tt">UNSPECIFIED</span>: The generic catch-all for a request failure. This SHOULD NOT be used by providers, unless the other defined response codes do not apply.</p></div></li> <li><div><p><span class="tt">BAD_REQUEST</span>: The request sent by the client was malformed or violated some security constraint enforced by the provider. This error should be treated as permanent; repeating the exact same request should result in the same error code response.</p></div></li> <li><div><p><span class="tt">DELETED</span>: The credential was deleted.</p></div></li> <li><div><p><span class="tt">NO_MATCHING_CREDENTIAL</span>: The credential was not deleted, as there was no matching credential to delete.</p></div></li> <li><div><p><span class="tt">PROVIDER_REFUSED</span>: The provider refused to delete the provided credential, due to some policy restriction it is enforcing. For example, a provider could refuse to delete a credential from a shared keychain. The client SHOULD NOT request to delete this credential again.</p></div></li> <li><div><p><span class="tt">USER_CANCELED</span>: The user dismissed the request to delete the credential, by either pressing the back button, clicking outside the area of a modal dialog, or some other "soft" cancelation that is not an explicit refusal to delete the credential. The client MAY request to delete this credential again at a later time.</p></div></li> <li><div><p><span class="tt">USER_REFUSED</span>: The user explicitly refused to delete the credential, by selecting a "do not delete" (or similarly phrased) option in the presented UI. The client SHOULD NOT request to delete this credential again.</p></div><a class="self" href="#rfc.section.3.4.2.p.3">¶</a></li> </ul></div></section></section></section><hr class="noprint"><section id="android-specifics"><h2 id="rfc.section.4" class="np"><a href="#rfc.section.4">4.</a>&nbsp;<a href="#android-specifics">Android specifics</a></h2><div id="rfc.section.4.p.1"><p>The OpenYOLO protocol on Android is designed to operate on any Android API 15+ device, including devices which do not have Google Play Services available. OpenYOLO operation requests and responses are handled using two of the core communication primitives on Android: broadcast messages and activity intents. API 15+ is specifically REQUIRED in order to be able to "target" broadcast messages to specific apps, using <span class="tt">Intent.setPackage</span>. See the <a href="https://developer.android.com/guide/components/broadcasts.html#security_considerations_and_best_practices">"Security considerations and best practices"</a> section of the <a href="https://developer.android.com/guide/components/broadcasts.html">android broadcasts documentation</a> for more information.</p></div><div id="rfc.section.4.p.2"><p>Devices with Google Play Services already have a credential provider available, in the form of Smart Lock for Passwords. In addition to this, the user may have installed an additional credential manager. In such a situation is it common for a user to have credentials split across these two providers; as such, it is particularly important on Android to be able to query multiple providers. To service this goal, this specification also defines the Background Broadcast Query (BBQ) protocol, which is used to perform the initial step of requesting credentials from installed providers.</p></div><div id="rfc.section.4.p.3"><p>Hint, save and delete requests are simpler, as there is no need to interact with multiple credential providers. For these operations, an Intent is simply constructed for a credential provider, with the request message carried as a binary protocol buffer via an intent extra.</p></div><section id="discovering-installed-providers"><h3 id="rfc.section.4.1"><a href="#rfc.section.4.1">4.1.</a>&nbsp;<a href="#discovering-installed-providers">Discovering installed providers</a></h3><div id="rfc.section.4.1.p.1"><p>The set of installed credential providers on an Android device can be be determined using the system <a href="https://developer.android.com/reference/android/content/pm/PackageManager.html">PackageManager</a> query interface. As OpenYOLO providers do not need to support all defined operations in this spec, discovery is performed on a per-operation basis.</p></div><div id="rfc.section.4.1.p.2" class="avoidbreakafter"><p>For example, to discover whether a provider exists that supports hint retrieval, the following package manager query can be used:</p></div><pre>
+Intent hintIntent = new Intent("org.openyolo.hint");
+hintIntent.addCategory("org.openyolo");
+
+List&lt;ResolveInfo&gt; resolvedProviders =
+    mApplicationContext.getPackageManager()
+        .queryIntentActivities(hintIntent, 0);
+</pre><div id="rfc.section.4.1.p.3"><p>Each OpenYOLO operation is mapped to an activity within the credential provider, each of which declares an intent filter with the "org.openyolo" category, and an operation-specific intent filter.</p></div><section id="preferred-credential-providers-on-android"><h4 id="rfc.section.4.1.1"><a href="#rfc.section.4.1.1">4.1.1.</a>&nbsp;<a href="#preferred-credential-providers-on-android">Preferred credential providers on Android</a></h4><div id="rfc.section.4.1.1.p.1" class="avoidbreakafter"><p>In the future, Android or Google Play Services may provide a mechanism to store a user's preferred credential provider. However, in the meantime, a simple heuristic is specified that will determine the user's preferred credential provider in most cases:</p></div><div id="rfc.section.4.1.1.p.2"><ol><li>Enumerate all the credential providers installed on the device.</li> <li>If there are no credential providers, or there are any <em>unknown providers</em>, then there is no preferred provider.</li> <li>If there is exactly one installed known provider, this it is the preferred provider.</li> <li>If there is more than one installed known provider, discount any providers that are pre-installed on the device. If there is only one remaining provider after discounting the pre-installed providers, this is the preferred provider.</li> <li>Otherwise, there is no preferred provider.<a class="self" href="#rfc.section.4.1.1.p.2">¶</a></li> </ol></div><div id="rfc.section.4.1.1.p.3"><p>Where there is no preferred provider, the user MUST be given the opportunity to explicitly select the provider they wish to use for the current operation. This minimizes the risk of "security surprise", where the user finds themselves interacting with an unexpected credential provider.</p></div><div id="rfc.section.4.1.1.p.4"><p>The heuristic takes into account that pre-installed providers, such as Google's Smart Lock for Passwords, are not providers the user has made a conscious choice to use. Therefore, when an additional provider is manually installed, it is more likely that the user's intent is to use that, rather than the pre-installed providers.</p></div></section></section><section id="retrieving-hints"><h3 id="rfc.section.4.2"><a href="#rfc.section.4.2">4.2.</a>&nbsp;<a href="#retrieving-hints">Retrieving Hints</a></h3><div id="rfc.section.4.2.p.1" class="avoidbreakafter"><p>Hint requests on Android are dispatched to the credential provider using an <a href="https://developer.android.com/reference/android/content/Intent.html">Intent</a>. If a provider supports hint retrieval, it MUST declare this on the manifest entry for its hint activity, using the following intent filter:</p></div><pre>
+&lt;intent-filter&gt;
+    &lt;action android:name="org.openyolo.hint"/&gt;
+    &lt;category android:name="org.openyolo" /&gt;
+&lt;/intent-filter&gt;
+</pre><div id="rfc.section.4.2.p.2"><p>In order to send a retrieve request, the client creates a hint request message (specified in <a href="#hint-request-message" title="Hint request message">Section&nbsp;3.1.1</a>) and encodes it to its binary protocol buffer form. An activity intent is then created to send this to the credential provider, attaching the message bytes using an extra, named "org.openyolo.hint.request".</p></div><div id="rfc.section.4.2.p.3" class="avoidbreakafter"><p>An example hint request could be created and dispatched as follows:</p></div><pre>
+HintRetrieveRequest request = HintRetrieveRequest.newBuilder()
+    .addAuthenticationMethod("openyolo://email")
+    .build();
+
+Intent hintIntent = new Intent()
+    .setPackage("com.example.provider");
+    .setAction("org.openyolo.hint")
+    .setCategory("org.openyolo")
+    .putExtra("org.openyolo.hint.request", request.toByteArray());
+
+startActivityForResult(hintIntent, RC_HINT);
+</pre><div id="rfc.section.4.2.p.4"><p>This intent is dispatched by the client using <a href="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</a>. At this point the provider can interact with the user to allow them to select a hint. The provider creates a hint response message (specified in <a href="#hint-response-message" title="Hint response message">Section&nbsp;3.1.2</a>), and passes this back to the requester via <a href="https://developer.android.com/reference/android/app/Activity.html#setResult%28int,%20android.content.Intent%29">setResult</a>. The intent data returned to the client carries the hint result message bytes using an extra, named "org.openyolo.hint.result". Additionally, the result code contained in that hint result is also used as the result code for the activity when it terminates.</p></div><div id="rfc.section.4.2.p.5" class="avoidbreakafter"><p>An example hint result could therefore be sent with the following code:</p></div><pre>
+HintRetrieveResult result = HintRetrieveResult.newBuilder()
+    .setResultCode(NO_HINTS_AVAILABLE)
+    .build();
+Intent hintResultData = new Intent()
+    .putExtra(
+        "org.openyolo.hint.result",
+        result.toByteArray());
+
+setResult(result.getResultCode(), hintResultData);
+</pre></section><section id="retrieving-credentials"><h3 id="rfc.section.4.3"><a href="#rfc.section.4.3">4.3.</a>&nbsp;<a href="#retrieving-credentials">Retrieving credentials</a></h3><div id="rfc.section.4.3.p.1"><p>OpenYOLO specifies two methods for credential retrieval; one is structurally very similar to hint requests, and another which allows for credential requests to be sent to multiple providers in parallel. The parallel request mechanism is built on top of the "direct request" method, so the direct request method will be specified first.</p></div><div id="rfc.section.4.3.p.2" class="avoidbreakafter"><p>Direct credential retrieve requests on Android are dispatched to the credential provider using an <a href="https://developer.android.com/reference/android/content/Intent.html">Intent</a>. If a provider supports credential retrieval, it MUST declare this on the manifest entry for its retrieve activity, using the following intent filter:</p></div><pre>
+&lt;intent-filter&gt;
+    &lt;action android:name="org.openyolo.credential.retrieve"/&gt;
+    &lt;category android:name="org.openyolo" /&gt;
+&lt;/intent-filter&gt;
+</pre><section id="dispatching-a-direct-retrieve-request"><h4 id="rfc.section.4.3.1"><a href="#rfc.section.4.3.1">4.3.1.</a>&nbsp;<a href="#dispatching-a-direct-retrieve-request">Dispatching a direct retrieve request</a></h4><div id="rfc.section.4.3.1.p.1"><p>In order to make a credential request, the client creates a credential request message (specified in <a href="#credential-request-message" title="Credential request message">Section&nbsp;3.2.1</a>) and encodes it to its binary protocol buffer form. An activity Intent is then created to send this to the credential provider. The credential request message MUST be added to the activity Intent using an extra, named "org.openyolo.credential.request". This intent is then dispatched by the client using <a href="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</a>.</p></div><div id="rfc.section.4.3.1.p.2" class="avoidbreakafter"><p>An example credential request can be created and dispatched as follows:</p></div><pre>
+CredentialRetrieveRequest request =
+    CredentialRetrieveRequest.newBuilder()
+        .addAuthenticationMethod("openyolo://email")
+        .build();
+
+byte[] credentialRequestBytes = request.toByteArray();
+
+Intent hintIntent = new Intent()
+    .setPackage("com.example.provider");
+    .setAction("org.openyolo.credential.retrieve")
+    .setCategory("org.openyolo")
+    .putExtra(
+        "org.openyolo.credential.retrieve.request",
+        request.toByteArray());
+
+startActivityForResult(hintIntent, RC_RETRIEVE);
+</pre></section><section id="returning-a-response"><h4 id="rfc.section.4.3.2"><a href="#rfc.section.4.3.2">4.3.2.</a>&nbsp;<a href="#returning-a-response">Returning a response</a></h4><div id="rfc.section.4.3.2.p.1"><p>The provider can perform any processing and user interaction required to release a credential. Once complete, the provider creates a retrieve response message (specified in <a href="#credential-response-message" title="Credential response message">Section&nbsp;3.2.2</a>), and passes this back to the requester via <a href="https://developer.android.com/reference/android/app/Activity.html#setResult%28int,%20android.content.Intent%29">setResult</a>. The intent data returned to the client MUST carry the retrieve result using an extra, named "org.openyolo.credential.retrieve.result". Additionally, the result code contained in that credential result MUST match the result code for the provider activity.</p></div><div id="rfc.section.4.3.2.p.2" class="avoidbreakafter"><p>An example credential result could therefore be created and returned with the following code:</p></div><pre>
+Credential credential = Credential.newBuilder()
+    .setId("jdoe@example.com")
+    .setAuthDomain("android://sha256-aF...@com.example.app")
+    .setAuthMethod("openyolo://email")
+    .setPassword("CorrectH0rseBatterySt4ple")
+    .build();
+
+CredentialRetrieveResult result =
+    CredentialRetrieveResult.newBuilder()
+        .setResultCode(CREDENTIAL_SELECTED)
+        .setCredential(credential)
+        .build();
+
+Intent retrieveResultData = new Intent()
+    .putExtra(
+        "org.openyolo.credential.retrieve.result",
+        result.toByteArray());
+
+setResult(result.getResultCode(), retrieveResultData);
+finish();
+</pre></section><section id="parallel-credential-retrieval"><h4 id="rfc.section.4.3.3"><a href="#rfc.section.4.3.3">4.3.3.</a>&nbsp;<a href="#parallel-credential-retrieval">Parallel credential retrieval</a></h4><div id="rfc.section.4.3.3.p.1"><p>Credential retrieve requests can be sent to multiple providers in parallel, using the Background Broadcast Query protocol (see <a href="#the-background-broadcast-query-protocol-bbq" title="The background broadcast query protocol (BBQ)">Section&nbsp;4.6</a>) designed for this purpose. If a provider supports direct credential retrieval, it MUST also support parallel credential retrieval as specified in this section.</p></div><div id="rfc.section.4.3.3.p.2"><p>Parallel credential retrieval is particularly useful where more than one provider is installed and actively used by the user on their device. This often occurs where there is no easy integration for third party password managers into system services, such as mobile browsers, which do not have a plugin mechanism. In this scenario, there can be a disjoint disjoint set of credentials stored in the various providers, so querying them all increases the probability that a usable credential can be found.</p></div><div id="rfc.section.4.3.3.p.3" class="avoidbreakafter"><p>The query data type used for credential requests is "org.openyolo.credential", with a credential request message (specified in <a href="#credential-request-message" title="Credential request message">Section&nbsp;3.2.1</a>) as the query data. Providers respond to the BBQ query with the following protocol buffer response message:</p></div><pre>
+message CredentialRetrieveBbqResponse {
+    bytes retrieve_intent = 1;
+    map&lt;string, bytes&gt; additional_props = 2;
+}
+</pre><div id="rfc.section.4.3.3.p.4"><p>This response MAY carry an intent that can be used to retrieve a credential from a provider. Providers do not return an intent if they know that they do not have a credential matching the request. Providers MAY respond with a retrieve intent even if they do not know that they have a credential available: providers which use a master password to encrypt their stores which is not stored to disk may require the user to take an action to unlock the store before an accurate answer can be determined.</p></div><div id="rfc.section.4.3.3.p.5"><p>Where multiple providers respond with an intent, the client SHOULD allow the user to choose which of these providers to proceed with. Once selected, the intent is dispatched to the provider using <a href="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</a>.</p></div><div id="rfc.section.4.3.3.p.6"><p>The intent returned via the BBQ response MUST be structurally equivalent to the intents that a client would construct for direct credential retrieval, and the activity it is directed to MUST also follow the same protocol to return results.The provider MAY include additional information in the retrieve intent returned via BBQ, if convenient.</p></div><div id="rfc.section.4.3.3.p.7"><p>As the intent returned via BBQ is visible to, and can potentially be modified by the requesting service, it MUST NOT be blindly trusted by the provider when used by the requester. Additionally, intents returned via the BBQ protocol MUST NOT contain any privacy or security sensitive information, such as pre-fetched credentials. Providers SHOULD implement tamper-detection for the intent, such that any modification of the data carried by the intent is rejected.</p></div></section></section><section id="saving-credentials"><h3 id="rfc.section.4.4"><a href="#rfc.section.4.4">4.4.</a>&nbsp;<a href="#saving-credentials">Saving credentials</a></h3><div id="rfc.section.4.4.p.1" class="avoidbreakafter"><p>Credential save requests on Android are dispatched to the credential provider using an <a href="https://developer.android.com/reference/android/content/Intent.html">Intent</a>. If a provider supports credential saving, it MUST declare this on the manifest entry for its retrieve activity, using the following intent filter:</p></div><pre>
+&lt;intent-filter&gt;
+    &lt;action android:name="org.openyolo.credential.save"/&gt;
+    &lt;category android:name="org.openyolo" /&gt;
+&lt;/intent-filter&gt;
+</pre><section id="dispatching-a-save-request"><h4 id="rfc.section.4.4.1"><a href="#rfc.section.4.4.1">4.4.1.</a>&nbsp;<a href="#dispatching-a-save-request">Dispatching a save request</a></h4><div id="rfc.section.4.4.1.p.1"><p>In order to make a save request, the client creates a save request message (specified in <a href="#save-request-message" title="Save request message">Section&nbsp;3.3.1</a>) and encodes it to its binary protocol buffer form. An activity Intent is then created to send this to the credential provider. The save request message <em>must</em> be added to the activity Intent using an extra, named "org.openyolo.credential.save.request". This intent is dispatched by the client using <a href="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</a>.</p></div><div id="rfc.section.4.4.1.p.2" class="avoidbreakafter"><p>An example save request could be created and dispatched as follows:</p></div><pre>
+CredentialSaveRequest request = CredentialSaveRequest.newBuilder()
+    .setCredential(Credential.newBuilder()
+        .setId("jdoe@example.com")
+        .setAuthenticationDomain(
+            "android://sha256-...@com.example.app")
+        .setAuthenticationMethod(
+            "https://auth.example.com")
+        .setDisplayName("Jane Doe")
+        .build())
+    .build();
+
+Intent saveIntent = new Intent()
+    .setPackage("com.example.provider");
+    .setAction("org.openyolo.credential.save")
+    .setCategory("org.openyolo")
+    .putExtra(
+        "org.openyolo.credential.save.request",
+        request.toByteArray());
+startActivityForResult(saveIntent, RC_SAVE);
+</pre></section><section id="returning-a-response-1"><h4 id="rfc.section.4.4.2"><a href="#rfc.section.4.4.2">4.4.2.</a>&nbsp;<a href="#returning-a-response-1">Returning a response</a></h4><div id="rfc.section.4.4.2.p.1"><p>At this point the provider can perform any processing and user interaction required to save the credential. Once complete, the provider creates a save response message (specified in <a href="#save-response-message" title="Save response message">Section&nbsp;3.3.2</a>), and passes this back to the requester via <a href="https://developer.android.com/reference/android/app/Activity.html#setResult%28int,%20android.content.Intent%29">setResult</a>. The intent data returned to the client MUST carry the save result using an extra, named "org.openyolo.credential.save.result". Additionally, the result code contained in that save result MUST match the result code for the provider activity.</p></div><div id="rfc.section.4.4.2.p.2" class="avoidbreakafter"><p>An example save result could therefore be sent with the following code:</p></div><pre>
+CredentialSaveResult result = CredentialSaveResult.newBuilder()
+    .setResultCode(SAVED)
+    .build();
+
+Intent saveResultData = new Intent()
+    .putExtra(
+        "org.openyolo.credential.save.result",
+        result.toByteArray());
+
+setResult(result.getResultCode(), saveResultData);
+</pre></section></section><section id="deleting-credentials"><h3 id="rfc.section.4.5"><a href="#rfc.section.4.5">4.5.</a>&nbsp;<a href="#deleting-credentials">Deleting credentials</a></h3><div id="rfc.section.4.5.p.1" class="avoidbreakafter"><p>Credential delete requests on Android are dispatched to the credential provider using an <a href="https://developer.android.com/reference/android/content/Intent.html">Intent</a>. If a provider supports credential deletion, it MUST declare this on the manifest entry for its deletion activity, using the following intent filter:</p></div><pre>
+&lt;intent-filter&gt;
+    &lt;action android:name="org.openyolo.credential.delete"/&gt;
+    &lt;category android:name="org.openyolo" /&gt;
+&lt;/intent-filter&gt;
+</pre><div id="rfc.section.4.5.p.2"><p>In order to make a delete request, the client creates a delete request message (specified in <a href="#delete-request-message" title="Delete request message">Section&nbsp;3.4.1</a>) and encodes it to its binary protocol buffer form. An activity Intent is then created to send this to the credential provider. The delete request message MUST be added to the activity Intent using an extra, named "org.openyolo.credential.delete.request".</p></div><div id="rfc.section.4.5.p.3" class="avoidbreakafter"><p>An example delete request could be created and dispatched as follows:</p></div><pre>
+CredentialDeleteRequest request =
+    CredentialDeleteRequest.newBuilder()
+        .setCredential(
+            Credential.newBuilder()
+                .setId("jdoe@example.com")
+                .setAuthenticationDomain(/*...*/)
+                .setAuthenticationMethod(/*...*/)
+                .setPassword("wrongPassword")
+                .build())
+        .build();
+
+Intent deleteIntent = new Intent()
+    .setPackage("com.example.provider");
+    .setAction("org.openyolo.credential.delete")
+    .setCategory("org.openyolo")
+    .putExtra(
+        "org.openyolo.credential.delete.request",
+        request.toByteArray());
+
+startActivityForResult(deleteIntent, RC_DELETE);
+</pre><div id="rfc.section.4.5.p.4"><p>This intent is dispatched by the client using <a href="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</a>. At this point the provider can perform any processing and user interaction required to delete the credential. The provider creates a delete response message (specified in <a href="#delete-response-message" title="Delete response message">Section&nbsp;3.4.2</a>), and passes this back to the requester via <a href="https://developer.android.com/reference/android/app/Activity.html#setResult%28int,%20android.content.Intent%29">setResult</a>. The intent data returned to the client MUST carry the delete result using an extra, named "org.openyolo.credential.delete.result". Additionally, the result code contained in that delete result MUST match the result code for the provider activity.</p></div><div id="rfc.section.4.5.p.5" class="avoidbreakafter"><p>An example save result could therefore be sent with the following code:</p></div><pre>
+CredentialDeleteResult result = CredentialDeleteResult.newBuilder()
+    .setResultCode(USER_REFUSED)
+    .build();
+
+Intent deleteResultData = new Intent()
+    .putExtra(
+        "org.openyolo.credential.delete.result",
+        result.toByteArray());
+
+setResult(result.getResultCode(), deleteResultData);
+</pre></section><section id="the-background-broadcast-query-protocol-bbq"><h3 id="rfc.section.4.6"><a href="#rfc.section.4.6">4.6.</a>&nbsp;<a href="#the-background-broadcast-query-protocol-bbq">The background broadcast query protocol (BBQ)</a></h3><div id="rfc.section.4.6.p.1"><p>BBQ is a protocol designed to allow an Android app to request data from multiple <em>data providers</em> on the device, in parallel. OpenYOLO for Android uses this protocol to facilitate credential retrieve requests (see <a href="#retrieving-credentials" title="Retrieving credentials">Section&nbsp;4.3</a>).</p></div><div id="rfc.section.4.6.p.2"><p>BBQ Requests and responses are sent as targeted broadcast messages, with protocol buffers used to encode the request and response data. The use of broadcast messages allows implementations to be fully asynchronous, and protocol buffers allow messages to be compact and efficient, while avoiding common issues with custom Parcelable types.</p></div><section id="bbq-requests"><h4 id="rfc.section.4.6.1"><a href="#rfc.section.4.6.1">4.6.1.</a>&nbsp;<a href="#bbq-requests">BBQ requests</a></h4><div id="rfc.section.4.6.1.p.1" class="avoidbreakafter"><p>A broadcast query has the following mandatory properties:</p></div><div id="rfc.section.4.6.1.p.2"><ul><li>The data type being requested, described with <a href="https://en.wikipedia.org/wiki/Reverse_domain_name_notation">reverse domain name notation</a>, as is typically used for package names and intent actions in Android. For example, <span class="tt">org.openyolo.credential</span>.</li> <li>The package name of the requesting app, e.g. <span class="tt">com.example.app</span>.</li> <li>A randomly generated, 64-bit request ID. This is used to distinguish the request from other requests with the same data type that may not have been fully resolved.</li> <li>A randomly generated, 64-bit response ID. A separate response ID is generated for each expected responder, allowing responders to be distinguished and their identity to be recovered from the mapping of response ID to package name that is created prior to sending the request.<a class="self" href="#rfc.section.4.6.1.p.2">¶</a></li> </ul></div><div id="rfc.section.4.6.1.p.3"><p>An additional data-type specific message can be carried in the request if necessary, in the form of a byte-array (typically an encoded protocol buffer). Additional parameters can also be encoded into the message as key-value pairs, allowing for extension of the protocol itself.</p></div><div id="rfc.section.4.6.1.p.4" class="avoidbreakafter"><p>The request is represented by the following protocol buffer message:</p></div><pre>
+message BroadcastQuery {
+  // required
+  string data_type = 1;
+
+  // required
+  string requesting_app = 2;
+
+  // required
+  sfixed64 request_id = 3;
+
+  // required
+  sfixed64 response_id = 4;
+
+  bytes query_message = 5;
+  map&lt;string, bytes&gt; additional_props = 6;
+}
+</pre><section id="accepting-bbq-requests"><h5 id="rfc.section.4.6.1.1"><a href="#rfc.section.4.6.1.1">4.6.1.1.</a>&nbsp;<a href="#accepting-bbq-requests">Accepting BBQ requests</a></h5><div id="rfc.section.4.6.1.1.p.1" class="avoidbreakafter"><p>In order for a client to discover a BBQ query handler for a given query type, the handler MUST declare a broadcast receiver in their manifest as follows:</p></div><pre>
+&lt;receiver
+    android:name="com.example.BbqQueryHandler"
+    android:exported="true"&gt;
+  &lt;intent-filter&gt;
+      &lt;action android:name="DATA_TYPE" /&gt;
+      &lt;category android:name="com.google.bbq" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+</pre><div id="rfc.section.4.6.1.1.p.2"><p>This declares a BBQ query handler for "DATA_TYPE", which would typically be substituted for the appropriate query type (e.g. "org.openyolo.credential"). The category "com.google.bbq" MUST be present for the client to recognize this receiver as a BBQ query handler.</p></div></section><section id="dispatching-requests"><h5 id="rfc.section.4.6.1.2"><a href="#rfc.section.4.6.1.2">4.6.1.2.</a>&nbsp;<a href="#dispatching-requests">Dispatching requests</a></h5><div id="rfc.section.4.6.1.2.p.1" class="avoidbreakafter"><p>A request is dispatched as targeted broadcast message, with a separate message sent to each potential handler. First, the requester uses the Android <a href="https://developer.android.com/reference/android/content/pm/PackageManager.html">PackageManager</a> API to determine the set of apps which can provide data of the required type:</p></div><pre>
+Intent intent = new Intent(dataType);
+intent.addCategory("com.google.bbq.query");
+List&lt;ResolveInfo&gt; responderInfos =
+    packageManager.queryBroadcastReceivers(intent, 0);
+</pre><div id="rfc.section.4.6.1.2.p.2" class="avoidbreakafter"><p>A separate request message is created for each potential responder, with a unique response ID, and sent as a targeted broadcast. The query protobol buffer message is carried as an intent extra under the name "com.google.bbq.query.request":</p></div><pre>
+BroadcastQuery query = BroadcastQuery.newBuilder()
+    /* ... */
+    .setResponseId(idForResponder.get(responder))
+    .build();
+Intent bbqIntent = new Intent(dataType);
+bbqIntent.addCategory("com.google.bbq");
+bbqIntent.setPackage(responder);
+bbqIntent.setExtra("com.google.bbq.query.request", query.encode());
+context.sendBroadcast(bbqIntent);
+</pre></section></section><section id="bbq-responses"><h4 id="rfc.section.4.6.2"><a href="#rfc.section.4.6.2">4.6.2.</a>&nbsp;<a href="#bbq-responses">BBQ responses</a></h4><div id="rfc.section.4.6.2.p.1" class="avoidbreakafter"><p>A broadcast query response has the following mandatory properties:</p></div><div id="rfc.section.4.6.2.p.2"><ul><li>The 64-bit request ID that the response is associated with, copied from the request.</li> <li>The 64-bit response ID unique to this response, copied from the request.<a class="self" href="#rfc.section.4.6.2.p.2">¶</a></li> </ul></div><div id="rfc.section.4.6.2.p.3"><p>The response copies the request and response IDs from the request message, and MAY include a data-type specific response message, if necessary. The absence of a data-type specific response message is generally interpreted to mean that the provider is unable to service the request.</p></div><div id="rfc.section.4.6.2.p.4" class="avoidbreakafter"><p>The structure of the query response message is therefore as follows:</p></div><pre>
+message BroadcastQueryResponse {
+  // required
+  sfixed64 request_id = 1;
+
+  // required
+  sfixed64 response_id = 2;
+
+  bytes response_message = 3;
+  map&lt;string, bytes&gt; additional_props = 4;
+}
+</pre><section id="accepting-bbq-responses"><h5 id="rfc.section.4.6.2.1"><a href="#rfc.section.4.6.2.1">4.6.2.1.</a>&nbsp;<a href="#accepting-bbq-responses">Accepting BBQ responses</a></h5><div id="rfc.section.4.6.2.1.p.1" class="avoidbreakafter"><p>In order to receive a BBQ query response, the requester MUST dynamically register a broadcast receiver for an action of form <span class="tt">DATA_TYPE:REQUEST_ID</span>, where <span class="tt">DATA_TYPE</span> is the data type that is being queried, and <span class="tt">REQUEST_ID</span> is the zero-padded, upper-case hexadecimal form of the 64-bit request ID. For example, if the request ID were 51966 in decimal, the registered broadcast receiver action will be <span class="tt">org.openyolo.credential:000000000000CAFE</span>:</p></div><pre>
+IntentFilter filter = new IntentFilter();
+filter.addAction("org.openyolo.credential:000000000000CAFE");
+filter.addCategory("com.google.bbq");
+context.registerReceiver(new BroadcastReciever() { ... }, filter);
+</pre><div id="rfc.section.4.6.2.1.p.2"><p>In order to avoid a race condition, this response handler MUST be registered prior to dispatching a query.</p></div></section><section id="dispatching-bbq-responses"><h5 id="rfc.section.4.6.2.2"><a href="#rfc.section.4.6.2.2">4.6.2.2.</a>&nbsp;<a href="#dispatching-bbq-responses">Dispatching BBQ responses</a></h5><div id="rfc.section.4.6.2.2.p.1" class="avoidbreakafter"><p>Responses are sent back to the requester from the query handler in the form of targeted broadcast messages to the dynamically registered action. The intent describing this response broadcast is constructed such that the action is set to the dynamically registered broadcast receiver of the client for the query, and the response protocol buffer message is carried as an extra with name "com.google.bbq.query.response". For example:</p></div><pre>
+Intent responseBroadcast = new Intent(
+    "org.openyolo.credential:000000000000CAFE");
+responseBroadcast.addCategory("com.google.bbq");
+responseBroadcast.setPackage("com.example.app");
+responseBroadcast.putExtra("com.google.bbq.query.response",
+        responseMessage);
+sendBroadcast(responseBroadcast);
+</pre></section></section><section id="use-of-timeouts"><h4 id="rfc.section.4.6.3"><a href="#rfc.section.4.6.3">4.6.3.</a>&nbsp;<a href="#use-of-timeouts">Use of timeouts</a></h4><div id="rfc.section.4.6.3.p.1"><p>In order to avoid waiting indefinitely for responses from faulty or slow receivers, a timeout SHOULD be used, after which absent responses MUST be treated as though the provider was unable to service the request. This is equivalent to a response message from the provider with no data-type specific message payload. A timeout of at least two seconds SHOULD be used; older Android devices under memory pressure can take this long to instantiate the broadcast receiver for the query handler and to allow it to process the request. Shorter timeouts MAY be used for particularly time sensitive queries, but with the expectation that providers may randomly fail to respond in time.</p></div></section></section></section><hr class="noprint"><section id="security-on-rooted-devices"><h2 id="rfc.section.5" class="np"><a href="#rfc.section.5">5.</a>&nbsp;<a href="#security-on-rooted-devices">Security on rooted devices</a></h2><div id="rfc.section.5.p.1"><p>The overall security of OpenYOLO on Android is contingent on the security of the core communication primitives the platform provides. Specifically, it MUST be the case that intent results be private, and that targeted broadcast messages MUST only be visible to the designated recipient. These preconditions are also fundamental to Android security in general - if intent results or targeted broadcast messages can be eavesdropped by attackers, then no real security exists for inter-process communication.</p></div><div id="rfc.section.5.p.2"><p>The BBQ protocol specifically relies on the integrity of the Android broadcast system to guarantee the privacy of the messages sent between a requester and a provider. On a device with a custom Android ROM, it is potentially possible for a malicious app or system service with root access to read these messages, and expose plain-text passwords.</p></div><div id="rfc.section.5.p.3"><p>Cryptography would provide no additional protection. If an attacker can read the private messages sent via the broadcast system, this will typically imply they have access to the memory location of the buffers. If ephemeral public-private key pairs are used, which don't authenticate either party, a man-in-the-middle attack is possible.</p></div><div id="rfc.section.5.p.4" class="avoidbreakafter"><p>There is no trusted third party on the device which can sign keys to prove they are associated to a particular app:</p></div><div id="rfc.section.5.p.5"><ul><li><div><p>Key pairs cannot be distributed with the app, as they could be easily extracted from the application in advance, or on-demand with root access on the device.</p></div></li> <li><div><p>Keys cannot be dynamically signed by a trusted entity on the device (such as the platform itself, or Google Play Services) as these exchanges would also be susceptible to attack by anything with root access.</p></div><a class="self" href="#rfc.section.5.p.5">¶</a></li> </ul></div><div id="rfc.section.5.p.6" class="avoidbreakafter"><p>As such, we recommend that credential providers warn the user if it can be detected that they are executing on an untrusted Android build. The option could be given to enable or disable credential exchange on such devices, with a warning as to the security risks of doing this. Generally, rooted devices are very risky to a user's security, so warning users of this fact prior to even allowing a password manager to be configured on the device is also advisable, as the following attacks are also potentially viable:</p></div><div id="rfc.section.5.p.7"><ul><li>Directly reading keys and passwords from the memory space of the password manager or app</li> <li>Scraping the contents of EditText instances for passwords</li> <li>Key-logging the user</li> <li>Injecting code into the process space of the password manager or app<a class="self" href="#rfc.section.5.p.7">¶</a></li> </ul></div><div id="rfc.section.5.p.8"><p>The authors of this specification have no evidence that the kernel modifications required to break this protocol exist on real devices or popular distributed Android ROMs, but they are certainly feasible. As such, all rooted devices SHOULD be treated with suspicion when dealing with credential data.</p></div></section><hr class="noprint"><section id="rfc.authors" class="np"><h2><a href="#rfc.authors">Author's Address</a></h2><address><b>Iain McGinniss</b><br>Google, Inc.<br>1600 Amphitheater Parkway<br>Mountain View, California&nbsp;95134<br>United States of America<br>Phone: <a href="tel:+1-650-253-0000">+1-650-253-0000</a><br>EMail: <a href="mailto:iainmcgin@google.com">iainmcgin@google.com</a></address></section></body></html>

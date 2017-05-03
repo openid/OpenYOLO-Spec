@@ -1,0 +1,2203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd' []>
+<rfc ipr="trust200902" category="exp" docName="draft-openyolo-android-03">
+<?rfc toc="yes"?>
+<?rfc symrefs="no"?>
+<?rfc sortrefs="yes"?>
+<?rfc compact="yes"?>
+<?rfc subcompact="no"?>
+<?rfc private=""?>
+<?rfc topblock="yes"?>
+<?rfc comments="no"?>
+<front>
+<title abbrev="">OpenYOLO for Android</title>
+
+<author initials="I." surname="McGinniss" fullname="Iain McGinniss">
+<organization>Google, Inc.</organization>
+<address>
+<postal>
+<street>1600 Amphitheater Parkway</street>
+<city>Mountain View</city>
+<code>95134</code>
+<country>United States of America</country>
+<region>California</region>
+</postal>
+<phone>+1-650-253-0000</phone>
+<email>iainmcgin@google.com</email>
+<uri></uri>
+</address>
+</author>
+<date year="2017" month="May" day="3"/>
+
+<area>Internet</area>
+<workgroup></workgroup>
+<keyword>password</keyword>
+<keyword>credential</keyword>
+<keyword>security</keyword>
+
+
+<abstract>
+<t>OpenYOLO for Android is a protocol for retrieving, updating and assisting in
+the creation of authentication credentials. This document describes the core
+concepts of OpenYOLO, and the platform-specific details for implementing the
+OpenYOLO protocol on Android.
+</t>
+<t><spanx style="strong">What's in a name?</spanx>
+</t>
+<t>YOLO stands for &quot;You Only Login Once&quot;, which is the internal code-name
+for Google's <eref target="https://developers.google.com/identity/smartlock-passwords/android/">Smart Lock for Passwords</eref> API on Android. OpenYOLO
+is the open standards successor to YOLO, and came to be as a result of an
+initial collaboration between Google and <eref target="https://www.dashlane.com">Dashlane</eref>.
+OpenYOLO leverages the lessons learned from YOLO, and also ensures that
+implementations of OpenYOLO can compete on a level playing field.
+</t>
+<t>OpenYOLO would not have been likely to succeed without
+<eref target="https://agilebits.com/">AgileBits</eref>,
+<eref target="https://keepersecurity.com/">Keeper Security</eref>
+and <eref target="https://www.lastpass.com/">LastPass</eref>,
+to whom we are grateful for their continued support and engagement.
+</t>
+</abstract>
+
+
+<note title="Copyright notice">
+<t>Copyright (c) 2017 The OpenID Foundation.
+</t>
+<t>The OpenID Foundation (OIDF) grants to any Contributor, developer, implementer,
+or other interested party a non-exclusive, royalty free, worldwide copyright
+license to reproduce, prepare derivative works from, distribute, perform and
+display, this Implementers Draft or Final Specification solely for the purposes
+of (i) developing specifications, and (ii) implementing Implementers Drafts and
+Final Specifications based on such documents, provided that attribution be made
+to the OIDF as the source of the material, but that such attribution does not
+indicate an endorsement by the OIDF.
+</t>
+<t>The technology described in this specification was made available from
+contributions from various sources, including members of the OpenID Foundation
+and others. Although the OpenID Foundation has taken steps to help ensure that
+the technology is available for distribution, it takes no position regarding
+the validity or scope of any intellectual property or other rights that might
+be claimed to pertain to the implementation or use of the technology described
+in this specification or the extent to which any license under such rights
+might or might not be available; neither does it represent that it has made any
+independent effort to identify any such rights. The OpenID Foundation and the
+contributors to this specification make no (and hereby expressly disclaim any)
+warranties (express, implied, or otherwise), including implied warranties of
+merchantability, non-infringement, fitness for a particular purpose, or title,
+related to this specification, and the entire risk as to implementing this
+specification is assumed by the implementer. The OpenID Intellectual Property
+Rights policy requires contributors to offer a patent promise not to assert
+certain patent claims against other contributors and against implementers. The
+OpenID Foundation invites any interested party to bring to its attention any
+copyrights, patents, patent applications, or other proprietary rights that may cover technology that may be required to practice this specification.
+</t>
+</note>
+
+
+<note title="Requirements Notation and Conventions">
+<t>The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;,
+&quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,  &quot;MAY&quot;, and &quot;OPTIONAL&quot; in this document are to be
+interpreted as described in <eref target="https://tools.ietf.org/html/rfc2119">RFC 2119</eref>.
+</t>
+</note>
+
+
+</front>
+
+<middle>
+
+<section anchor="introduction" title="Introduction">
+<t>Manually authenticating in an app or site is mentally exhausting. Users are
+typically presented with a screen like the following when interacting with
+an application or website:
+</t>
+
+<figure align="center"><artwork align="center" type="ascii-art">
++------------------------------------------+
+|                                          |
+|       To continue, please sign in:       |
+|                                          |
+|    Email                                 |
+|   ------------------------------------   |
+|                                          |
+|    Password                              |
+|   ------------------------------------   |
+|                                          |
+|   Forgotten your password? [Click here]  |
+|                                          |
+|   =============== Or: ================   |
+|                                          |
+|   +-------------+     +--------------+   |
+|   |   Google    |     |   Facebook   |   |
+|   +-------------+     +--------------+   |
+|                                          |
+|       If you don't have an account,      |
+|                [click here]              |
+|                                          |
++------------------------------------------+
+</artwork></figure>
+<t>The user typically has to mentally process three questions in response to such
+a page:
+</t>
+<t>
+<list style="numbers">
+<t>Do I already have an account for this service?</t>
+<t>If so, did I use an email address and password, or one of the identity
+provider options?</t>
+<t>If I used an email address and password, what was the password?</t>
+</list>
+</t>
+<t>For all but most frequently used apps and websites (henceforth referred
+to as <spanx style="emph">services</spanx>), this is a tedious and error-prone process. As of 2016,
+users typically interact with around <eref target="https://blog.dashlane.com/infographic-online-overload-its-worse-than-you-thought/">100 services</eref>.
+Many of those services are used less than once a month, for
+example to buy flowers or arrange air travel. Switching to a new device is a
+particularly painful experience due to the need to re-authenticate with all
+used services.
+</t>
+<t>Remembering unique account details for 100+ services is infeasible; the
+natural human consequence of this situation is widespread credential reuse
+across services. This is a disaster for the user's security - an alternative
+approach is needed.
+</t>
+
+<section anchor="password-authentication" title="Password authentication">
+<t>Password based authentication, despite many attempts to displace it,
+remains the most common form of authentication in use today. Password
+authentication suffers from three key issues:
+</t>
+<t>
+<list style="symbols">
+<t>User selected passwords are often <spanx style="emph">weak</spanx>. Most users do not know how to
+produce <eref target="https://doi.org/10.1109/MSP.2004.81">high entropy passwords</eref>. The basic strategies
+employed involve using combinations of common dictionary words, years and
+names, all of which easily succumb to social engineering and dictionary
+attacks.</t>
+<t>Password credentials are often <spanx style="emph">transferable</spanx>. The limits of humans to
+memorize long strings of random information is <eref target="https://doi.org/10.1145/322796.322806">well studied</eref>;
+the typical user cannot be expected to memorize more than 5 passwords
+for unrelated services. The natural consequence is that users frequently
+reuse their passwords, which when combined with email addresses as
+identifiers, makes the credentials transferable across unrelated services.
+If a password is uncovered for a user on one service, an attacker can simply
+try this credential on other services with a high success rate.</t>
+<t>Password credentials are often <spanx style="emph">long lived</spanx>. There is no intrinsic expiration
+time on a password credential, and password rotation is not uniformly
+enforced across all password using services. If a password is uncovered by an
+attacker, it can be used for a significant period of time, perhaps
+indefinitely.
+Even where a service does enforce password rotation, such as once a year,
+&quot;digit rotation&quot; is commonly employed by users to circumvent this: they
+simply increment a counter at some position in the password, typically at the
+end. This makes guessing future passwords from current passwords particularly
+easy for an attacker.</t>
+</list>
+</t>
+<t>The problems that passwords cause only get worse as users interact with
+more and more services. Yet, password authentication persists:
+</t>
+<t>
+<list style="symbols">
+<t>Password authentication is familiar to users, and is therefore is often
+their default choice.</t>
+<t>It is considered to be easy to implement, despite the numerous account system
+breaches that demonstrate the opposite.</t>
+<t>It has no dependencies on external entities, like identity providers. The
+stability of the system is entirely under the control of the implementer,
+for better or worse.</t>
+</list>
+</t>
+<t>It is unlikely that password based authentication can be completely displaced;
+as such, any solution in this problem space will have to accommodate password
+based authentication.
+</t>
+</section>
+
+<section anchor="federated-authentication" title="Federated authentication">
+<t>Federated authentication, in the form of <eref target="https://tools.ietf.org/html/rfc6749">OAuth2</eref> and
+<eref target="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect</eref>, solves the problem of account overload by centralizing
+authentication for the user with a small number of trusted <spanx style="emph">identity providers</spanx>.
+Furthermore, by providing proof of authentication to a service (referred to as
+a <spanx style="emph">relying party</spanx> in this context) in the form of cryptographically signed
+<eref target="https://tools.ietf.org/html/rfc7519">ID tokens</eref>, overall security is significantly improved
+when compared to password based authentication.
+</t>
+<t>However, the success of federated authentication is still limited - OAuth2 and
+OpenID Connect are regarded as difficult to implement, and federated
+authentication was unnecessarily tainted by &quot;social login&quot; in the early 2010s.
+Federated authentication became associated with unnecessary and invasive
+sharing of personal information. This association has largely been undone, but
+the perception of privacy invasion lingers.
+</t>
+<t>Furthermore, it is easy for users to forget <spanx style="emph">which</spanx> identity provider they use,
+when multiple options are presented. Services also rarely implement
+<spanx style="emph">account linking</spanx> correctly, where multiple authentication methods are attached
+to the same core account. Because of this, making the wrong choice often
+leads to a totally different account: for example, choosing Google Sign-in when
+the user's account was actually created using Facebook. The inconsistency
+and frustration caused by this is often enough to drive users to the
+authentication method they know best - email and password authentication, with
+a reused password across every service.
+</t>
+</section>
+
+<section anchor="account-recovery-based-authentication" title="Account recovery based authentication">
+<t>An equally common method of authentication employed by users is to simply
+trigger the <spanx style="emph">account recovery</spanx> flow every time they need to use the service.
+Accounts are typically created with a recovery email address or phone number,
+and users exploit this fact to regain access to the account when necessary.
+They expect the following flow:
+</t>
+<t>
+<list style="numbers">
+<t>An email or SMS message will be sent containing a link to reset the
+password.</t>
+<t>The user clicks the link to change their password, likely to either their
+current reused password, or something else that they immediately forget.</t>
+<t>The user is now authenticated. When the session expires or the user changes
+device the process is often repeated.</t>
+</list>
+</t>
+<t>We shall refer to this method of authentication as &quot;proof of access&quot; -
+by demonstrating that a secret can be communicated via some trusted
+side-channel, the user can gain access to the account. Some services use
+this method explicitly, as the main form of authentication -
+<eref target="https://www.slack.com">Slack</eref> refers to this as &quot;magic link&quot;
+authentication.
+</t>
+<t>Sending an authentication secret (a code or a link) to an email address or
+phone number is essentially a form of federated authentication. In comparison to
+OpenID Connect, this is a rather absurd and inconvenient, as it requires the
+user to manually drive the authentication flow. It is, however, a model of
+authentication that users find easy to understand, despite its shortcomings.
+</t>
+<t>If it were possible to provide proof of access to an email address
+or phone number directly to a service from an authoritative source, then the
+manual verification of access to that email or phone number would be
+unnecessary. The most common email providers are <spanx style="emph">also</spanx> OAuth2 or OpenID
+Connect identity providers: Google, Microsoft and Yahoo account for over 90% of
+the US market, according to a data analysis conducted by
+<eref target="https://blog.mailchimp.com/major-email-provider-trends-in-2015-gmail-takes-a-really-big-lead/">MailChimp in 2015</eref>. These providers already have
+the ability to assert proof of access in the form of
+<eref target="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID tokens</eref>.
+Providing an easier mechanism to acquire such ID tokens would simplify
+authentication for many services.
+</t>
+</section>
+
+<section anchor="credential-managers" title="Credential managers">
+<t>A <spanx style="emph">credential manager</spanx> is a piece of software that remembers credentials
+on behalf of a user. Most credential managers focus on
+password based authentication, and offer to generate strong, unique password
+for each new service a user interacts with.
+</t>
+<t>The most common credential manager that users encounter is their web browser,
+which presents itself via form-fill on authentication pages. Technically
+knowledgeable users often also have a standalone credential manager.
+</t>
+<t>Credential managers suffer from the following usability issues, which limit
+their appeal:
+</t>
+<t>
+<list style="symbols">
+<t>When a credential manager is a standalone application, the user must
+manually switch context to find the relevant credential, and
+copy-paste it to the service they are signing in to. Browser extensions
+can make this easier, but are not supported on all platforms, in particular
+on mobile devices.
+Manually copying a password also represents a security risk in itself;
+on some platforms it is possible for other applications installed on the
+device to monitor the clipboard and steal passwords that are copied out of
+the credential manager.</t>
+<t>Where a credential manager is able to integrate with the browser or OS in
+some way, heuristics are often necessary to detect and fill in login forms.
+Such heuristics are fragile to changes in the service, such as when they are
+redesigned or change path within the domain. Heuristics are employed because
+there is rarely any viable alternative: services do not provide sufficient
+information for a credential manager to do a better job.
+This problem is particularly acute when the login system employs an
+<spanx style="emph">identifier first</spanx> pattern, where collection of the identifier and a password
+are split across separate screens. In such situations, heuristics typically
+fail to detect the relationship between the fields across these separate
+screens.</t>
+<t>Credential managers are often blind to relationships between apps and sites
+that share the same authentication system - saving a credential for one site
+does not automatically make this credential available on other, related sites.</t>
+<t>Credential managers do not assist federated authentication: they cannot
+help the user remember if they signed in to the service using Google or
+Facebook, only whether they filled in an identifier and password.</t>
+<t>Credential managers are unaware of password restrictions in use on the site:
+how long they must be, whether they must include a number or symbol, etc. As
+such, <spanx style="emph">password generation</spanx> is also heuristic and based on a least common
+denominator schema that is acceptable to the majority of services.</t>
+</list>
+</t>
+</section>
+
+<section anchor="solution-direct-communication-with-a-credential-manager" title="Solution: Direct communication with a credential manager">
+<t>If services could directly communicate with the user's preferred credential
+manager, manual authentication and its associated problems can completely
+disappear. If such a communication channel existed, then
+the following operations would be possible:
+</t>
+<t>
+<list style="symbols">
+<t>Account creation facilitated by the credential manager. The service could
+describe to the credential manager what authentication methods it supports,
+and what password restrictions it has. In response, a credential provider
+could (with or without user assistance) select an email address and generate
+a strong, unique password that is guaranteed to work.</t>
+<t>Automatic retrieval of existing credentials. At the appropriate moment, a
+service could request a credential, and have this automatically returned, or
+returned after some in-context user consent is solicited. This would be a
+marked improvement over the user manually finding and copying the credential,
+and minimizes the opportunity for the credential to be stolen in doing so.</t>
+<t>Maintenance of the credential manager store. When the service modifies an
+account, it can notify the credential manager of account changes. This
+information can be used to keep the credential store fresh.</t>
+<t>&quot;Proof of access&quot; to email addresses and phone numbers (as described
+in the
+<xref target="account-recovery-based-authentication"/>
+section above) could be directly solicited. While the credential manager might
+not have the authority to generate an ID token for a given email address, it
+could facilitate this process.</t>
+</list>
+</t>
+<t>OpenYOLO defines a protocol for direct communication between services and
+credential managers, in order to enable these operations.
+</t>
+</section>
+</section>
+
+<section anchor="openyolo-concepts-and-definitions" title="OpenYOLO concepts and definitions">
+<t>Before providing a high level overview of the OpenYOLO operations, some
+terms that will be used throughout the specification must be defined. Where
+data structures are described, this document uses
+<eref target="https://developers.google.com/protocol-buffers">protocol buffer v3 messages</eref> as the definition language. Where
+specific instances of these messages are presented, the
+<eref target="https://developers.google.com/protocol-buffers/docs/proto3#json">Protocol Buffer v3 JSON encoding</eref> is used.
+</t>
+
+<section anchor="credentials" title="Credentials">
+<t>A <spanx style="emph">credential</spanx> is a set of properties that are used to help authenticate a user.
+Credentials can be <spanx style="emph">partial</spanx>, where they do not provide all
+necessary information for authentication.
+</t>
+<t>Credentials in OpenYOLO are composed of the following properties:
+</t>
+<t>
+<list style="symbols">
+<t>An <spanx style="emph">authentication domain</spanx>, where the credential was saved.
+All credentials MUST have an associated authentication domain. A credential
+MAY be usable on other authentication domains. Authentication domains are
+described in more detail in <xref target="authentication-domains"/>.</t>
+<t>An <spanx style="emph">authentication method</spanx>, which describes the system used to verify
+the credential. All credentials MUST have an associated authentication
+method. Authentication methods are described in more detail in
+<xref target="authentication-methods"/>.</t>
+<t>An <spanx style="emph">identifier</spanx>, which designates an account in the context of
+both the authentication domain and method. All credentials MUST have an
+identifier. Typically, identifiers are
+email addresses, phone numbers, or some printable unicode string. Identifiers
+are typically human readable and distinguishable, but this is not a
+requirement.</t>
+<t>An optional <spanx style="emph">display name</spanx>, that assists the user in identifying and
+distinguishing credentials. Typically, the display name for a credential is
+the user's real name, or a chosen alias.</t>
+<t>An optional <spanx style="emph">display picture</spanx>, that fulfills a similar role to display name.
+Typically, the display picture is either a picture of the user, an avatar that they have chosen, or one they been assigned.</t>
+<t>An optional <spanx style="emph">password</spanx>, which is a human-readable secret used to authenticate
+with the service. Specifically, this field MUST NOT be used to store
+secrets that a user would not use directly, such as bearer tokens.</t>
+<t>An optional <spanx style="emph">ID token</spanx>, which provides &quot;proof of access&quot; to the identifier
+of the credential such as an email address or phone number.</t>
+<t>An optional set of non-standard properties. This provides the
+ability for credential providers to innovate within the constraints of the
+specification, with a view to later standardizing useful properties. Services
+SHOULD NOT rely upon additional properties, as their meaning is unlikely
+to be consistent across credential providers.</t>
+</list>
+</t>
+<t>A credential is represented by the following protocol buffer message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message Credential {
+  // required
+  string id = 1;
+
+  // required
+  AuthenticationDomain auth_domain = 2;
+
+  // required
+  AuthenticationMethod auth_method = 3;
+
+  string display_name = 4;
+  string display_picture_uri = 5;
+  string password = 6;
+  string id_token = 7;
+  map&lt;string, bytes&gt; additional_props = 8;
+}
+</artwork></figure>
+<t>For example, an email and password credential could look like:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "id": "jdoe@example.com",
+  "auth_domain": {
+    "uri": "https://www.example.com"
+  },
+  "auth_method": {
+    "uri": "openyolo://email"
+  },
+  "display_name": "Jane Doe",
+  "display_picture_uri": "https://www.robohash.org/jdoe",
+  "password": "RiverClyde7"
+}
+</artwork></figure>
+
+<section anchor="hints" title="Hints">
+<t>Hints are a variant of credentials that are tailored to account discovery
+and new account creation. They are represented by a separate protocol buffer
+message from credentials, in order to allow for future extension that might
+diverge from the definition of credentials. Hints are represented by the
+following protocol buffer message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message Hint {
+  // required
+  string id = 1;
+
+  // required
+  AuthenticationMethod auth_method = 3;
+
+  string display_name = 4;
+  string display_picture_uri = 5;
+  string generated_password = 6;
+  string id_token = 7;
+  map&lt;string, bytes&gt; additional_props = 8;
+}
+</artwork></figure>
+<t>The two main differences from credentials are that noo authentication domain is
+declared, and that the <spanx style="verb">password</spanx> field is renamed to <spanx style="verb">generated_password</spanx>, to
+express its intent more clearly.
+</t>
+</section>
+</section>
+
+<section anchor="credential-providers" title="Credential providers">
+<t>A <spanx style="emph">credential provider</spanx> is a <spanx style="emph">credential manager</spanx> which implements the
+OpenYOLO protocol. Credential providers are typically one of
+the following:
+</t>
+<t>
+<list style="symbols">
+<t>A dedicated service whose sole purpose is to store and recall credentials for
+the user.</t>
+<t>A web browser or custom input method, which provides credential management,
+but not as its primary focus.</t>
+<t>An operating system service, such as Smart Lock for Passwords on Android or
+Keychain on iOS.</t>
+</list>
+</t>
+
+<section anchor="known-unknown-and-preferred-providers" title="Known, unknown and preferred providers">
+<t>Given the sensitive nature of the data being exchanged by the OpenYOLO protocol,
+it will become a target for attackers. A likely attack is for a
+suspicious service to implement the OpenYOLO protocol and attempt to register
+themselves as the user's credential provider. Distinguishing legitimate
+credential providers from malicious providers is therefore an important aspect
+of building trust in the protocol, for both service maintainers and users.
+</t>
+<t>In order to achieve this, a <spanx style="emph">known provider</spanx> list will be maintained by the
+OpenID Foundation. A static snapshot of this list is included in the OpenYOLO
+API on each platform, and will be automatically updated by the client library
+when necessary.
+</t>
+<t>An <spanx style="emph">unknown</spanx> provider will still be usable - the intention of the known provider
+list is not to strictly whitelist providers, as this would stifle competition.
+However, additional user consent will be required upon every interaction with
+an unknown provider, to ensure the user is aware of the potential risks.
+Known providers will not have this restriction, and legitimate credential
+providers will be encouraged to register themselves with the OpenID Foundation
+to become known providers.
+</t>
+<t>Where possible on each supported platform, the user SHOULD
+be able to specify their <spanx style="emph">preferred</spanx> credential provider. This preferred
+provider will be used exclusively for assisted sign-up and credential saving.
+For credential retrieval, additional providers MAY still be used.
+</t>
+</section>
+</section>
+
+<section anchor="token-providers" title="Token providers">
+<t>A <spanx style="emph">token provider</spanx> is a service that is able to issue an authoritative
+&quot;proof of access&quot; ID token for an identifier. For example, Google is the
+token provider for all &quot;gmail.com&quot; email addresses, while Microsoft is the
+token provider for all &quot;live.com&quot; email addresses.
+</t>
+<t>Token providers are identified by their canonical token-issuing domain,
+which hosts the token endpoint that provides ID tokens. In the case of Google,
+this is <spanx style="verb">https://accounts.google.com</spanx>.
+</t>
+<t>Token providers can be authoritative for a large set of domains or numbers, and
+there is not often an easy way to determine in advance the token provider for a
+given domain. OpenYOLO does yet not attempt to solve this particular problem.
+</t>
+</section>
+
+<section anchor="authentication-domains" title="Authentication domains">
+<t>An <spanx style="emph">authentication domain</spanx> is defined to be a scope within which a credential
+is considered to be usable. Authentication domains are represented as absolute,
+hierarchical URIs of form <spanx style="verb">scheme://authority</spanx> - no path, query or fragment is
+permitted.
+</t>
+<t>In protocol buffer form, an authentication domain is represented by the
+following message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message AuthenticationDomain {
+  // required
+  string uri = 1;
+}
+</artwork></figure>
+<t>The URI is encapsulated in a message to allow for future extensibility of
+the concept of an authentication domain, without altering the structure of
+containing messages.
+</t>
+<t>Two forms of authentication domain are presently defined:
+</t>
+<t>
+<list style="symbols">
+<t>Web authentication domains, which match the domain of the site and can have
+either a http or https scheme (e.g. <spanx style="verb">https://example.com</spanx> and
+<spanx style="verb">http://www.example.com</spanx> are valid web authentication domains). HTTPS is
+<spanx style="emph">strongly preferred</spanx> for use with OpenYOLO, but HTTP is also supported for
+testing and development purposes.</t>
+<t>Android authentication domains, of form <spanx style="verb">android://fingerprint@package</spanx> where
+<spanx style="verb">package</spanx> is the package name of an app (e.g. com.example.app), and
+<spanx style="verb">fingerprint</spanx> is a Base64, URL-safe encoding of the app's public key
+(provided by the <eref target="https://developer.android.com/reference/android/content/pm/Signature.html">Signature</eref> type in Android). The fingerprint string includes both the hash algorithm used, and the hash data,
+e.g. <spanx style="verb">sha512-7fmduHK...</spanx>. All OpenYOLO credential providers MUST support
+both <spanx style="verb">sha256</spanx> and <spanx style="verb">sha512</spanx> as hash algorithms for fingerprints, and MAY
+support any other hash algorithm that provides equivalent or better
+security than SHA-256.</t>
+</list>
+</t>
+<t>An <spanx style="emph">authentication system</spanx> which validates credentials
+MAY be represented by multiple distinct authentication domains. For example,
+a credential for <spanx style="verb">android://sha256-...@com.example.app</spanx> might be usable on
+<spanx style="verb">https://example.com</spanx> or <spanx style="verb">https://www.example.com</spanx>, when these three entities
+all use the same authentication system.
+</t>
+<t>An authentication domain <spanx style="emph">equivalence class</spanx> defines the set of authentication
+domains associated with a given authentication system, and therefore the
+places where credentials can be used safely across domains. Such equivalence
+classes improve the usability of OpenYOLO, but must be carefully defined to
+avoid compromising the security of a user's credentials. Equivalence classes
+SHOULD be explicitly defined by the service that owns the associated domains
+and apps, and SHOULD NOT be assumed or heuristically constructed by the
+credential provider.
+</t>
+<t>OpenYOLO recommends the use of the <eref target="https://developers.google.com/digital-asset-links/">Digital Asset Links</eref> as a
+standard mechanism to define authentication domain equivalence classes.
+Credential providers SHOULD use this information as part of defining the
+equivalence class over authentication domains. It is the responsibility of the
+credential provider to correctly construct and utilize the authentication
+domain equivalence class.
+</t>
+</section>
+
+<section anchor="authentication-methods" title="Authentication methods">
+<t>An <spanx style="emph">authentication method</spanx> is a mechanism by which a user credential can be
+verified, and is given a unique URI identifier. Any URI of form
+<spanx style="verb">scheme://authority</spanx> can be used to describe an authentication method. URIs
+of this form are used to allow for namespacing of custom authentication methods,
+by using a custom (private) scheme.
+</t>
+<t>In protocol buffer form, authentication methods are represented by the
+following message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message AuthenticationMethod {
+    // required
+    string uri = 1;
+}
+</artwork></figure>
+<t>The URI is encapsulated in a message to allow for future extensibility of
+the concept of an authentication method, without altering the structure of
+containing messages.
+</t>
+<t>OpenYOLO defines some standard URIs for the three most common types of
+authentication methods:
+</t>
+<t>
+<list style="symbols">
+<t>Email identifier based authentication. This implies that the primary
+identifier of the account (from the user's perspective, at least) is their
+email address. Authentication requires a password or proof of access to
+the stated email address. The URI for this authentication method is
+standardized as <spanx style="verb">openyolo://email</spanx>.</t>
+<t>Phone number based authentication. This implies that the primary identifier
+for the account is a phone number, represented to OpenYOLO in
+<eref target="https://www.itu.int/rec/T-REC-E.164/en">E.164</eref> format. Authentication
+requires a password or proof of access to the stated phone number. The URI
+for this authentication method is standardized as <spanx style="verb">openyolo://phone</spanx>.</t>
+<t>User name and password based authentication. This implies that the primary
+identifier is some printable unicode string of characters, and that
+authentication requires a password. The URI for this authentication method is
+standardized as <spanx style="verb">openyolo://username</spanx>.</t>
+</list>
+</t>
+<t>Where a federated credential from an identity provider is desired,
+the canonical domain of that identity provider SHOULD be used as the
+authentication method. The <spanx style="emph">canonical</spanx> domain for an identity provider is
+the domain that hosts the provider's sign in page. For example, the URI that
+should be used for Google Sign-in is <spanx style="verb">https://accounts.google.com</spanx>, while the
+URI that should be used for Facebook Sign-in accounts is
+<spanx style="verb">https://www.facebook.com</spanx>.
+</t>
+<t>Use of consistent authentication method URIs for identity providers is strongly
+recommended, as this helps with hint retrieval - use of federated credentials
+on other services can be surfaced more easily when consistent authentication
+methods are used.
+</t>
+</section>
+
+<section anchor="password-specifications" title="Password specifications">
+<t>services that support password based authentication often impose
+restrictions on what is considered to be a valid password for the service.
+While the intentions behind these restrictions are often well-meaning, the
+inconsistency of these restrictions across different services is a source of
+frustration for both users and credential managers.
+</t>
+<t>When credential managers attempt to generate passwords for a service, they are
+forced to use a &quot;lowest common denominator&quot; heuristic that produces broadly
+supported passwords. Even this can fail, requiring the user to modify the
+generated password.
+</t>
+<t>A better approach is for the service to declare its password restrictions
+in a format that can be consumed by credential managers. OpenYOLO defines
+a simple scheme for this, composed of the following pieces of information:
+</t>
+<t>
+<list style="symbols">
+<t>The set of allowed characters in a password, which MUST be a subset of the
+ASCII printable character set.</t>
+<t>The minimum and maximum length of a password.</t>
+<t>Zero or more <spanx style="emph">required character sets</spanx>. A required character set MUST be
+a subset of the allowed character set, and specify the minimum number of
+characters from this set that must occur in the password. Where multiple
+required character sets are defined, the sets MUST be disjoint.</t>
+</list>
+</t>
+<t>This is represented by the following protocol buffer message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message PasswordSpecification {
+  // required
+  string allowed = 1;
+
+  // required
+  uint32 min_size = 2;
+
+  // required
+  uint32 max_size = 3;
+
+  repeated RequiredCharSet required_sets = 4;
+}
+
+message RequiredCharSet {
+  // required
+  string chars = 1;
+
+  // required
+  uint32 count = 2;
+}
+</artwork></figure>
+<t>This allows the expression of most password restrictions. As an example,
+consider an authentication system that requires passwords be:
+</t>
+<t>
+<list style="symbols">
+<t>Composed of any ASCII printable characters</t>
+<t>Be between 6 and 128 characters long</t>
+<t>Have at least one upper case character and one number.</t>
+</list>
+</t>
+<t>This can be defined as follows (with the full contents of the allowed
+character set abbreviated):
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "allowed": "abcdef...",
+  "min_size": 6,
+  "max_size": 128,
+  "required_sets": [
+    {
+      "chars": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "count": 1
+    },
+    {
+      "chars": "1234567890",
+      "count": 1
+    }
+  ]
+}
+</artwork></figure>
+<t>Other common forms of credential, such as PIN numbers, can also be easily
+defined:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "allowed": "0123456789",
+  "min_size": 6,
+  "max_size": 6
+}
+</artwork></figure>
+<t>The default password specification used by OpenYOLO, where a provider does
+not explicitly specify an alternative, is:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "allowed": "abcdefghijkmnopqrstxyzABCDEFGHJKLMNPQRSTXY3456789",
+  "min_size": 12,
+  "max_size": 16,
+  "required_sets": [
+    {
+      "chars": "abcdefghijkmnopqrstxyz",
+      "count": 1
+    },
+    {
+      "chars": "ABCDEFGHJKLMNPQRSTXY",
+      "count": 1
+    },
+    {
+      "chars": "3456789",
+      "count": 1
+    }
+  ]
+}
+</artwork></figure>
+<t>This produces passwords of length 12 to 16 based on a
+&quot;distinguishable&quot; character set. Characters which look similar, such as
+l (Lima), I (India) and 1 (one) are omitted so as to avoid transcription errors
+should the user ever have to view and copy a generated password manually. It
+is designed to be broadly compatible and produce passwords with sufficient
+entropy to resist offline attacks, but it is still preferable for services
+to declare their own password restrictions.
+</t>
+<t>It is worth noting that this specification does not support the definition of the following types of password restriction:
+</t>
+<t>
+<list style="symbols">
+<t>Positional restrictions, such as &quot;the first character cannot be a number&quot;
+or &quot;the last two characters cannot be numbers&quot;.</t>
+<t>Semantic restrictions, such as &quot;the password cannot contain an english
+word&quot; or &quot;the password cannot contain a year&quot;.</t>
+</list>
+</t>
+<t>Such restrictions are either indicative of some anti-pattern in the underlying
+credential store (e.g. the credential is stored in plain text), or are just
+too difficult to define a clear specification of expected behavior.
+</t>
+</section>
+
+<section anchor="client-versions" title="Client versions">
+<t>OpenYOLO client libraries will typically be compiled in to service
+implementations, and therefore cannot be changed without releasing a new
+version of the service that client devices must download. Bugs are inevitable,
+and where these bugs impact the security of the client it is important to
+have a mechanism to protect services from the exploitation of these bugs.
+</t>
+<t>In order to facilitate this, requests sent from a service to a credential
+provider SHOULD carry a <spanx style="emph">client version</spanx> descriptor, which is typically
+compiled into the OpenYOLO client library they are using. This allows a
+credential provider to identify services which are using an exploitable version
+of the client library, and to reject requests from these clients.
+</t>
+<t>In OpenYOLO, a client version is composed of:
+</t>
+<t>
+<list style="symbols">
+<t>A <spanx style="emph">vendor</spanx> string, which identifies the author of the client. For the
+official client libraries shipped by the OpenID Foundation, this will be
+&quot;openid.net&quot;.</t>
+<t>A major, minor and patch version number. Each are non-negative numbers
+and typically represented in the human-readable form &quot;X.Y.Z&quot;, and follow
+the general principles of <eref target="http://semver.org/">Semantic Versioning</eref>.</t>
+</list>
+</t>
+<t>In order to prevent trivial modification of the client version, it SHOULD
+be statically compiled in to the client library. There is no way to guarantee
+that the client version cannot be tampered with by an attacker, however; as
+such, client versions SHOULD NOT be interpreted as authoritative, and
+SHOULD NOT be used for purposes other than blacklisting of known problematic
+client versions only.
+</t>
+<t>In protocol buffer form, a client version is represented by the
+following message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message ClientVersion {
+  // required
+  string vendor = 1;
+
+  // required
+  uint32 major = 3;
+
+  // required
+  uint32 minor = 4;
+
+  // required
+  uint32 patch = 5;
+}
+</artwork></figure>
+<t>An example client version could look like:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "vendor": "openid.net",
+  "major": 1,
+  "minor": 0,
+  "patch": 12
+}
+</artwork></figure>
+</section>
+</section>
+
+<section anchor="operations" title="Operations">
+<t>OpenYOLO defines four core operations:
+</t>
+<t>
+<list style="symbols">
+<t><spanx style="emph">hint retrieval</spanx>: Provides basic account information to help create a new
+account.</t>
+<t><spanx style="emph">credential retrieval</spanx>: Provides access to an existing stored credential for
+the requesting service.</t>
+<t><spanx style="emph">credential saving</spanx>: Allows a service to store or update a credential in
+a credential provider.</t>
+<t><spanx style="emph">credential deletion</spanx>: Allows a service to delete a credential which is no
+longer valid.</t>
+</list>
+</t>
+<t>A provider MAY implement any subset of these operations; none are required.
+Each operation is described in more detail in the following sections.
+</t>
+
+<section anchor="hint-retrieval" title="Hint retrieval">
+<t>When an service wants to create a new account for the user, they typically
+need the following core pieces of information:
+</t>
+<t>
+<list style="symbols">
+<t>The <spanx style="emph">authentication method</spanx> that the user prefers to use, drawn from the
+set that the service supports. For instance, a service might allow a user
+to create an account with a phone number, Google Sign-in or Facebook
+Sign-in. If a non-federated authentication method is used, a
+<spanx style="emph">generated password</spanx> that conforms to the service's password restrictions
+is desirable.</t>
+<t>A unique <spanx style="emph">identifier</spanx> for the account, which is typically an email address,
+or phone number that would also be used for account recovery. For many
+services, proof of access to this identifier is crucial, and so
+an ID token is also desired to avoid an out-of-context verification.</t>
+<t>A <spanx style="emph">display name</spanx> and <spanx style="emph">profile picture</spanx> for the user, in order to personalize
+the service. Where it is possible for a user to have multiple accounts with
+the service, the display name and profile picture help the user to
+distinguish between these accounts.</t>
+</list>
+</t>
+<t>The OpenYOLO <spanx style="emph">hint retrieval</spanx> operation allows a service to request this
+information from the credential provider. In response, the credential provider
+is expected to present a choice of the user's commonly-used identifiers or
+federated credentials, enabling a &quot;single tap&quot; account creation experience.
+After selection, the provider might return a Credential object representing
+the user's selection, optionally including a generated password or ID token
+if applicable. A hint MUST NOT be returned automatically by a credential
+provider - user interaction is strictly required before any personally
+identifying information is returned.
+</t>
+<t>Where a proof of access ID token is desired, a service MUST declare the
+<spanx style="emph">token providers</spanx> that is supports. Additionally, for each supported token
+provider, a <spanx style="emph">client ID</spanx> MAY be required. This is typically a value
+generated by the token provider during registration as an OAuth2 client.
+Finally, a <spanx style="emph">nonce</spanx> can be provided that will be included in any generated
+ID token, as a protection against replay attacks. Non-standard properties
+specific to each token provider MAY be specified via an additional properties
+map.
+</t>
+
+<section anchor="hint-request-message" title="Hint request message">
+<t>A hint retrieval request is represented by the following protocol buffer
+message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message HintRetrieveRequest {
+    ClientVersion client_version = 1;
+
+    // at least one authMethod required
+    repeated AuthenticationMethod auth_methods = 2;
+
+    PasswordSpecification password_spec = 3;
+    map&lt;string, TokenRequestInfo&gt; supported_token_providers = 4;
+    map&lt;string, bytes&gt; additional_props = 5;
+}
+
+message TokenRequestInfo {
+    string client_id = 1;
+    string nonce = 2;
+    map&lt;string, bytes&gt; additional_props = 3;
+}
+</artwork></figure>
+<t>A simple hint request could then look like the following:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "auth_methods": [
+    "openyolo://email",
+    "https://accounts.google.com",
+    "https://www.facebook.com"
+  ]
+}
+</artwork></figure>
+<t>This indicates that the service supports email and password based
+authentication, Google Sign-in and Facebook Sign-in. The service has not
+declared a password specification, therefore the OpenYOLO default specification
+SHOULD be used by the credential provider if necessary. No supported token
+providers have been specified, therefore no ID token is desired.
+</t>
+<t>A more complex request, with a custom password specification and two supported
+token provider could look like:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "auth_methods": [
+    "openyolo://email"
+  ],
+  "password_spec": {
+    "allowed": "0123456789",
+    "min_size": 6,
+    "max_size": 6
+  },
+  "supported_token_providers": {
+    "https://accounts.google.com": {
+      "client_id": "CLIENT.apps.googleusercontent.com",
+      "nonce": "asdf123"
+    },
+    "https://auth.example.com": {
+      "client_id": "11451",
+      "nonce": "asdf123"
+    }
+  }
+}
+</artwork></figure>
+</section>
+
+<section anchor="hint-response-message" title="Hint response message">
+<t>A hint retrieval response is represented by the following protocol buffer
+message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message HintRetrieveResult {
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    BAD_REQUEST = 1;
+    HINT_SELECTED = 2;
+    NO_HINTS_AVAILABLE = 3;
+    USER_REQUESTS_MANUAL_AUTH = 4;
+    USER_CANCELED = 5;
+  }
+
+  // required
+  ResultCode result_code = 1;
+
+  Hint hint = 2;
+  map&lt;string, bytes&gt; additional_props = 3;
+}
+</artwork></figure>
+<t>The result codes are defined as follows:
+</t>
+<t>
+<list style="symbols">
+<t><spanx style="verb">UNSPECIFIED</spanx>: The generic catch-all for a request failure. This SHOULD NOT
+be used by providers, unless the other defined response codes do not apply.</t>
+<t><spanx style="verb">BAD_REQUEST</spanx>: The request sent by the client was malformed or violated some
+security constraint enforced by the provider. This error should be treated
+as permanent; repeating the exact same request should result in the same
+error code response.</t>
+<t><spanx style="verb">HINT_SELECTED</spanx>: The user selected a hint, which has been returned in the
+hint field of the message.</t>
+<t><spanx style="verb">NO_HINTS_AVAILABLE</spanx>: No hints are available that match the constraints of the
+request.</t>
+<t><spanx style="verb">USER_REQUESTS_MANUAL_AUTH</spanx>: The user canceled the selection of a hint in
+a manner that indicates they wish to proceed with authentication, but by
+manually entering their details. Providers SHOULD return this code
+if they display an option like &quot;none of the above&quot; or &quot;use different account&quot;
+and the user selects it.</t>
+<t><spanx style="verb">USER_CANCELED</spanx>: The user canceled the selection of a hint in a manner that
+indicates they do not wish to authenticate at this time. Providers SHOULD
+return this code if:
+<list style="symbols">
+<t>The user presses the back button on their device</t>
+<t>The user clicks outside the control area of a modal dialog</t>
+<t>The user chooses some explicit option like &quot;not now&quot;.</t>
+</list></t>
+</list>
+</t>
+<t>An email and password credential hint that could be returned for a requesting
+app &quot;com.example.app&quot; could be:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "result_code": "HINT_SELECTED",
+  "hint": {
+    "id": "jblack@example.com",
+    "auth_method": "openyolo://email",
+    "display_name": "Jack Black",
+    "display_picture_uri": "https://www.robohash.org/dcd65581?set=3",
+    "generated_password": "YjW5Zvn3Fc7fY",
+    "id_token":
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX
+        VCJ9.eyJzdWIiOiJqZG9lQGdtYWlsLmNv
+        bSIsImF1ZCI6Imh0dHBzOi8vbG9naW4uZ
+        XhhbXBsZS5jb20iLCJpc3MiOiJodHRwcz
+        ovL2F1dGguZXhhbXBsZS5jb20iLCJuYW1
+        lIjoiSmFuZSBEb2UifQ.CibuoaNMO-2pR
+        QjWUbJMpMLWjKB34AMWCR4pIWD5tnE"
+  }
+}
+</artwork></figure>
+<t>Alternatively, a federated credential hint for Google Sign-in might look like:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "result_code": "HINT_SELECTED",
+  "hint": {
+    "id": "jdoe@gmail.com",
+    "auth_method": "https://accounts.google.com",
+    "display_name": "John Doe"
+  }
+}
+</artwork></figure>
+</section>
+
+<section anchor="example-hint-retrieval-scenario" title="Example hint retrieval scenario">
+<t>Jane Doe is visiting the travel site <spanx style="verb">https://adventures.example.com</spanx> for the
+first time. Upon first page load, the site attempts to retrieve an existing
+credential using OpenYOLO, but nothing is saved so it does not interrupt
+Jane's flow further at this point.
+</t>
+<t>After browsing a few travel packages, Jane notices a button with
+label &quot;save for later&quot;, and decides to press it. The service navigates to
+an account creation screen, explaining that an account must be created to
+save the package. At this point, the service sends a hint retrieval request,
+and a hint selector dialog is presented:
+</t>
+
+<figure align="center"><artwork align="center">
++------------------------------------+
+|                              +---+ |
+| Continue With:               | X | |
+|                              +---+ |
+| +--------------------------------+ |
+|                                    |
+|  +---+ Jane Doe                    |
+|  | O |                             |
+|  |/_\| jdoe@gmail.com              |
+|  +---+                             |
+|        (with generated password)   |
+|                                    |
+| +--------------------------------+ |
+|                                    |
+|  +---+ John Doe                    |
+|  | O |                             |
+|  |/_\| john@example.com            |
+|  +---+                             |
+|        (with generated password)   |
+|                                    |
+| +--------------------------------+ |
+|                                    |
+|  +---+ Jill Doe                    |
+|  | O |                             |
++--+---+-----------------------------+
+</artwork></figure>
+<t>Jane selects her most commonly used email address; a password is generated and
+a credential returned to the service, and the provider is able to produce
+an ID token for the selected email address.
+</t>
+<t>The service utilizes the returned hint to bootstrap the new account, and after
+successfully creating the account requests that the credential provider
+save the credential. As the credential has not been modified by the site
+from the details in the returned hint, it saves the credential automatically.
+</t>
+<t>From Jane's perspective, this all happens from a single click on an account
+in a presented dialog. She is now signed in, and the travel package she
+selected is now saved to her account so she can return to it later.
+</t>
+</section>
+</section>
+
+<section anchor="credential-retrieval" title="Credential retrieval">
+<t>Where an existing credential is known for a service, it is often beneficial to
+the service and the user for that credential to be retrieved and used for
+authentication as early as possible. This allows the service to be appropriately
+personalized to the user, such as providing shopping recommendations based on
+past purchases. This SHOULD, of course, respect the user's preferences, as
+there are many legitimate use cases where a user might wish to browse a service
+in a signed-out state.
+</t>
+
+<section anchor="credential-request-message" title="Credential request message">
+<t>A credential retrieval request is represented by the following protocol
+buffer message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message CredentialRetrieveRequest {
+    ClientVersion client_version = 1;
+
+    // at least one authMethod required
+    repeated AuthenticationMethod auth_methods = 2;
+
+    map&lt;string, TokenRequestInfo&gt; supported_token_providers = 3;
+    bool require_user_mediation = 4;
+    map&lt;string, bytes&gt; additional_props = 5;
+}
+</artwork></figure>
+<t>The service lists the authentication methods that it supports, which are used
+to filter the set of credentials that are stored by the credential provider.
+Similar to hint requests, the service can also specify its supported token
+providers - the return of a valid ID token can provide an additional signal
+to the service that this login attempt is legitimate.
+</t>
+<t>To prevent automatic sign-in loops, where a user signs out and is
+inadvertently signed back in again automatically by a credential retrieve
+request, the <spanx style="verb">require_user_mediation</spanx> flag can be set to true. If absent
+from the request message, this is assumed to be false. When true, and
+one or more credentials are available, the provider MUST require an explicit
+credential selection from the user, even if only one option is available. This
+then gives the user the opportunity to more clearly state their intent in an
+account-switch scenario, by rejecting the presented credential and entering an
+account creation or manual sign-in flow.
+</t>
+<t>In response to a credential request, the credential provider can either:
+</t>
+<t>
+<list style="symbols">
+<t>directly return a credential for automatic sign-in</t>
+<t>Show a credential picker to the user</t>
+<t>Return a failure result code if no matching credentials are available.</t>
+</list>
+</t>
+<t>Automatically returning a credential is optional, and if it is a facility
+provided by the credential provider, SHOULD be something that the user can
+disable. A credential SHOULD NOT be returned by a provider unless it
+believes that the credential is a valid, existing credential for the requesting
+service.
+</t>
+<t>An example credential retrieval request could look like:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "auth_methods": [
+    "openyolo://phone",
+    "https://www.facebook.com"
+  ]
+}
+</artwork></figure>
+</section>
+
+<section anchor="credential-response-message" title="Credential response message">
+<t>The response to a credential request is represented by the following protocol
+buffer message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message CredentialRetrieveResult {
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    BAD_REQUEST = 1;
+    CREDENTIAL_SELECTED = 2;
+    NO_CREDENTIALS_AVAILABLE = 3;
+    USER_REQUESTS_MANUAL_AUTH = 4;
+    CANCEL_AUTH = 5;
+  }
+
+  // required
+  ResultCode result_code = 1;
+
+  Credential credential = 2;
+  map&lt;string, bytes&gt; additional_props = 3;
+}
+</artwork></figure>
+<t>The result codes are defined as follows:
+</t>
+<t>
+<list style="symbols">
+<t><spanx style="verb">UNSPECIFIED</spanx>: The generic catch-all for a request failure. This SHOULD NOT
+be used by providers, unless the other defined response codes do not apply.</t>
+<t><spanx style="verb">BAD_REQUEST</spanx>: The request sent by the client was malformed or violated some
+security constraint enforced by the provider. This error should be treated
+as permanent; repeating the exact same request should result in the same
+error code response.</t>
+<t><spanx style="verb">CREDENTIAL_SELECTED</spanx>: The user selected a hint, which has been returned in
+the hint field of the message.</t>
+<t><spanx style="verb">NO_CREDENTIALS_AVAILABLE</spanx>: No credentials are available that match the
+constraints of the request.</t>
+<t><spanx style="verb">USER_REQUESTS_MANUAL_AUTH</spanx>: The user canceled the selection of a hint in
+a manner that indicates they wish to proceed with authentication, but by
+manually entering their details. Providers SHOULD return this code
+if they display an option like &quot;none of the above&quot; or &quot;use different account&quot;
+and the user selects it.</t>
+<t><spanx style="verb">USER_CANCELED</spanx>: The user canceled the selection of a hint in a manner that
+indicates they do not wish to authenticate at this time. Providers SHOULD
+return this code if:
+<list style="symbols">
+<t>The user presses the back button on their device</t>
+<t>The user clicks outside the control area of a modal dialog</t>
+<t>The user chooses some explicit option like &quot;not now&quot;.</t>
+</list></t>
+</list>
+</t>
+<t>An example response could therefore look like:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "result_code": "CREDENTIAL_SELECTED",
+  "credential": {
+    "id": "jdoe",
+    "auth_domain": "https://login.example.com",
+    "auth_method": "https://www.facebook.com"
+  }
+}
+</artwork></figure>
+<t>Or, if the user was presented a list of credentials and did not select one:
+</t>
+
+<figure align="center"><artwork align="center" type="json">
+{
+  "result_code": "USER_CANCELED"
+}
+</artwork></figure>
+</section>
+
+<section anchor="example-credential-retrieval-scenario" title="Example credential retrieval scenario">
+<t>Jane has just bought a new phone and has just installed the &quot;TechNews&quot; app.
+When she opens the app, it immediately sends a credential retrieval request
+for email, Google and Facebook stored credentials. Jane frequently used
+TechNews on her old phone and had saved his email address and password with
+her credential provider. Her credential provider receives the request, and
+automatically returns the saved credential to the TechNews app and displays
+a notification that it has done so. The TechNews app uses the credential to
+sign in, and shows Jane her personalized feed of news.
+</t>
+</section>
+</section>
+
+<section anchor="credential-saving" title="Credential saving">
+<t>Once a user has created an account or successfully signed in using an existing
+account, it is beneficial to them for this credential to be saved to their
+credential provider. This ensures that when the user changes device, or their
+session is invalidated, re-authentication is simplified through the use
+of the credential retrieval operation.
+</t>
+<t>In the case where a service saves a credential that is already known, this is
+still a useful signal to the credential provider that the saved data is
+accurate. Where discrepancies are detected, such as a change in password, this
+provides an opportunity to confirm and update the saved data. Credential
+providers MAY allow automatic saving of credentials, but it is recommended
+to seek explicit confirmation from the user where the credential data is
+new or sensitive (i.e. contains a previously unseen identifier or password).
+</t>
+<t>How this confirmation is solicited from the user is outside the scope of this
+specification; the reference implementation uses the following confirmation
+dialog style design:
+</t>
+
+<figure align="center"><artwork align="center">
++------------------------------------+
+|                                    |
+| Save your password for ExampleApp  |
+|         to ExampleProvider?        |
+|                                    |
+|    +----+ +--------------------+   |
+|    | OK | | Never for this app |   |
+|    +----+ +--------------------+   |
+|                                    |
++------------------------------------+
+</artwork></figure>
+
+<section anchor="save-request-message" title="Save request message">
+<t>A save credential request is represented by the following protocol buffer
+message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message CredentialSaveRequest {
+    ClientVersion client_version = 1;
+
+    // required
+    Credential credential = 2;
+
+    map&lt;string, bytes&gt; additional_props = 3;
+}
+</artwork></figure>
+</section>
+
+<section anchor="save-response-message" title="Save response message">
+
+<figure align="center"><artwork align="center" type="protobuf">
+message CredentialSaveResult {
+
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    BAD_REQUEST = 1;
+    SAVED = 2;
+    PROVIDER_REFUSED = 3;
+    USER_CANCELED = 4;
+    USER_REFUSED = 5;
+  }
+
+  // required
+  ResultCode result_code = 1;
+
+  map&lt;string, bytes&gt; additional_props = 2;
+}
+</artwork></figure>
+<t>The result codes are defined as follows:
+</t>
+<t>
+<list style="symbols">
+<t><spanx style="verb">UNSPECIFIED</spanx>: The generic catch-all for a request failure. This SHOULD NOT
+be used by providers, unless the other defined response codes do not apply.</t>
+<t><spanx style="verb">BAD_REQUEST</spanx>: The request sent by the client was malformed or violated some
+security constraint enforced by the provider. This error should be treated
+as permanent; repeating the exact same request should result in the same
+error code response.</t>
+<t><spanx style="verb">SAVED</spanx>: The credential was saved, or an equivalent credential was updated.</t>
+<t><spanx style="verb">PROVIDER_REFUSED</spanx>: The provider refused to save the credential, due to
+some policy restriction. For example, a provider may refuse to update an
+existing credential if it is stored in a shared keychain. The client
+SHOULD NOT request to save this credential again.</t>
+<t><spanx style="verb">USER_CANCELED</spanx>: The user dismissed the request to save the credential,
+by either pressing the back button, clicking outside the area of a modal
+dialog, or some other &quot;soft&quot; cancelation that is not an explicit refusal
+to delete the credential. The client MAY request to save this credential
+again at a later time.</t>
+<t><spanx style="verb">USER_REFUSED</spanx>: The user refused the request to save this credential. The
+client SHOULD NOT request to save this credential again.</t>
+</list>
+</t>
+</section>
+</section>
+
+<section anchor="credential-deletion" title="Credential deletion">
+<t>Stale credentials stored in a credential provider are a source of frustration
+for users. Stale credentials are particularly common in browsers that rely on
+heuristics to detect password changes and update saved credentials.
+</t>
+<t>When a credential is stale, it only serves as a barrier to
+authentication. In most cases, the user will be forced to perform a tedious account recovery process, and if they do not remember to manually delete the
+stale credential, will likely be faced with the same issue again in the future.
+</t>
+<t>In order to provide services a way to flag stale credentials to a provider, a
+credential deletion operation is defined.
+Credential providers SHOULD NOT allow automatic deletion of credentials, as
+this would allow misbehaving services to delete valid credentials. Financial
+institutions are notorious for these kinds of user-hostile policies, and might
+attempt to delete valid credentials as a misguided way to &quot;protect&quot; the user.
+As such, credential deletion SHOULD require explicit user confirmation.
+Where this is done legitimately, such as after a retrieved credential is
+discovered to be invalid or a user deletes their account, the request for
+confirmation will not be surprising to the user.
+</t>
+
+<section anchor="delete-request-message" title="Delete request message">
+<t>A credential deletion request is represented by the following protocol buffer
+message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message CredentialDeleteRequest {
+    ClientVersion client_version = 1;
+
+    // required
+    Credential credential = 2;
+
+    map&lt;string, bytes&gt; additional_props = 3;
+}
+</artwork></figure>
+</section>
+
+<section anchor="delete-response-message" title="Delete response message">
+<t>A credential deletion response is represented by the following protocol buffer
+message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message CredentialDeleteResult {
+  enum ResultCode {
+    UNSPECIFIED = 0;
+    BAD_REQUEST = 1;
+    DELETED = 2;
+    NO_MATCHING_CREDENTIAL = 3;
+    PROVIDER_REFUSED = 4;
+    USER_CANCELED = 5;
+    USER_REFUSED = 6;
+  }
+
+  // required
+  ResultCode result_code = 1;
+
+  map&lt;string, bytes&gt; additional_props = 2;
+}
+</artwork></figure>
+<t>The result codes are defined as follows:
+</t>
+<t>
+<list style="symbols">
+<t><spanx style="verb">UNSPECIFIED</spanx>: The generic catch-all for a request failure. This SHOULD NOT
+be used by providers, unless the other defined response codes do not apply.</t>
+<t><spanx style="verb">BAD_REQUEST</spanx>: The request sent by the client was malformed or violated some
+security constraint enforced by the provider. This error should be treated
+as permanent; repeating the exact same request should result in the same
+error code response.</t>
+<t><spanx style="verb">DELETED</spanx>: The credential was deleted.</t>
+<t><spanx style="verb">NO_MATCHING_CREDENTIAL</spanx>: The credential was not deleted, as there was no
+matching credential to delete.</t>
+<t><spanx style="verb">PROVIDER_REFUSED</spanx>: The provider refused to delete the provided credential,
+due to some policy restriction it is enforcing. For example, a provider
+could refuse to delete a credential from a shared keychain. The client
+SHOULD NOT request to delete this credential again.</t>
+<t><spanx style="verb">USER_CANCELED</spanx>: The user dismissed the request to delete the credential,
+by either pressing the back button, clicking outside the area of a modal
+dialog, or some other &quot;soft&quot; cancelation that is not an explicit refusal
+to delete the credential. The client MAY request to delete this credential
+again at a later time.</t>
+<t><spanx style="verb">USER_REFUSED</spanx>: The user explicitly refused to delete the credential,
+by selecting a &quot;do not delete&quot; (or similarly phrased) option in the
+presented UI. The client SHOULD NOT request to delete this credential again.</t>
+</list>
+</t>
+</section>
+</section>
+</section>
+
+<section anchor="android-specifics" title="Android specifics">
+<t>The OpenYOLO protocol on Android is designed to operate on any Android API 15+
+device, including devices which do not have Google Play Services available.
+OpenYOLO operation requests and responses are handled using two of the core
+communication primitives on Android: broadcast messages and activity intents.
+API 15+ is specifically REQUIRED in order to be able to &quot;target&quot; broadcast
+messages to specific apps, using <spanx style="verb">Intent.setPackage</spanx>. See the
+<eref target="https://developer.android.com/guide/components/broadcasts.html#security_considerations_and_best_practices">&quot;Security considerations and best practices&quot;</eref> section of
+the <eref target="https://developer.android.com/guide/components/broadcasts.html">android broadcasts documentation</eref> for more information.
+</t>
+<t>Devices with Google Play Services already have a credential provider available,
+in the form of Smart Lock for Passwords. In addition to this, the
+user may have installed an additional credential manager. In such a situation
+is it common for a user to have credentials split across these two providers;
+as such, it is particularly important on Android to be able to query multiple
+providers. To service this goal, this specification also defines the
+Background Broadcast Query (BBQ) protocol, which is used to perform the initial
+step of requesting credentials from installed providers.
+</t>
+<t>Hint, save and delete requests are simpler, as there is no need to interact with
+multiple credential providers. For these operations, an Intent is simply
+constructed for a credential provider, with the request message carried
+as a binary protocol buffer via an intent extra.
+</t>
+
+<section anchor="discovering-installed-providers" title="Discovering installed providers">
+<t>The set of installed credential providers on an Android device can be be
+determined using the system
+<eref target="https://developer.android.com/reference/android/content/pm/PackageManager.html">PackageManager</eref>
+query interface. As OpenYOLO providers do not need to support all defined
+operations in this spec, discovery is performed on a per-operation basis.
+</t>
+<t>For example, to discover whether a provider exists that supports hint
+retrieval, the following package manager query can be used:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+Intent hintIntent = new Intent("org.openyolo.hint");
+hintIntent.addCategory("org.openyolo");
+
+List&lt;ResolveInfo&gt; resolvedProviders =
+    mApplicationContext.getPackageManager()
+        .queryIntentActivities(hintIntent, 0);
+</artwork></figure>
+<t>Each OpenYOLO operation is mapped to an activity within the credential provider,
+each of which declares an intent filter with the &quot;org.openyolo&quot; category,
+and an operation-specific intent filter.
+</t>
+
+<section anchor="preferred-credential-providers-on-android" title="Preferred credential providers on Android">
+<t>In the future, Android or Google Play Services may provide a mechanism to
+store a user's preferred credential provider. However, in the meantime, a
+simple heuristic is specified that will determine the user's preferred
+credential provider in most cases:
+</t>
+<t>
+<list style="numbers">
+<t>Enumerate all the credential providers installed on the device.</t>
+<t>If there are no credential providers, or there are any <spanx style="emph">unknown providers</spanx>,
+then there is no preferred provider.</t>
+<t>If there is exactly one installed known provider, this it is the preferred
+provider.</t>
+<t>If there is more than one installed known provider, discount any providers
+that are pre-installed on the device. If there is only one remaining provider
+after discounting the pre-installed providers, this is the preferred
+provider.</t>
+<t>Otherwise, there is no preferred provider.</t>
+</list>
+</t>
+<t>Where there is no preferred provider, the user MUST be given the opportunity to
+explicitly select the provider they wish to use for the current operation.
+This minimizes the risk of &quot;security surprise&quot;, where the user finds themselves
+interacting with an unexpected credential provider.
+</t>
+<t>The heuristic takes into account that pre-installed providers, such as Google's
+Smart Lock for Passwords, are not providers the user has made a conscious
+choice to use. Therefore, when an additional provider is manually installed, it
+is more likely that the user's intent is to use that, rather than the
+pre-installed providers.
+</t>
+</section>
+</section>
+
+<section anchor="retrieving-hints" title="Retrieving Hints">
+<t>Hint requests on Android are dispatched to the credential provider using
+an <eref target="https://developer.android.com/reference/android/content/Intent.html">Intent</eref>. If a provider supports hint retrieval, it MUST
+declare this on the manifest entry for its hint activity, using the following intent filter:
+</t>
+
+<figure align="center"><artwork align="center" type="xml">
+&lt;intent-filter&gt;
+    &lt;action android:name="org.openyolo.hint"/&gt;
+    &lt;category android:name="org.openyolo" /&gt;
+&lt;/intent-filter&gt;
+</artwork></figure>
+<t>In order to send a retrieve request, the client creates a hint request message
+(specified in <xref target="hint-request-message"/>) and encodes it to its binary
+protocol buffer form. An activity intent is then created to send this to the
+credential provider, attaching the message bytes using an extra, named
+&quot;org.openyolo.hint.request&quot;.
+</t>
+<t>An example hint request could be created and dispatched as follows:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+HintRetrieveRequest request = HintRetrieveRequest.newBuilder()
+    .addAuthenticationMethod("openyolo://email")
+    .build();
+
+Intent hintIntent = new Intent()
+    .setPackage("com.example.provider");
+    .setAction("org.openyolo.hint")
+    .setCategory("org.openyolo")
+    .putExtra("org.openyolo.hint.request", request.toByteArray());
+
+startActivityForResult(hintIntent, RC_HINT);
+</artwork></figure>
+<t>This intent is dispatched by the client using
+<eref target="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</eref>. At this point the
+provider can interact with the user to allow them to select a hint. The
+provider creates a hint response message (specified in
+<xref target="hint-response-message"/>), and passes this back to the requester via
+<eref target="https://developer.android.com/reference/android/app/Activity.html#setResult%28int,%20android.content.Intent%29">setResult</eref>. The intent data returned to the
+client carries the hint result message bytes using an extra, named
+&quot;org.openyolo.hint.result&quot;. Additionally, the result code contained in that
+hint result is also used as the result code for the activity when it terminates.
+</t>
+<t>An example hint result could therefore be sent with the following code:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+HintRetrieveResult result = HintRetrieveResult.newBuilder()
+    .setResultCode(NO_HINTS_AVAILABLE)
+    .build();
+Intent hintResultData = new Intent()
+    .putExtra(
+        "org.openyolo.hint.result",
+        result.toByteArray());
+
+setResult(result.getResultCode(), hintResultData);
+</artwork></figure>
+</section>
+
+<section anchor="retrieving-credentials" title="Retrieving credentials">
+<t>OpenYOLO specifies two methods for credential retrieval; one is structurally
+very similar to hint requests, and another which allows for credential
+requests to be sent to multiple providers in parallel. The parallel request
+mechanism is built on top of the &quot;direct request&quot; method, so the direct
+request method will be specified first.
+</t>
+<t>Direct credential retrieve requests on Android are dispatched to the credential
+provider using an <eref target="https://developer.android.com/reference/android/content/Intent.html">Intent</eref>. If a provider supports credential
+retrieval, it MUST declare this on the manifest entry for its retrieve activity,
+using the following intent filter:
+</t>
+
+<figure align="center"><artwork align="center" type="xml">
+&lt;intent-filter&gt;
+    &lt;action android:name="org.openyolo.credential.retrieve"/&gt;
+    &lt;category android:name="org.openyolo" /&gt;
+&lt;/intent-filter&gt;
+</artwork></figure>
+
+<section anchor="dispatching-a-direct-retrieve-request" title="Dispatching a direct retrieve request">
+<t>In order to make a credential request, the client creates a credential request
+message (specified in <xref target="credential-request-message"/>) and encodes it to
+its binary protocol buffer form. An activity Intent is then created to send
+this to the credential provider. The credential request message MUST be added
+to the activity Intent using an extra, named &quot;org.openyolo.credential.request&quot;.
+This intent is then dispatched by the client using
+<eref target="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</eref>.
+</t>
+<t>An example credential request can be created and dispatched as follows:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+CredentialRetrieveRequest request =
+    CredentialRetrieveRequest.newBuilder()
+        .addAuthenticationMethod("openyolo://email")
+        .build();
+
+byte[] credentialRequestBytes = request.toByteArray();
+
+Intent hintIntent = new Intent()
+    .setPackage("com.example.provider");
+    .setAction("org.openyolo.credential.retrieve")
+    .setCategory("org.openyolo")
+    .putExtra(
+        "org.openyolo.credential.retrieve.request",
+        request.toByteArray());
+
+startActivityForResult(hintIntent, RC_RETRIEVE);
+</artwork></figure>
+</section>
+
+<section anchor="returning-a-response" title="Returning a response">
+<t>The provider can perform any processing and user interaction required to
+release a credential. Once complete, the provider creates a retrieve response
+message (specified in <xref target="credential-response-message"/>), and passes this
+back to the requester via <eref target="https://developer.android.com/reference/android/app/Activity.html#setResult%28int,%20android.content.Intent%29">setResult</eref>. The intent data
+returned to the client MUST carry the retrieve result using an extra, named
+&quot;org.openyolo.credential.retrieve.result&quot;. Additionally, the result code
+contained in that credential result MUST match the result code for the
+provider activity.
+</t>
+<t>An example credential result could therefore be created and returned with the
+following code:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+Credential credential = Credential.newBuilder()
+    .setId("jdoe@example.com")
+    .setAuthDomain("android://sha256-aF...@com.example.app")
+    .setAuthMethod("openyolo://email")
+    .setPassword("CorrectH0rseBatterySt4ple")
+    .build();
+
+CredentialRetrieveResult result =
+    CredentialRetrieveResult.newBuilder()
+        .setResultCode(CREDENTIAL_SELECTED)
+        .setCredential(credential)
+        .build();
+
+Intent retrieveResultData = new Intent()
+    .putExtra(
+        "org.openyolo.credential.retrieve.result",
+        result.toByteArray());
+
+setResult(result.getResultCode(), retrieveResultData);
+finish();
+</artwork></figure>
+</section>
+
+<section anchor="parallel-credential-retrieval" title="Parallel credential retrieval">
+<t>Credential retrieve requests can be sent to multiple providers in parallel,
+using the Background Broadcast Query protocol (see <xref target="the-background-broadcast-query-protocol-bbq"/>) designed for this purpose.
+If a provider supports direct credential retrieval, it MUST also support
+parallel credential retrieval as specified in this section.
+</t>
+<t>Parallel credential retrieval is particularly useful where more than one
+provider is installed and actively used by the user on their device. This often
+occurs where there is no easy integration for third party password managers
+into system services, such as mobile browsers, which do not have a plugin
+mechanism. In this scenario, there can be a disjoint disjoint set of
+credentials stored in the various providers, so querying them all increases the
+probability that a usable credential can be found.
+</t>
+<t>The query data type used for credential requests is &quot;org.openyolo.credential&quot;,
+with a credential request message (specified in
+<xref target="credential-request-message"/>) as the query data. Providers respond to the BBQ query with the following protocol buffer response message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message CredentialRetrieveBbqResponse {
+    bytes retrieve_intent = 1;
+    map&lt;string, bytes&gt; additional_props = 2;
+}
+</artwork></figure>
+<t>This response MAY carry an intent that can be used to retrieve a
+credential from a provider. Providers do not return an intent if they know that
+they do not have a credential matching the request. Providers MAY respond
+with a retrieve intent even if they do not know that they have a credential
+available: providers which use a master password to encrypt their stores which
+is not stored to disk may require the user to take an action to unlock the store
+before an accurate answer can be determined.
+</t>
+<t>Where multiple providers respond with an intent, the client SHOULD allow
+the user to choose which of these providers to proceed with. Once selected,
+the intent is dispatched to the provider using
+<eref target="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</eref>.
+</t>
+<t>The intent returned via the BBQ response MUST be structurally equivalent
+to the intents that a client would construct for direct credential
+retrieval, and the activity it is directed to MUST also follow the same
+protocol to return results.The provider MAY include additional information in
+the retrieve intent returned via BBQ, if convenient.
+</t>
+<t>As the intent returned via BBQ is visible to, and can potentially be modified
+by the requesting service, it MUST NOT be blindly trusted by the provider
+when used by the requester. Additionally, intents returned via the BBQ
+protocol MUST NOT contain any privacy or security sensitive information, such
+as pre-fetched credentials. Providers SHOULD implement tamper-detection for the
+intent, such that any modification of the data carried by the intent is
+rejected.
+</t>
+</section>
+</section>
+
+<section anchor="saving-credentials" title="Saving credentials">
+<t>Credential save requests on Android are dispatched to the credential provider
+using an <eref target="https://developer.android.com/reference/android/content/Intent.html">Intent</eref>. If a provider supports credential saving,
+it MUST declare this on the manifest entry for its retrieve activity,
+using the following intent filter:
+</t>
+
+<figure align="center"><artwork align="center" type="xml">
+&lt;intent-filter&gt;
+    &lt;action android:name="org.openyolo.credential.save"/&gt;
+    &lt;category android:name="org.openyolo" /&gt;
+&lt;/intent-filter&gt;
+</artwork></figure>
+
+<section anchor="dispatching-a-save-request" title="Dispatching a save request">
+<t>In order to make a save request, the client creates a save request message
+(specified in <xref target="save-request-message"/>) and encodes it to its binary
+protocol buffer form. An activity Intent is then created to send this to the
+credential provider. The save request message <spanx style="emph">must</spanx> be added to the activity
+Intent using an extra, named &quot;org.openyolo.credential.save.request&quot;.
+This intent is dispatched by the client using
+<eref target="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</eref>.
+</t>
+<t>An example save request could be created and dispatched as follows:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+CredentialSaveRequest request = CredentialSaveRequest.newBuilder()
+    .setCredential(Credential.newBuilder()
+        .setId("jdoe@example.com")
+        .setAuthenticationDomain(
+            "android://sha256-...@com.example.app")
+        .setAuthenticationMethod(
+            "https://auth.example.com")
+        .setDisplayName("Jane Doe")
+        .build())
+    .build();
+
+Intent saveIntent = new Intent()
+    .setPackage("com.example.provider");
+    .setAction("org.openyolo.credential.save")
+    .setCategory("org.openyolo")
+    .putExtra(
+        "org.openyolo.credential.save.request",
+        request.toByteArray());
+startActivityForResult(saveIntent, RC_SAVE);
+</artwork></figure>
+</section>
+
+<section anchor="returning-a-response-1" title="Returning a response">
+<t>At this point the
+provider can perform any processing and user interaction required to save
+the credential. Once complete, the provider creates a save response message
+(specified in <xref target="save-response-message"/>), and passes this back to the
+requester via <eref target="https://developer.android.com/reference/android/app/Activity.html#setResult%28int,%20android.content.Intent%29">setResult</eref>. The intent data returned to the
+client MUST carry the save result using an extra, named
+&quot;org.openyolo.credential.save.result&quot;. Additionally, the result code contained
+in that save result MUST match the result code for the provider activity.
+</t>
+<t>An example save result could therefore be sent with the following code:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+CredentialSaveResult result = CredentialSaveResult.newBuilder()
+    .setResultCode(SAVED)
+    .build();
+
+Intent saveResultData = new Intent()
+    .putExtra(
+        "org.openyolo.credential.save.result",
+        result.toByteArray());
+
+setResult(result.getResultCode(), saveResultData);
+</artwork></figure>
+</section>
+</section>
+
+<section anchor="deleting-credentials" title="Deleting credentials">
+<t>Credential delete requests on Android are dispatched to the credential provider
+using an <eref target="https://developer.android.com/reference/android/content/Intent.html">Intent</eref>. If a provider supports credential deletion,
+it MUST declare this on the manifest entry for its deletion activity,
+using the following intent filter:
+</t>
+
+<figure align="center"><artwork align="center" type="xml">
+&lt;intent-filter&gt;
+    &lt;action android:name="org.openyolo.credential.delete"/&gt;
+    &lt;category android:name="org.openyolo" /&gt;
+&lt;/intent-filter&gt;
+</artwork></figure>
+<t>In order to make a delete request, the client creates a delete request message
+(specified in <xref target="delete-request-message"/>) and encodes it to its binary
+protocol buffer form. An activity Intent is then created to send this to the
+credential provider. The delete request message MUST be added to the activity
+Intent using an extra, named &quot;org.openyolo.credential.delete.request&quot;.
+</t>
+<t>An example delete request could be created and dispatched as follows:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+CredentialDeleteRequest request =
+    CredentialDeleteRequest.newBuilder()
+        .setCredential(
+            Credential.newBuilder()
+                .setId("jdoe@example.com")
+                .setAuthenticationDomain(/*...*/)
+                .setAuthenticationMethod(/*...*/)
+                .setPassword("wrongPassword")
+                .build())
+        .build();
+
+Intent deleteIntent = new Intent()
+    .setPackage("com.example.provider");
+    .setAction("org.openyolo.credential.delete")
+    .setCategory("org.openyolo")
+    .putExtra(
+        "org.openyolo.credential.delete.request",
+        request.toByteArray());
+
+startActivityForResult(deleteIntent, RC_DELETE);
+</artwork></figure>
+<t>This intent is dispatched by the client using
+<eref target="https://developer.android.com/reference/android/app/Activity.html#startActivityForResult%28android.content.Intent,%20int%29">startActivityForResult</eref>. At this point the
+provider can perform any processing and user interaction required to delete
+the credential. The provider creates a delete response message (specified in
+<xref target="delete-response-message"/>), and passes this back to the requester via
+<eref target="https://developer.android.com/reference/android/app/Activity.html#setResult%28int,%20android.content.Intent%29">setResult</eref>. The intent data returned to the
+client MUST carry the delete result using an extra, named
+&quot;org.openyolo.credential.delete.result&quot;. Additionally, the result code
+contained in that delete result MUST match the result code for the provider activity.
+</t>
+<t>An example save result could therefore be sent with the following code:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+CredentialDeleteResult result = CredentialDeleteResult.newBuilder()
+    .setResultCode(USER_REFUSED)
+    .build();
+
+Intent deleteResultData = new Intent()
+    .putExtra(
+        "org.openyolo.credential.delete.result",
+        result.toByteArray());
+
+setResult(result.getResultCode(), deleteResultData);
+</artwork></figure>
+</section>
+
+<section anchor="the-background-broadcast-query-protocol-bbq" title="The background broadcast query protocol (BBQ)">
+<t>BBQ is a protocol designed to allow an Android app to request data from multiple <spanx style="emph">data providers</spanx> on the device, in parallel. OpenYOLO for Android
+uses this protocol to facilitate credential retrieve requests
+(see <xref target="retrieving-credentials"/>).
+</t>
+<t>BBQ Requests and responses are sent as targeted broadcast messages, with
+protocol buffers used to encode the request and response data. The use of
+broadcast messages allows implementations to be fully asynchronous, and
+protocol buffers allow messages to be compact and efficient, while avoiding
+common issues with custom Parcelable types.
+</t>
+
+<section anchor="bbq-requests" title="BBQ requests">
+<t>A broadcast query has the following mandatory properties:
+</t>
+<t>
+<list style="symbols">
+<t>The data type being requested, described with
+<eref target="https://en.wikipedia.org/wiki/Reverse_domain_name_notation">reverse domain name notation</eref>, as is
+typically used for package names and intent actions in Android.
+For example, <spanx style="verb">org.openyolo.credential</spanx>.</t>
+<t>The package name of the requesting app, e.g. <spanx style="verb">com.example.app</spanx>.</t>
+<t>A randomly generated, 64-bit request ID. This is used to distinguish the
+request from other requests with the same data type that may not have been
+fully resolved.</t>
+<t>A randomly generated, 64-bit response ID. A separate response ID is generated
+for each expected responder, allowing responders to be distinguished and their
+identity to be recovered from the mapping of response ID to package name that
+is created prior to sending the request.</t>
+</list>
+</t>
+<t>An additional data-type specific message can be carried in the request if
+necessary, in the form of a byte-array (typically an encoded protocol buffer).
+Additional parameters can also be encoded into the message as
+key-value pairs, allowing for extension of the protocol itself.
+</t>
+<t>The request is represented by the following protocol buffer message:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message BroadcastQuery {
+  // required
+  string data_type = 1;
+
+  // required
+  string requesting_app = 2;
+
+  // required
+  sfixed64 request_id = 3;
+
+  // required
+  sfixed64 response_id = 4;
+
+  bytes query_message = 5;
+  map&lt;string, bytes&gt; additional_props = 6;
+}
+</artwork></figure>
+
+<section anchor="accepting-bbq-requests" title="Accepting BBQ requests">
+<t>In order for a client to discover a BBQ query handler for a given query type,
+the handler MUST declare a broadcast receiver in their manifest as follows:
+</t>
+
+<figure align="center"><artwork align="center" type="xml">
+&lt;receiver
+    android:name="com.example.BbqQueryHandler"
+    android:exported="true"&gt;
+  &lt;intent-filter&gt;
+      &lt;action android:name="DATA_TYPE" /&gt;
+      &lt;category android:name="com.google.bbq" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+</artwork></figure>
+<t>This declares a BBQ query handler for &quot;DATA_TYPE&quot;, which would typically be
+substituted for the appropriate query type (e.g. &quot;org.openyolo.credential&quot;).
+The category &quot;com.google.bbq&quot; MUST be present for the client to
+recognize this receiver as a BBQ query handler.
+</t>
+</section>
+
+<section anchor="dispatching-requests" title="Dispatching requests">
+<t>A request is dispatched as targeted broadcast message, with a separate
+message sent to each potential handler. First, the
+requester uses the Android <eref target="https://developer.android.com/reference/android/content/pm/PackageManager.html">PackageManager</eref> API to
+determine the set of apps which can provide data of the required type:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+Intent intent = new Intent(dataType);
+intent.addCategory("com.google.bbq.query");
+List&lt;ResolveInfo&gt; responderInfos =
+    packageManager.queryBroadcastReceivers(intent, 0);
+</artwork></figure>
+<t>A separate request message is created for each potential responder, with a
+unique response ID, and sent as a targeted broadcast. The query
+protobol buffer message is carried as an intent extra under the name
+&quot;com.google.bbq.query.request&quot;:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+BroadcastQuery query = BroadcastQuery.newBuilder()
+    /* ... */
+    .setResponseId(idForResponder.get(responder))
+    .build();
+Intent bbqIntent = new Intent(dataType);
+bbqIntent.addCategory("com.google.bbq");
+bbqIntent.setPackage(responder);
+bbqIntent.setExtra("com.google.bbq.query.request", query.encode());
+context.sendBroadcast(bbqIntent);
+</artwork></figure>
+</section>
+</section>
+
+<section anchor="bbq-responses" title="BBQ responses">
+<t>A broadcast query response has the following mandatory properties:
+</t>
+<t>
+<list style="symbols">
+<t>The 64-bit request ID that the response is associated with, copied from the
+request.</t>
+<t>The 64-bit response ID unique to this response, copied from the request.</t>
+</list>
+</t>
+<t>The response copies the request and response IDs from the request message,
+and MAY include a data-type specific response message, if necessary.
+The absence of a data-type specific response message is generally interpreted
+to mean that the provider is unable to service the request.
+</t>
+<t>The structure of the query response message is therefore as follows:
+</t>
+
+<figure align="center"><artwork align="center" type="protobuf">
+message BroadcastQueryResponse {
+  // required
+  sfixed64 request_id = 1;
+
+  // required
+  sfixed64 response_id = 2;
+
+  bytes response_message = 3;
+  map&lt;string, bytes&gt; additional_props = 4;
+}
+</artwork></figure>
+
+<section anchor="accepting-bbq-responses" title="Accepting BBQ responses">
+<t>In order to receive a BBQ query response, the requester MUST dynamically
+register a broadcast receiver for an action of form
+<spanx style="verb">DATA_TYPE:REQUEST_ID</spanx>, where <spanx style="verb">DATA_TYPE</spanx> is the data type that is being
+queried, and <spanx style="verb">REQUEST_ID</spanx> is the zero-padded, upper-case hexadecimal form of
+the 64-bit request ID. For example, if the request ID were 51966 in decimal,
+the registered broadcast receiver action will be
+<spanx style="verb">org.openyolo.credential:000000000000CAFE</spanx>:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+IntentFilter filter = new IntentFilter();
+filter.addAction("org.openyolo.credential:000000000000CAFE");
+filter.addCategory("com.google.bbq");
+context.registerReceiver(new BroadcastReciever() { ... }, filter);
+</artwork></figure>
+<t>In order to avoid a race condition, this response handler MUST be registered
+prior to dispatching a query.
+</t>
+</section>
+
+<section anchor="dispatching-bbq-responses" title="Dispatching BBQ responses">
+<t>Responses are sent back to the requester from the query handler in the form of
+targeted broadcast messages to the dynamically registered action. The intent
+describing this response broadcast is constructed such that the action is
+set to the dynamically registered broadcast receiver of the client for the
+query, and the response protocol buffer message is carried as an extra
+with name &quot;com.google.bbq.query.response&quot;. For example:
+</t>
+
+<figure align="center"><artwork align="center" type="java">
+Intent responseBroadcast = new Intent(
+    "org.openyolo.credential:000000000000CAFE");
+responseBroadcast.addCategory("com.google.bbq");
+responseBroadcast.setPackage("com.example.app");
+responseBroadcast.putExtra("com.google.bbq.query.response",
+        responseMessage);
+sendBroadcast(responseBroadcast);
+</artwork></figure>
+</section>
+</section>
+
+<section anchor="use-of-timeouts" title="Use of timeouts">
+<t>In order to avoid waiting indefinitely for responses from faulty or slow
+receivers, a timeout SHOULD be used, after which absent responses MUST be
+treated as though the provider was unable to service the request. This is
+equivalent to a response message from the provider with no data-type specific
+message payload. A timeout of at least two seconds SHOULD be used; older
+Android devices under memory pressure can take this long to instantiate the
+broadcast receiver for the query handler and to allow it to process the
+request. Shorter timeouts MAY be used for particularly time sensitive queries,
+but with the expectation that providers may randomly fail to respond in time.
+</t>
+</section>
+</section>
+</section>
+
+<section anchor="security-on-rooted-devices" title="Security on rooted devices">
+<t>The overall security of OpenYOLO on Android is contingent on the security
+of the core communication primitives the platform provides. Specifically,
+it MUST be the case that intent results be private, and that targeted
+broadcast messages MUST only be visible to the designated recipient. These
+preconditions are also fundamental to Android security in general - if
+intent results or targeted broadcast messages can be eavesdropped by attackers,
+then no real security exists for inter-process communication.
+</t>
+<t>The BBQ protocol specifically relies on the integrity of the Android broadcast
+system  to guarantee the privacy of the messages sent between a requester and a
+provider. On a device with a custom Android ROM, it is potentially possible for
+a malicious app or system service with root access to read these messages, and
+expose plain-text passwords.
+</t>
+<t>Cryptography would provide no additional protection. If an attacker can read
+the private messages sent via the broadcast system, this will typically imply
+they have access to the memory location of the buffers. If ephemeral
+public-private key pairs are used, which don't authenticate either party, a
+man-in-the-middle attack is possible.
+</t>
+<t>There is no trusted third party on the device which can sign keys to prove they
+are associated to a particular app:
+</t>
+<t>
+<list style="symbols">
+<t>Key pairs cannot be distributed with the app, as they could be easily
+extracted from the application in advance, or on-demand with
+root access on the device.</t>
+<t>Keys cannot be dynamically signed by a trusted entity on the device (such as
+the platform itself, or Google Play Services) as these exchanges
+would also be susceptible to attack by anything with root access.</t>
+</list>
+</t>
+<t>As such, we recommend that credential providers warn the user if it can be
+detected that they are executing on an untrusted Android build. The option could
+be given to enable or disable credential exchange on such devices, with a
+warning as to the security risks of doing this. Generally, rooted devices are
+very risky to a user's security, so warning users of this fact prior to even
+allowing a password manager to be configured on the device is also advisable,
+as the following attacks are also potentially viable:
+</t>
+<t>
+<list style="symbols">
+<t>Directly reading keys and passwords from the memory space of the password
+manager or app</t>
+<t>Scraping the contents of EditText instances for passwords</t>
+<t>Key-logging the user</t>
+<t>Injecting code into the process space of the password manager or app</t>
+</list>
+</t>
+<t>The authors of this specification have no evidence that the kernel modifications
+required to break this protocol exist on real devices or popular distributed
+Android ROMs, but they are certainly feasible. As such, all rooted devices
+SHOULD be treated with suspicion when dealing with credential data.
+</t>
+</section>
+
+</middle>
+<back>
+
+</back>
+</rfc>
